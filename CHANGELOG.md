@@ -1,3 +1,7 @@
+# 0.4.4
+ - Pet Hearing bug fix, no more duplicate hearing
+ - Adding pet sounds to input speech; BCX compatiable
+
 # 0.4.3
  - Pet hearing based on profile
  - Wiki and link to wiki from MPA settings page

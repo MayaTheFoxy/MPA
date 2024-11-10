@@ -1,6 +1,8 @@
+import { FilterArrayFromArray } from "../util/general";
 import { HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
-// import { UpdateElementValues } from "./settings";
+import { UpdateElementValues } from "./settings";
+import { ApplyPetHearing, NonDisruptivePetSpeech } from "../util/petHearAndSpeak";
 
 const PlayerP: (C?: Character) => MPARecord = (C: Character = Player) =>
 {
@@ -19,17 +21,42 @@ function GetRecord(title: ModuleTitle, C: Character = Player): MPARecord
 
 // Make sure not in BCX banned words / phrases
 export const GARBLE_PHRASES = Object.freeze({
-    Human: "Hmmgm",
-    Custom: "",
-    Bunny: "Pon",
-    Cat: "Mew",
-    Cow: "Moo",
-    Dog: "Arf",
-    Fox: "Chirp",
-    Mouse: "Sqeak",
-    Pony: "Neigh",
-    Wolf: "Grrr"
+    Human: ["hmmgm", "mmmm", "mhhmmaa", "hmmm"],
+    Custom: [""],
+    Bunny: ["pon"],
+    Cat: ["meow", "mew", "nyah", "nya", "purr"],
+    Cow: ["moo"],
+    Dog: ["arf", "woof", "bark"],
+    Fox: ["chirp", "yip"],
+    Mouse: ["sqeak"],
+    Pony: ["neigh"],
+    Wolf: ["awoo"]
 });
+type PetSpeakingKeys = keyof typeof GARBLE_PHRASES;
+
+/**
+ * Get the pet garble phrases for the selected profile
+ * @param profile - Defaults to Player's profile if none provided
+ */
+function GetPetGarblePhrases(profile: PetSpeakingKeys = PlayerP(Player).type): string[]
+{
+    if (profile in GARBLE_PHRASES && profile !== "Custom")
+    {
+        return GARBLE_PHRASES[profile];
+    }
+    return (PlayerP(Player).garblePhrases as string).split(",").map((str) => str.trim());
+}
+
+/**
+ * Only include pet sounds that are permitted by BCX
+ * @param profile - Defaults to Player's profile
+ * @returns Phrases BCX won't get mad at
+ */
+function GetAllowedPetGarblePhrases(profile: PetSpeakingKeys = PlayerP(Player).type): string[]
+{
+    const bannedBCXWords = window?.bcx?.getModApi("MPA")?.getRuleState("speech_ban_words")?.customData?.bannedWords ?? [];
+    return FilterArrayFromArray(GetPetGarblePhrases(profile), bannedBCXWords);
+}
 
 export const PET_HEARING = Object.freeze({
     All: ["owner", "pet", "master", "mistress", "miss", "sir", "paw", "sit", "come", "down", "up",
@@ -48,6 +75,21 @@ export const PET_HEARING = Object.freeze({
         "stomp", "calm", "easy", "slow", "cart", "bay", "run", "race"],
     Wolf: ["bone", "wolf", "dog", "pup", "puppy", "heel"]
 });
+type PetHearingKeys = keyof typeof PET_HEARING;
+
+/**
+ *
+ * @param profile - Defaults to Player's profile
+ */
+function GetPetHearingPhrases(profile: PetHearingKeys = PlayerP(Player).type): string[]
+{
+    if (profile in PET_HEARING)
+    {
+        return PET_HEARING.All.concat(PET_HEARING[profile]);
+    }
+
+    return PET_HEARING.All;
+}
 
 export class ProfileModule extends Module
 {
@@ -66,27 +108,37 @@ export class ProfileModule extends Module
                 options: Object.keys(GARBLE_PHRASES),
                 value: "Human",
                 label: "Use a preset profile or make your own",
-                loop: true
-                // onSet(C)
-                // {
-                //     PlayerP(C).garblePhrases = GARBLE_PHRASES[PlayerP(C).type];
-                //     UpdateElementValues();
-                // }
+                loop: true,
+                onSet(C)
+                {
+                    PlayerP(C).garblePhrases = GARBLE_PHRASES[PlayerP(C).type].join(", ");
+                    UpdateElementValues();
+                }
             } as OptionSetting, {
                 name: "petHearing",
                 type: "checkbox",
                 active: () => true,
                 value: false,
                 label: "While deafened certain pet keywords can be picked up"
-            } as CheckboxSetting, /* {
+            } as CheckboxSetting, {
                 name: "garblePhrases",
                 type: "text",
                 active: (C) => PlayerP(C).type === "Custom",
-                value: GARBLE_PHRASES.Human,
+                value: GARBLE_PHRASES.Human.join(),
                 label: "Phrases you speak when unable to be understood",
                 maxChars: 1024,
                 width: 400
-            } as TextSetting, */{
+            } as TextSetting, {
+                name: "customGarblePhrases",
+                type: "record",
+                value: []
+            } as Setting, {
+                name: "petSpeaking",
+                type: "checkbox",
+                active: () => true,
+                value: false,
+                label: "Automatically make the above pet sounds while talking"
+            } as CheckboxSetting, {
                 name: "hardcore",
                 type: "checkbox",
                 active: () => true,
@@ -114,7 +166,9 @@ export class ProfileModule extends Module
     Load(): void
     {
         super.Load();
+        SpeechTransformAllEffects.push("petSpeak" as SpeechTransformName);
 
+        // Pet hearing
         HookFunction(this.Title, "SpeechTransformGagGarble", 5, ([text, intensity, ignoreOOC, ...args], next) =>
         {
             // MBS adds Character parameter to this, can use as an extra check for when to apply
@@ -128,74 +182,33 @@ export class ProfileModule extends Module
                 || PlayerP().petHearing === false
             )
             {
-                return next([text, intensity, ignoreOOC, ...args]);
+                return next([text, intensity, ignoreOOC]);
             }
-
-            // Split the input text into different substrings exluding the words you want to keep
-            // Step 1: Get the words you want to keep if any
-            const phrasesToKeep = PET_HEARING.All.concat(PET_HEARING[PlayerP()?.type]);
-            // Add the Player's name as a word they can hear
-            phrasesToKeep.push((Player.Nickname || Player.Name).toLocaleLowerCase());
-            // Add the Player's gender as in the example, "Good girl"
-            phrasesToKeep.push(Player.GetPronouns() === "SheHer" ? "girl" : "boy");
-
-            // Step 2: Find the matches if they exist in the orginal message
-            // Check lower case cuz the phrase we looking for in lower case, does not matter for final result, only want position
-            const message = text.toLocaleLowerCase();
-            const foundPhrases: { start: number; len: number }[] = [];
-            phrasesToKeep.forEach((phrase) =>
-            {
-                const regExp = new RegExp(`\\b${phrase}\\b`, "g");
-                const regexMatches = [...message.matchAll(regExp)];
-                regexMatches.forEach((match) =>
-                {
-                    foundPhrases.push({ start: match.index, len: phrase.length });
-                });
-            });
-
-            // No matches found so can skip and early return
-            if (foundPhrases.length === 0)
-            {
-                return next([text, intensity, ignoreOOC, ...args]);
-            }
-
-            // Sort so that it is constructed in the correct order when put back together; lower starting indexes first
-            foundPhrases.sort((a, b) => a.start - b.start);
-            // Remove any phrases that are found within OOC speech range;
-            const oocRanges = SpeechGetOOCRanges(text);
-            oocRanges.forEach((range) =>
-            {
-                for (let i = foundPhrases.length - 1; i >= 0; i--)
-                {
-                    const phrase = foundPhrases[i];
-                    // Remove if the phrase starts or ends within the ooc range
-                    if (
-                        (range.start < phrase.start && phrase.start < range.start + range.length)
-                        || (range.start < phrase.start + phrase.len && phrase.start + phrase.len < range.start + range.length)
-                    )
-                    {
-                        foundPhrases.splice(i, 1);
-                    }
-                }
-            });
-
-            // May need to check that one phrase does not start before another ends, and if so merge into a single longer entry
-
-            let lastIndex = 0;
-            let finalText = "";
-            foundPhrases.forEach((found) =>
-            {
-                // Before the phrase to omit
-                finalText += next([text.substring(lastIndex, found.start), intensity, ignoreOOC, ...args]);
-
-                // Phrase we want to omit
-                lastIndex = found.start + found.len;
-                finalText += text.substring(found.start, found.start + found.len);
-            });
-            // Last of the text to garble up
-            finalText += next([text.substring(lastIndex), intensity, ignoreOOC, ...args]);
-
-            return finalText;
+            return ApplyPetHearing([text, intensity, ignoreOOC], next, GetPetHearingPhrases());
         });
+
+        // Insert pet sounds on input for BCX support
+        HookFunction(this.Title, "CommandParse", 8, ([msg], next) =>
+        {
+            // Skip commands
+            // Skip if not attempting to apply pet speech
+            msg = msg.trim();
+            if (
+                msg.startsWith(CommandsKey)
+                || !PlayerP(Player).petSpeaking
+            )
+            {
+                return next([msg]);
+            }
+
+            return NonDisruptivePetSpeech(msg, next, GetAllowedPetGarblePhrases());
+        });
+    }
+
+    Unload(): void
+    {
+        super.Unload();
+
+        SpeechTransformAllEffects = SpeechTransformAllEffects.filter((transform) => transform as SpeechTransformName | "petSpeak" !== "petSpeak");
     }
 }
