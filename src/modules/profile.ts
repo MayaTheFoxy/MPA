@@ -1,7 +1,7 @@
 import { FilterArrayFromArray } from "../util/general";
 import { HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
-import { UpdateElementValues } from "./settings";
+import { ElementName } from "./settings";
 import { ApplyPetHearing, NonDisruptivePetSpeech } from "../util/petHearAndSpeak";
 
 const PlayerP: (C?: Character) => MPARecord = (C: Character = Player) =>
@@ -109,10 +109,21 @@ export class ProfileModule extends Module
                 value: "Human",
                 label: "Use a preset profile or make your own",
                 loop: true,
-                onSet(C)
+                onSet(C, value, prevValue)
                 {
-                    PlayerP(C).garblePhrases = GARBLE_PHRASES[PlayerP(C).type].join(", ");
-                    UpdateElementValues();
+                    const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
+                    if (value === "Custom")
+                    {
+                        PlayerP(C).garblePhrases = PlayerP(C).customGarblePhrases.join(", ");
+                        ElementValue(eleID, PlayerP(C).garblePhrases);
+                        return;
+                    }
+                    if (prevValue === "Custom")
+                    {
+                        PlayerP(C).customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
+                    }
+                    PlayerP(C).garblePhrases = (GARBLE_PHRASES[PlayerP(C).type] as string[]).join(", ");
+                    ElementValue(eleID, PlayerP(C).garblePhrases);
                 }
             } as OptionSetting, {
                 name: "petHearing",
@@ -127,7 +138,7 @@ export class ProfileModule extends Module
                 value: GARBLE_PHRASES.Human.join(),
                 label: "Phrases you speak when unable to be understood",
                 maxChars: 1024,
-                width: 400
+                width: 512
             } as TextSetting, {
                 name: "customGarblePhrases",
                 type: "record",

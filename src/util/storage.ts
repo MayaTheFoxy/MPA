@@ -1,7 +1,6 @@
 import { LocalizedText } from "../localization/localization";
 import { settings as currentSettings } from "./registerModules";
 import { AwaitPlayer } from "./sdk";
-import { UpdateElementValues } from "../modules/settings";
 import { SettingSync } from "../modules/dataSync";
 import { ModuleTitle } from "../modules/_module";
 import { MPA_VERSION } from "./constants";
@@ -74,7 +73,6 @@ export async function ResetStorage(): Promise<void>
     Player.ExtensionSettings.MPA = LZString.compressToBase64(JSON.stringify({ version: MPA_VERSION }));
     await LoadStorage();
     SaveStorage();
-    UpdateElementValues();
     return;
 }
 
