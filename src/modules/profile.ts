@@ -20,17 +20,19 @@ function GetRecord(title: ModuleTitle, C: Character = Player): MPARecord
 }
 
 // Make sure not in BCX banned words / phrases
+// Don't blame me for the selection, how are you supposed to type out these animal sounds
+// Half this came from chat gpt anyway, if you got something better, feel free to suggest it
 export const GARBLE_PHRASES = Object.freeze({
     Human: ["hmmgm", "mmmm", "mhhmmaa", "hmmm"],
     Custom: [""],
-    Bunny: ["pon"],
-    Cat: ["meow", "mew", "nyah", "nya", "purr"],
-    Cow: ["moo"],
-    Dog: ["arf", "woof", "bark"],
-    Fox: ["chirp", "yip"],
-    Mouse: ["sqeak"],
-    Pony: ["neigh"],
-    Wolf: ["awoo"]
+    Bunny: ["pon", "eep", "huff", "tk-tk", "nngh-nngh"],
+    Cat: ["meow", "mew", "nyah", "nya", "purr", "mrrow", "prrr"],
+    Cow: ["moo", "mooooo", "muuhhh", "moooah"],
+    Dog: ["arf", "woof", "bark", "ruff", "huff", "eep"],
+    Fox: ["chirp", "yip", "wow-wow", "yoww", "eep"],
+    Mouse: ["squeak", "eeek", "tch-tch", "wi-i-i", "sss"],
+    Pony: ["neigh", "whinny", "wheee", "snrt", "whooosh", "huff", "nnhhh-ker"],
+    Wolf: ["awoo", "aa-ooo", "woof", "ruff", "arf", "wiiip", "huff"]
 });
 type PetSpeakingKeys = keyof typeof GARBLE_PHRASES;
 
@@ -136,9 +138,9 @@ export class ProfileModule extends Module
                 type: "text",
                 active: (C) => PlayerP(C).type === "Custom",
                 value: GARBLE_PHRASES.Human.join(),
-                label: "Phrases you speak when unable to be understood",
+                label: "Pet sounds you make",
                 maxChars: 1024,
-                width: 512
+                width: 1024
             } as TextSetting, {
                 name: "customGarblePhrases",
                 type: "record",
