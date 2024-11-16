@@ -207,7 +207,7 @@ export class ProfileModule extends Module
             // Skip if not attempting to apply pet speech
             msg = msg.trim();
             if (
-                msg.startsWith(CommandsKey)
+                [CommandsKey, "*", "@"].includes(msg.charAt(0))
                 || !PlayerP(Player).petSpeaking
             )
             {
