@@ -205,7 +205,7 @@ export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) 
                 }
                 else
                 {
-                    newMsg += `${Math.random() < INVOLUNTARY_RUSHED_SPEAK_PERCENTAGE ? "," : ""} ${petSound},`;
+                    newMsg += `${Math.random() < INVOLUNTARY_RUSHED_SPEAK_PERCENTAGE && !(previousWord ?? "").endsWith(",") ? "," : ""} ${petSound},`;
                 }
             }
             newMsg += word;
