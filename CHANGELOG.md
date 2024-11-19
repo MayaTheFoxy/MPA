@@ -1,6 +1,7 @@
-# 0.4.4
+# 0.4.4 (Dev branch)
  - Pet Hearing bug fix, no more duplicate hearing
  - Adding pet sounds to input speech; BCX compatiable
+ - Lockout player out of settings options
 
 # 0.4.3
  - Pet hearing based on profile
