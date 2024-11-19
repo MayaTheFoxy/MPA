@@ -30,6 +30,8 @@
 
     "Authority":"",
     "Owner member numbers; Seperated by a ,":"",
+    "Allow TargetCharacter changing TargetPronounPossessive own settings while bound":"",
+    "Allow TargetCharacter changing the settings of others while bound":"",
     "Allow TargetCharacter to change TargetPronounPossessive Authority settings":"",
     "Allow others to change TargetCharacter's Authority settings":"",
     "Allow TargetCharacter to change TargetPronounPossessive Profile settings":"",

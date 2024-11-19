@@ -33,6 +33,18 @@ export class AuthorityModule extends Module
                 maxChars: 1024,
                 width: 400
             } as TextSetting, {
+                name: "boundAccessSelf",
+                type: "checkbox",
+                active: () => true,
+                value: true,
+                label: "Allow TargetCharacter changing TargetPronounPossessive own settings while bound"
+            } as CheckboxSetting, {
+                name: "boundAccessOthers",
+                type: "checkbox",
+                active: () => true,
+                value: false,
+                label: "Allow TargetCharacter changing the settings of others while bound"
+            } as CheckboxSetting, {
                 name: "selfAuthority" as SelfAccess,
                 type: "checkbox",
                 active: () => true,
