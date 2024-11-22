@@ -38,11 +38,25 @@ export function CategorySync(category: ModuleTitle, target?: number): void
  */
 export function RecordSync(category: ModuleTitle, record: string, target?: number): void
 {
+    RecordsSync([{category: category, record: record}], target);
+}
+
+type TransmitRecords = {category: ModuleTitle, record: string, value?: any}[];
+/**
+ * Sync multiple records from any given category with others
+ * @param records.category - Which ModuleTitle category to share
+ * @param records.record - Record within ModuleTitle you want to share
+ * @param target - Share only to this one MemberNumber
+ */
+export function RecordsSync(records: TransmitRecords, target?: number): void
+{
+    for(const record of records)
+    {
+        record.value = Player.MPA[record.category][record.record];
+    }
     SendMPAMessage({
-        message: "RecordSync",
-        category: category,
-        record: record,
-        value: Player.MPA[category][record]
+        message: "RecordsSync",
+        records: records
     }, target);
 }
 
@@ -82,17 +96,35 @@ export class DataSyncModule extends Module
                     }
                 }
             }, {
+                // DEPRECIATED, DELETE AFTER STABLE PUSH MADE V0.4.4
                 module: ModuleTitle.DataSync,
                 message: "RecordSync",
                 action: function (sender: Character, content: MPAMessageContent): void
                 {
                     if (!sender?.MPA?.[content.category])
                     {
-                        SettingSync(false, sender.MemberNumber);
+                        CategorySync(content.category, sender.MemberNumber);
                     }
                     else
                     {
                         sender.MPA[content.category][content.record] = content.value;
+                    }
+                }
+            }, {
+                module: ModuleTitle.DataSync,
+                message: "RecordsSync",
+                action: function (sender: Character, content: MPAMessageContent): void
+                {
+                    for(const record of content.records as TransmitRecords)
+                    {
+                        if (!sender?.MPA?.[record.category])
+                        {
+                            CategorySync(content.category, sender.MemberNumber);
+                        }
+                        else
+                        {
+                            sender.MPA[record.category][record.record] = record.value;
+                        }
                     }
                 }
             }
