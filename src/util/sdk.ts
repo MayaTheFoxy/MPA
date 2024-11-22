@@ -1,6 +1,6 @@
 import bcModSdk, { GetDotedPathType, ModSDKModAPI, PatchHook } from "bondage-club-mod-sdk";
 import { ModuleTitle } from "../modules/_module";
-import { MPA_REPO, MPA_VERSION } from "./constants";
+import { MPA_NAME, MPA_REPO, MPA_VERSION } from "./constants";
 
 interface HookedFunction
 {
@@ -13,7 +13,7 @@ interface HookedFunction
 const hooks: HookedFunction[] = [];
 
 export const modAPI: ModSDKModAPI = bcModSdk.registerMod({
-    name: "MPA",
+    name: MPA_NAME,
     version: MPA_VERSION,
     fullName: "Maya's Petplay Additions",
     repository: MPA_REPO
@@ -81,4 +81,20 @@ export async function AwaitPlayer(): Promise<void>
             resolve();
         });
     });
+}
+
+/**
+ * Get the BCX mod api for MPA
+ */
+export function bcxAPI()
+{
+    return window.bcx?.getModApi(MPA_NAME);
+} 
+
+/**
+ * Check if BCX if found
+ */
+export function bcxFound(): boolean
+{
+    return !!window.bcx
 }

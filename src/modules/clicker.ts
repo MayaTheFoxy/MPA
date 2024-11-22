@@ -1,4 +1,4 @@
-import { HookFunction } from "../util/sdk";
+import { bcxAPI, bcxFound, HookFunction } from "../util/sdk";
 import { GetAttributeFromChatDictionary, RemoveOOCContentFromMessage } from "../util/messaging";
 import { AuthorityGroup, IsMemberNumberInAuthGroup } from "../util/authority";
 import { Module, ModuleTitle } from "./_module";
@@ -58,9 +58,9 @@ function PlayClickerSound(numberOfClicks: number = 0): void
 let bcxHooked = false;
 function HookBCXClicker(): void
 {
-    if (window.bcx && !bcxHooked)
+    if (bcxFound() && !bcxHooked)
     {
-        window.bcx.getModApi("MPA").on?.("bcxLocalMessage", (data: any) =>
+        bcxAPI()?.on?.("bcxLocalMessage", (data: any) =>
         {
             const message = data?.message as string | undefined;
             const prefix = "[Voice] ";
@@ -165,7 +165,7 @@ export class ClickerModule extends Module
             } as OptionSetting, {
                 name: "bcxVoice",
                 type: "checkbox",
-                active: (C) => !!PlayerC(C).enabled && window.bcx && !IsHardcoreOn(C),
+                active: (C) => !!PlayerC(C).enabled && bcxFound() && !IsHardcoreOn(C),
                 value: true,
                 label: "Allow BCX Listen to my voice rule to trigger the clicker; Requires BCX"
             } as CheckboxSetting

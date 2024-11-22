@@ -1,7 +1,7 @@
 import { ArrayToReadableString, HookedMessage, MPAMessageContent, MPANotifyPlayer } from "../util/messaging";
 import { LocalizedText } from "../localization/localization";
 import { ICONS } from "../util/constants";
-import { HookFunction } from "../util/sdk";
+import { bcxFound, HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
 import { ExitButtonPressed, MENU_TITLES, PreferenceMenuClick, PreferenceMenuRun, SetSettingChar } from "./settings";
 import { SaveStorage } from "../util/storage";
@@ -191,7 +191,7 @@ export class SettingsOtherModule extends Module
             {
                 const access = ServerChatRoomGetAllowItem(Player, char);
                 DrawButton(
-                    ...((window.bcx ? MPA_REMOTE_BCX : MPA_REMOTE) as readonly [number, number, number, number]),
+                    ...((bcxFound() ? MPA_REMOTE_BCX : MPA_REMOTE) as readonly [number, number, number, number]),
                     "",
                     access ? "#ffffff" : "#aaaaaa",
                     ICONS.PAW,

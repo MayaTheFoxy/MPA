@@ -1,5 +1,6 @@
 import packageInfo from "../../package.json";
 
+export const MPA_NAME = packageInfo.name.toLocaleUpperCase();
 export const MPA_VERSION = packageInfo.version;
 export const MPA_REPO = packageInfo.repository.url;
 
