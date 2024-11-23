@@ -111,24 +111,42 @@ function SetProfileType(C: Character, value: string, prevValue: string)
     if (value === "Custom")
     {
         PlayerP(C).garblePhrases = PlayerP(C).customGarblePhrases.join(", ");
-        ElementValue(eleID, PlayerP(C).garblePhrases);
+        if (document.getElementById(eleID))
+        {
+            ElementValue(eleID, PlayerP(C).garblePhrases);
+        }
         return;
     }
-    if (prevValue === "Custom")
+    if (prevValue === "Custom" && eleID)
     {
         PlayerP(C).customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
     }
     PlayerP(C).garblePhrases = (GARBLE_PHRASES[PlayerP(C).type] as string[]).join(", ");
-    ElementValue(eleID, PlayerP(C).garblePhrases);
+
+    if (document.getElementById(eleID))
+    {
+        ElementValue(eleID, PlayerP(C).garblePhrases);
+    }
 }
 
+/**
+ * Set profile bcx speaking for the local player
+ */
 function SetBCXSpeak()
 {
     PlayerP().bcxSpeaking = true;
     const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
+    // Save previous words if needed
+    if (PlayerP().type === "Custom" && eleID)
+    {
+        PlayerP().customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
+    }
     const words = bcxAPI()?.getRuleState("speech_mandatory_words")?.customData?.mandatoryWords ?? [];
     PlayerP().garblePhrases = words.join(", ");
-    ElementValue(eleID, PlayerP().garblePhrases);
+    if (document.getElementById(eleID))
+    {
+        ElementValue(eleID, PlayerP().garblePhrases);
+    }
 }
 
 export class ProfileModule extends Module
@@ -154,13 +172,15 @@ export class ProfileModule extends Module
                         return;
                     }
 
+                    // Set the record by the person who is having their settings changed
+                    // BCX mandatory words only viewable by the player locally
                     SetBCXSpeak();
-
                     RecordsSync([
                         { category: ModuleTitle.Profile, record: "garblePhrases" },
                         { category: ModuleTitle.Profile, record: "bcxSpeaking" }
-                    ]);
+                    ], sender.MemberNumber);
 
+                    // After updating and sending the new records, notify sender for acknowledgement to update their display
                     SendMPAMessage({ message: "BCXSpeakEnableReply" }, sender.MemberNumber);
                 }
             }, {
@@ -168,8 +188,12 @@ export class ProfileModule extends Module
                 message: "BCXSpeakEnableReply",
                 action: function (sender: Character, _content: MPAMessageContent): void
                 {
+                    // We got a postive response from the request, change made, but we need to see it on our side now
                     const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
-                    ElementValue(eleID, PlayerP(sender).garblePhrases);
+                    if (document.getElementById(eleID))
+                    {
+                        ElementValue(eleID, PlayerP(sender).garblePhrases);
+                    }
                 }
             }
         ];
@@ -238,6 +262,13 @@ export class ProfileModule extends Module
                     }
                     else
                     {
+                        const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
+                        // Save any custom word changes
+                        if (PlayerP(C).type === "Custom" && eleID)
+                        {
+                            PlayerP(C).customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
+                        }
+
                         // Request the mandatory words from the other person
                         SendMPAMessage({ message: "BCXSpeakEnableRequest" }, C.MemberNumber);
                     }
