@@ -221,7 +221,7 @@ export class SettingsOtherModule extends Module
                 window.MPA.menuLoaded = true;
                 // MPA is defined from check above, so other character is same as self in structure
                 SetSettingChar(char as PlayerCharacter);
-                SendMPAMessage({message: "EditingSettings"}, char.MemberNumber);
+                SendMPAMessage({ message: "EditingSettings" }, char.MemberNumber);
             }
             else
             {

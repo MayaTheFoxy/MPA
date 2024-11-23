@@ -38,6 +38,15 @@ export function CategorySync(category: ModuleTitle, target?: number): void
  */
 export function RecordSync(category: ModuleTitle, record: string, target?: number): void
 {
+    // DEPRECIATED, DELETE AFTER STABLE PUSH MADE V0.4.4
+    // Currently here for backwards compatibility with dev and stable
+    SendMPAMessage({
+        message: "RecordSync",
+        category: category,
+        record: record,
+        value: Player.MPA[category][record]
+    }, target);
+
     RecordsSync([{ category: category, record: record }], target);
 }
 
