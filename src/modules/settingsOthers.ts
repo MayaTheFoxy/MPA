@@ -1,4 +1,4 @@
-import { ArrayToReadableString, HookedMessage, MPAMessageContent, MPANotifyPlayer } from "../util/messaging";
+import { ArrayToReadableString, HookedMessage, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "../util/messaging";
 import { LocalizedText } from "../localization/localization";
 import { ICONS } from "../util/constants";
 import { bcxFound, HookFunction } from "../util/sdk";
@@ -159,6 +159,13 @@ export class SettingsOtherModule extends Module
                     // LevelSync(false, false, false);
                     SaveStorage(true);
                 }
+            }, {
+                module: this.Title,
+                message: "EditingSettings",
+                action: function (sender: Character, _content: MPAMessageContent): void
+                {
+                    NotifyPlayer(LocalizedText("SourceCharacter is accessing your MPA settings.").replace("SourceCharacter", sender.Nickname || sender.Name), 30000);
+                }
             }
         ];
     }
@@ -214,6 +221,7 @@ export class SettingsOtherModule extends Module
                 window.MPA.menuLoaded = true;
                 // MPA is defined from check above, so other character is same as self in structure
                 SetSettingChar(char as PlayerCharacter);
+                SendMPAMessage({message: "EditingSettings"}, char.MemberNumber);
             }
             else
             {
