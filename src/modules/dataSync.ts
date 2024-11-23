@@ -38,10 +38,10 @@ export function CategorySync(category: ModuleTitle, target?: number): void
  */
 export function RecordSync(category: ModuleTitle, record: string, target?: number): void
 {
-    RecordsSync([{category: category, record: record}], target);
+    RecordsSync([{ category: category, record: record }], target);
 }
 
-type TransmitRecords = {category: ModuleTitle, record: string, value?: any}[];
+type TransmitRecords = { category: ModuleTitle; record: string; value?: any }[];
 /**
  * Sync multiple records from any given category with others
  * @param records.category - Which ModuleTitle category to share
@@ -50,7 +50,7 @@ type TransmitRecords = {category: ModuleTitle, record: string, value?: any}[];
  */
 export function RecordsSync(records: TransmitRecords, target?: number): void
 {
-    for(const record of records)
+    for (const record of records)
     {
         record.value = Player.MPA[record.category][record.record];
     }
@@ -115,7 +115,7 @@ export class DataSyncModule extends Module
                 message: "RecordsSync",
                 action: function (sender: Character, content: MPAMessageContent): void
                 {
-                    for(const record of content.records as TransmitRecords)
+                    for (const record of content.records as TransmitRecords)
                     {
                         if (!sender?.MPA?.[record.category])
                         {
