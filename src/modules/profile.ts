@@ -117,7 +117,7 @@ function SetProfileType(C: Character, value: string, prevValue: string)
         }
         return;
     }
-    if (prevValue === "Custom" && eleID)
+    if (prevValue === "Custom" && document.getElementById(eleID))
     {
         PlayerP(C).customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
     }
@@ -137,7 +137,7 @@ function SetBCXSpeak()
     PlayerP().bcxSpeaking = true;
     const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
     // Save previous words if needed
-    if (PlayerP().type === "Custom" && eleID)
+    if (PlayerP().type === "Custom" && document.getElementById(eleID))
     {
         PlayerP().customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
     }
@@ -165,7 +165,6 @@ export class ProfileModule extends Module
                 action: function (sender: Character, _content: MPAMessageContent): void
                 {
                     // Check if the sender has authority to set this setting
-                    console.log("failed", sender.MemberNumber, Player.MPA?.[ModuleTitle.Authority][`others${ModuleTitle.Profile}`]);
                     if (!IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, Player.MPA?.[ModuleTitle.Authority][`others${ModuleTitle.Profile}`]))
                     {
                         console.warn(`${sender.Nickname || sender.Name}[${sender.MemberNumber}] tried to illegially set your bcx speak to be enabled`);
@@ -264,7 +263,7 @@ export class ProfileModule extends Module
                     {
                         const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
                         // Save any custom word changes
-                        if (PlayerP(C).type === "Custom" && eleID)
+                        if (PlayerP(C).type === "Custom" && document.getElementById(eleID))
                         {
                             PlayerP(C).customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
                         }
