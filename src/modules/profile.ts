@@ -1,8 +1,11 @@
 import { FilterArrayFromArray } from "../util/general";
-import { HookFunction } from "../util/sdk";
+import { bcxAPI, bcxFound, HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
 import { ElementName } from "./settings";
 import { ApplyPetHearing, NonDisruptivePetSpeech } from "../util/petHearAndSpeak";
+import { HookedMessage, MPAMessageContent, SendMPAMessage } from "../util/messaging";
+import { RecordsSync } from "./dataSync";
+import { IsMemberNumberInAuthGroup } from "../util/authority";
 
 const PlayerP: (C?: Character) => MPARecord = (C: Character = Player) =>
 {
@@ -56,8 +59,11 @@ function GetPetGarblePhrases(profile: PetSpeakingKeys = PlayerP(Player).type): s
  */
 function GetAllowedPetGarblePhrases(profile: PetSpeakingKeys = PlayerP(Player).type): string[]
 {
-    const bannedBCXWords = window?.bcx?.getModApi("MPA")?.getRuleState("speech_ban_words")?.customData?.bannedWords ?? [];
-    return FilterArrayFromArray(GetPetGarblePhrases(profile), bannedBCXWords);
+    const bannedBCXWords = bcxAPI()?.getRuleState("speech_ban_words")?.customData?.bannedWords ?? [];
+    const petPhrases = bcxFound() && PlayerP(Player).bcxSpeaking ?
+        bcxAPI()?.getRuleState("speech_mandatory_words")?.customData?.mandatoryWords ?? [] :
+        GetPetGarblePhrases(profile);
+    return FilterArrayFromArray(petPhrases, bannedBCXWords);
 }
 
 export const PET_HEARING = Object.freeze({
@@ -93,11 +99,80 @@ function GetPetHearingPhrases(profile: PetHearingKeys = PlayerP(Player).type): s
     return PET_HEARING.All;
 }
 
+/**
+ * Callback when profile type is set
+ * @param C - Character who we are setting
+ * @param value - What the new type is
+ * @param prevValue - What the previous type was
+ */
+function SetProfileType(C: Character, value: string, prevValue: string)
+{
+    const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
+    if (value === "Custom")
+    {
+        PlayerP(C).garblePhrases = PlayerP(C).customGarblePhrases.join(", ");
+        ElementValue(eleID, PlayerP(C).garblePhrases);
+        return;
+    }
+    if (prevValue === "Custom")
+    {
+        PlayerP(C).customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
+    }
+    PlayerP(C).garblePhrases = (GARBLE_PHRASES[PlayerP(C).type] as string[]).join(", ");
+    ElementValue(eleID, PlayerP(C).garblePhrases);
+}
+
+function SetBCXSpeak()
+{
+    PlayerP().bcxSpeaking = true;
+    const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
+    const words = bcxAPI()?.getRuleState("speech_mandatory_words")?.customData?.mandatoryWords ?? [];
+    PlayerP().garblePhrases = words.join(", ");
+    ElementValue(eleID, PlayerP().garblePhrases);
+}
+
 export class ProfileModule extends Module
 {
     get Title(): ModuleTitle
     {
         return ModuleTitle.Profile;
+    }
+
+    get SyncListeners(): HookedMessage[]
+    {
+        return [
+            {
+                module: this.Title,
+                message: "BCXSpeakEnableRequest",
+                action: function (sender: Character, _content: MPAMessageContent): void
+                {
+                    // Check if the sender has authority to set this setting
+                    console.log("failed", sender.MemberNumber, Player.MPA?.[ModuleTitle.Authority][`others${ModuleTitle.Profile}`]);
+                    if (!IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, Player.MPA?.[ModuleTitle.Authority][`others${ModuleTitle.Profile}`]))
+                    {
+                        console.warn(`${sender.Nickname || sender.Name}[${sender.MemberNumber}] tried to illegially set your bcx speak to be enabled`);
+                        return;
+                    }
+
+                    SetBCXSpeak();
+
+                    RecordsSync([
+                        { category: ModuleTitle.Profile, record: "garblePhrases" },
+                        { category: ModuleTitle.Profile, record: "bcxSpeaking" }
+                    ]);
+
+                    SendMPAMessage({ message: "BCXSpeakEnableReply" }, sender.MemberNumber);
+                }
+            }, {
+                module: this.Title,
+                message: "BCXSpeakEnableReply",
+                action: function (sender: Character, _content: MPAMessageContent): void
+                {
+                    const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
+                    ElementValue(eleID, PlayerP(sender).garblePhrases);
+                }
+            }
+        ];
     }
 
     get Settings(): Setting[]
@@ -111,21 +186,13 @@ export class ProfileModule extends Module
                 value: "Human",
                 label: "Use a preset profile or make your own",
                 loop: true,
-                onSet(C, value, prevValue)
+                onSet: (C, value, prevValue) =>
                 {
-                    const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
-                    if (value === "Custom")
+                    if (PlayerP(C).bcxSpeaking)
                     {
-                        PlayerP(C).garblePhrases = PlayerP(C).customGarblePhrases.join(", ");
-                        ElementValue(eleID, PlayerP(C).garblePhrases);
                         return;
                     }
-                    if (prevValue === "Custom")
-                    {
-                        PlayerP(C).customGarblePhrases = ElementValue(eleID).split(",").map((x) => x.trim());
-                    }
-                    PlayerP(C).garblePhrases = (GARBLE_PHRASES[PlayerP(C).type] as string[]).join(", ");
-                    ElementValue(eleID, PlayerP(C).garblePhrases);
+                    SetProfileType(C, value, prevValue);
                 }
             } as OptionSetting, {
                 name: "petHearing",
@@ -136,7 +203,7 @@ export class ProfileModule extends Module
             } as CheckboxSetting, {
                 name: "garblePhrases",
                 type: "text",
-                active: (C) => PlayerP(C).type === "Custom",
+                active: (C) => PlayerP(C).type === "Custom" && !(PlayerP(C).petSpeaking && bcxFound() && PlayerP(C).bcxSpeaking),
                 value: GARBLE_PHRASES.Human.join(),
                 label: "Pet sounds you make",
                 maxChars: 1024,
@@ -151,6 +218,30 @@ export class ProfileModule extends Module
                 active: () => true,
                 value: false,
                 label: "Automatically make the above pet sounds while talking"
+            } as CheckboxSetting, {
+                name: "bcxSpeaking",
+                type: "checkbox",
+                active: (C) => PlayerP(C).petSpeaking && bcxFound(),
+                value: false,
+                label: "Use BCX mandatory words instead of the pet sounds above",
+                onSet: (C, value) =>
+                {
+                    if (!value)
+                    {
+                        SetProfileType(C, PlayerP(C).type, "");
+                        return;
+                    }
+                    if (C.IsPlayer())
+                    {
+                        // Update the mandatory words for yourself since have local bcx access
+                        SetBCXSpeak();
+                    }
+                    else
+                    {
+                        // Request the mandatory words from the other person
+                        SendMPAMessage({ message: "BCXSpeakEnableRequest" }, C.MemberNumber);
+                    }
+                }
             } as CheckboxSetting, {
                 name: "hardcore",
                 type: "checkbox",
