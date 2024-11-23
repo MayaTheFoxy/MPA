@@ -213,24 +213,24 @@ function DrawSubMenuOptions(subMenu: ModuleTitle): void
         const [settingName, setting] = val as [string, DisplayedSetting];
 
         const disabledSetting = !setting.active(settingChar!)
-            || (
-                `others${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
-                && `self${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
-                && !IsMemberNumberInAuthGroup(
-                    Player.MemberNumber ?? -1,
-                    settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
-                    settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
-                    settingChar!
-                    )
-                )
-            || (
-                !Player.CanInteract() && (
-                    (settingChar?.MemberNumber === Player.MemberNumber
-                    && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
-                    || (settingChar?.MemberNumber !== Player.MemberNumber
-                    && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
-                )
-            );
+          || (
+              `others${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
+              && `self${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
+              && !IsMemberNumberInAuthGroup(
+                  Player.MemberNumber ?? -1,
+                  settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
+                  settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
+                  settingChar!
+              )
+          )
+          || (
+              !Player.CanInteract() && (
+                  (settingChar?.MemberNumber === Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
+                  || (settingChar?.MemberNumber !== Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
+              )
+          );
 
         if (IsCheckboxSetting(setting))
         {
@@ -328,24 +328,24 @@ function GetClickedOption(subMenu: ModuleTitle): void
         const [settingName, setting] = val as [string, DisplayedSetting];
 
         const disabledSetting = !setting.active(settingChar!)
-            || (
-                `others${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
-                && `self${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
-                && !IsMemberNumberInAuthGroup(
-                    Player.MemberNumber ?? -1,
-                    settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
-                    settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
-                    settingChar!
-                    )
-                )
-            || (
-                !Player.CanInteract() && (
-                    (settingChar?.MemberNumber === Player.MemberNumber
-                    && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
-                    || (settingChar?.MemberNumber !== Player.MemberNumber
-                    && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
-                )
-            );
+          || (
+              `others${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
+              && `self${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
+              && !IsMemberNumberInAuthGroup(
+                  Player.MemberNumber ?? -1,
+                  settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
+                  settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
+                  settingChar!
+              )
+          )
+          || (
+              !Player.CanInteract() && (
+                  (settingChar?.MemberNumber === Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
+                  || (settingChar?.MemberNumber !== Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
+              )
+          );
 
         if (IsCheckboxSetting(setting))
         {

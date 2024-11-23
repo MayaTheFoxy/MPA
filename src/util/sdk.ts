@@ -89,12 +89,12 @@ export async function AwaitPlayer(): Promise<void>
 export function bcxAPI()
 {
     return window.bcx?.getModApi(MPA_NAME);
-} 
+}
 
 /**
  * Check if BCX if found
  */
 export function bcxFound(): boolean
 {
-    return !!window.bcx
+    return !!window.bcx;
 }
