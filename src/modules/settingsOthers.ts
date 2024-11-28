@@ -1,7 +1,7 @@
-import { ArrayToReadableString, HookedMessage, MPAMessageContent, MPANotifyPlayer } from "../util/messaging";
+import { ArrayToReadableString, HookedMessage, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "../util/messaging";
 import { LocalizedText } from "../localization/localization";
 import { ICONS } from "../util/constants";
-import { HookFunction } from "../util/sdk";
+import { bcxFound, HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
 import { ExitButtonPressed, MENU_TITLES, PreferenceMenuClick, PreferenceMenuRun, SetSettingChar } from "./settings";
 import { SaveStorage } from "../util/storage";
@@ -159,6 +159,13 @@ export class SettingsOtherModule extends Module
                     // LevelSync(false, false, false);
                     SaveStorage(true);
                 }
+            }, {
+                module: this.Title,
+                message: "EditingSettings",
+                action: function (sender: Character, _content: MPAMessageContent): void
+                {
+                    NotifyPlayer(LocalizedText("SourceCharacter is accessing your MPA settings.").replace("SourceCharacter", sender.Nickname || sender.Name), 30000);
+                }
             }
         ];
     }
@@ -191,7 +198,7 @@ export class SettingsOtherModule extends Module
             {
                 const access = ServerChatRoomGetAllowItem(Player, char);
                 DrawButton(
-                    ...((window.bcx ? MPA_REMOTE_BCX : MPA_REMOTE) as readonly [number, number, number, number]),
+                    ...((bcxFound() ? MPA_REMOTE_BCX : MPA_REMOTE) as readonly [number, number, number, number]),
                     "",
                     access ? "#ffffff" : "#aaaaaa",
                     ICONS.PAW,
@@ -214,6 +221,7 @@ export class SettingsOtherModule extends Module
                 window.MPA.menuLoaded = true;
                 // MPA is defined from check above, so other character is same as self in structure
                 SetSettingChar(char as PlayerCharacter);
+                SendMPAMessage({ message: "EditingSettings" }, char.MemberNumber);
             }
             else
             {

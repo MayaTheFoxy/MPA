@@ -47,7 +47,7 @@ declare global
     {
         type: "checkbox";
         value: boolean;
-        onSet?: (C: Character) => void;
+        onSet?: (C: Character, value: boolean, prevValue: boolean) => void;
     }
     interface OptionSetting extends DisplayedSetting
     {
@@ -55,7 +55,7 @@ declare global
         options: string[];
         value: string;
         loop: boolean;
-        onSet?: (C: Character) => void;
+        onSet?: (C: Character, value: string, prevValue: string) => void;
     }
     interface TextSetting extends DisplayedSetting
     {

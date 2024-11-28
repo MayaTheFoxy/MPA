@@ -18,6 +18,7 @@
     "WARNING: Are you sure you want to reset your MPA settings and data back to default?":"",
     "This action can not be undone!":"",
     "Export and save your settings BEFORE confirming if you are unsure.":"",
+    "SourceCharacter is accessing your MPA settings.":"",
 
     "Public":"",
     "Friends":"",
@@ -30,6 +31,8 @@
 
     "Authority":"",
     "Owner member numbers; Seperated by a ,":"",
+    "Allow TargetCharacter changing TargetPronounPossessive own settings while bound":"",
+    "Allow TargetCharacter changing the settings of others while bound":"",
     "Allow TargetCharacter to change TargetPronounPossessive Authority settings":"",
     "Allow others to change TargetCharacter's Authority settings":"",
     "Allow TargetCharacter to change TargetPronounPossessive Profile settings":"",
@@ -44,8 +47,9 @@
     
     "Profile":"",
     "Use a preset profile or make your own":"",
-    "Phrases you speak when unable to be understood":"",
+    "Pet sounds you make":"",
     "Enable hardcore mode; Will set certain settings and prevent changing them back":"",
+    "Automatically make the above pet sounds while talking":"",
     
     "Clicker":"",
     "Enable auditory clicker": "",

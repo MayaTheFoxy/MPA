@@ -221,7 +221,16 @@ function DrawSubMenuOptions(subMenu: ModuleTitle): void
                   settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
                   settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
                   settingChar!
-              ));
+              )
+          )
+          || (
+              !Player.CanInteract() && (
+                  (settingChar?.MemberNumber === Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
+                  || (settingChar?.MemberNumber !== Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
+              )
+          );
 
         if (IsCheckboxSetting(setting))
         {
@@ -327,7 +336,16 @@ function GetClickedOption(subMenu: ModuleTitle): void
                   settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
                   settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
                   settingChar!
-              ));
+              )
+          )
+          || (
+              !Player.CanInteract() && (
+                  (settingChar?.MemberNumber === Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
+                  || (settingChar?.MemberNumber !== Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
+              )
+          );
 
         if (IsCheckboxSetting(setting))
         {
@@ -344,7 +362,7 @@ function GetClickedOption(subMenu: ModuleTitle): void
                 settingChar!.MPA[subMenu][settingName] = !settingChar!.MPA[subMenu][settingName];
                 if (setting.onSet)
                 {
-                    setting.onSet(settingChar!);
+                    setting.onSet(settingChar!, settingChar!.MPA[subMenu][settingName], !settingChar!.MPA[subMenu][settingName]);
                 }
                 settingsEdited = true;
             }
@@ -370,10 +388,11 @@ function GetClickedOption(subMenu: ModuleTitle): void
                 || AuthorityIsComparisonToCharacter(settingChar!.MPA[subMenu][settingName] as AuthorityGroup, ">=", Player.MemberNumber ?? -1, settingChar!))
             )
             {
+                const prevValue = settingChar!.MPA[subMenu][settingName];
                 settingChar!.MPA[subMenu][settingName] = setting.options[(index - 1 + optLen) % optLen];
                 if (setting.onSet)
                 {
-                    setting.onSet(settingChar!);
+                    setting.onSet(settingChar!, setting.options[(index - 1 + optLen) % optLen], prevValue);
                 }
                 settingsEdited = true;
             }
@@ -394,10 +413,11 @@ function GetClickedOption(subMenu: ModuleTitle): void
                 || AuthorityIsComparisonToCharacter(settingChar!.MPA[subMenu][settingName] as AuthorityGroup, ">", Player.MemberNumber ?? -1, settingChar!))
             )
             {
+                const prevValue = settingChar!.MPA[subMenu][settingName];
                 settingChar!.MPA[subMenu][settingName] = setting.options[(index + 1 + optLen) % optLen];
                 if (setting.onSet)
                 {
-                    setting.onSet(settingChar!);
+                    setting.onSet(settingChar!, setting.options[(index + 1 + optLen) % optLen], prevValue);
                 }
                 settingsEdited = true;
             }
@@ -720,33 +740,11 @@ function PlayerPreferenceMenuLoad(): void
 /**
  * Get the string with an MPA identifier in front
  */
-function ElementName(title: ModuleTitle | string, setting: string): string
+export function ElementName(title: ModuleTitle | string, setting: string): string
 {
     return `MPA_OPTION_${title}${setting}`;
 }
 
-/**
- * Update the values inside the HTML elements to reflect the current settings
- */
-export function UpdateElementValues(): void
-{
-    // Shouldn't be needed but acts as failsafe and makes typescript happy
-    if (!settingChar) { return; }
-
-    Object.entries(defaultSettings).forEach((category) =>
-    {
-        const [settingTitle, settings] = category as [ModuleTitle, MPACategorySettings];
-        Object.entries(settings).forEach((set) =>
-        {
-            const [settingName, setting] = set;
-            const id = ElementName(settingTitle, settingName);
-            if (IsTextSetting(setting) || IsNumberSetting(setting))
-            {
-                ElementSetAttribute(id, "value", settingChar!.MPA[settingTitle][settingName].toString());
-            }
-        });
-    });
-}
 /**
  * Create and hide all the HTML elements that are needed for the Preference Setting page
  */

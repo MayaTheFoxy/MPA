@@ -54,13 +54,16 @@ export function IsMemberNumberInAuthGroup(memberNumber: number, authGroup: Autho
         return authGroup === "Self" ? true : allowSelf;
     }
 
+    // No if in blacklist regardless of role
+    if (sourceChar.BlackList.includes(memberNumber) || ((sourceChar as PlayerCharacter)?.GhostList?.includes(memberNumber) ?? false))
+    {
+        return false;
+    }
+
     // Everyone allowed except blocked characters
     if (authGroup === "Public")
     {
-        return !(
-            sourceChar.BlackList.includes(memberNumber)
-            || ((sourceChar as PlayerCharacter)?.GhostList?.includes(memberNumber) ?? false)
-        );
+        return true;
     }
 
     // Family only can be checked by against the Player themself
