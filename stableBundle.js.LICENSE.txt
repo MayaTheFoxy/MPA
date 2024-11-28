@@ -34,6 +34,8 @@
 
 /*! ../util/messaging */
 
+/*! ../util/petHearAndSpeak */
+
 /*! ../util/registerModules */
 
 /*! ../util/sdk */
@@ -53,6 +55,8 @@
 /*! ./constants */
 
 /*! ./dataSync */
+
+/*! ./general */
 
 /*! ./messaging */
 
@@ -155,6 +159,10 @@
 /*!***********************************!*\
   !*** ./src/modules/virtualPet.ts ***!
   \***********************************/
+
+/*!*************************************!*\
+  !*** ./src/util/petHearAndSpeak.ts ***!
+  \*************************************/
 
 /*!*************************************!*\
   !*** ./src/util/registerModules.ts ***!
