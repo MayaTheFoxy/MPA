@@ -19,3 +19,9 @@ javascript:(()=>{fetch("https://mayathefoxy.github.io/MPA/stableBundle.js").then
 ```
 javascript:(()=>{fetch("https://mayathefoxy.github.io/MPA/devBundle.js").then(r=>r.text()).then(r=>eval(r));})();
 ```
+
+OOooo another addon? What does this do?
+Read the [Wiki](https://github.com/MayaTheFoxy/MPA/wiki)!
+
+Its not in FUSAM, how do I install? 
+Read above or check the [Wiki](https://github.com/MayaTheFoxy/MPA/wiki)!
