@@ -74,7 +74,8 @@ export function SendEmote(content: string, target: Character | undefined = undef
  */
 export function NotifyPlayer(content: string, timeout?: number): void
 {
-    ChatRoomSendLocal(`<p style='background-color:#00c2ff;margin-bottom:0.25em;margin-top:0'>${content}</p>`, timeout);
+    const darkTheme = Player.ChatSettings?.ColorTheme === "Dark" || Player.ChatSettings?.ColorTheme === "Dark2";
+    ChatRoomSendLocal(`<p style='background-color:#00c2ff;color:${darkTheme ? "white" : "black"};margin-bottom:0.25em;margin-top:0'>${content}</p>`, timeout);
 }
 
 /**
