@@ -21,7 +21,7 @@
 	"devDependencies": {
 		"@eslint/js": "^9.9.0",
 		"@stylistic/eslint-plugin": "^2.6.2",
-		"bc-stubs": "^v108.0.0",
+		"bc-stubs": "^111.0.0",
 		"eslint": "^9.9.0",
 		"globals": "^15.9.0",
 		"lz-string": "^1.5.0",

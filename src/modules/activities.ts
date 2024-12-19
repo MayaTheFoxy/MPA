@@ -51,13 +51,16 @@ export class ActivitiesModule extends Module
         });
 
         // Draw custom images for activities
-        HookFunction(this.Title, "DrawImageResize", 1, (args, next) =>
+        HookFunction(this.Title, "ElementButton.CreateForActivity", 0, (args, next) =>
         {
-            const imagePath = args[0].toString();
-            const activityName = imagePath.substring(imagePath.indexOf("MPA_"), imagePath.indexOf(".png"));
+            const activityName = args[1].Activity.Name;
             if (Object.keys(activityImages).includes(activityName))
             {
-                args[0] = activityImages[activityName];
+                if (!args[4])
+                {
+                    args[4] = {};
+                }
+                args[4].image = activityImages[activityName];
             }
             return next(args);
         });
