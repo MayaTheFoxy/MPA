@@ -1,3 +1,8 @@
+# 0.4.4b1
+ - Flick bell collar activity added
+ - Fix: No longer able to set yourself as owner
+ - Fix: Removed Profile settings has been updated message when it was not applicable
+
 # 0.4.4
  - Pet Hearing bug fix, no more duplicate hearing
  - Adding pet sounds to input speech; BCX compatible
