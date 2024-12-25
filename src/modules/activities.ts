@@ -1,6 +1,9 @@
+import { GetAttributeFromChatDictionary } from "../util/messaging";
 import { activityImages, activityPrerequisites, activityTriggers } from "../util/activities";
 import { HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
+
+const BELL_SOUND = new Audio("Audio\\BellMedium.mp3");
 
 export class ActivitiesModule extends Module
 {
@@ -9,8 +12,39 @@ export class ActivitiesModule extends Module
         return ModuleTitle.Activities;
     }
 
+    get Activities(): CustomActivity[]
+    {
+        return [
+            {
+                Name: "FlickBell",
+                MaxProgress: 50,
+                Prerequisite: ["UseHands", "HasBell"],
+                Targets: [{
+                    group: "ItemNeck",
+                    label: "Flick Bell",
+                    actionSelf: "SourceCharacter flicks the bell on PronounPossessive collar."
+                }, {
+                    group: "ItemNeck",
+                    label: "Flick Bell",
+                    actionOthers: "SourceCharacter flicks the bell on TargetCharacter's collar."
+                }],
+                Image: "Assets\\Female3DCG\\ItemNeckAccessories\\Preview\\CollarBell.png",
+                OnTrigger: () =>
+                {
+                    if (Player?.AudioSettings?.PlayItem)
+                    {
+                        BELL_SOUND.play();
+                    }
+                    return;
+                }
+            }
+        ];
+    }
+
     Load(): void
     {
+        super.Load();
+
         // Prerequisite handling
         HookFunction(this.Title, "ActivityCheckPrerequisite", 1, (args, next) =>
         {
@@ -63,6 +97,24 @@ export class ActivitiesModule extends Module
                 args[4].image = activityImages[activityName];
             }
             return next(args);
+        });
+
+        // Bell when other triggers
+        HookFunction(ModuleTitle.Clicker, "ChatRoomMessage", 0, (args, next) =>
+        {
+            next(args);
+            const data = args[0];
+            if (
+                data.Type === "Activity"
+                && GetAttributeFromChatDictionary(data, "ActivityName") === "MPA_FlickBell"
+                && GetAttributeFromChatDictionary(data, "SourceCharacter") !== Player.MemberNumber
+                && Player.AudioSettings?.PlayItem
+                && (GetAttributeFromChatDictionary(data, "TargetCharacter") === Player.MemberNumber
+                || !Player.AudioSettings?.PlayItemPlayerOnly)
+            )
+            {
+                BELL_SOUND.play();
+            }
         });
     }
 

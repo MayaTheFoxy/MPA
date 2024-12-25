@@ -100,5 +100,9 @@
     "Affection will buff skills based on its level":"",
     "Affection will debuff skills based on its level":"",
     "Hearing becomes harder the hungrier you are":"",
-    "Takes longer to leave the room when hungry":""
+    "Takes longer to leave the room when hungry":"",
+
+    "Flick Bell":"",
+    "SourceCharacter flicks the bell on PronounPossessive collar.":"",
+    "SourceCharacter flicks the bell on TargetCharacter's collar.":""
 }

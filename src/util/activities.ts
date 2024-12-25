@@ -1,6 +1,6 @@
 import { LocalizedText } from "../localization/localization";
 
-type NewPrerequisites = "HoldingClicker" | "HasBowl" | "UseTongueNoMouth";
+type NewPrerequisites = "HoldingClicker" | "HasBowl" | "UseTongueNoMouth" | "HasBell";
 
 /** Stores the activity name and the image location or base 64 image for that activity */
 export const activityImages: Record<string, string> = {};
@@ -20,6 +20,11 @@ export const activityPrerequisites: Record<NewPrerequisites, Prerequisite> =
     UseTongueNoMouth: (acting, _acted, _group) =>
     {
         return !acting.CanTalk() && !acting.IsMouthBlocked();
+    },
+    HasBell: (_acting, acted, _group) =>
+    {
+        return InventoryGet(acted, "ItemNeck")?.Asset?.Name === "LeatherCollarBell"
+          || InventoryGet(acted, "ItemNeckAccessories")?.Asset?.Name === "CollarBell";
     }
 };
 
