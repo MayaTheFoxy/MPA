@@ -59,6 +59,10 @@ export async function LoadStorage(): Promise<void>
 
 export function SaveStorage(syncWithOthers: boolean = true): void
 {
+    if(!Player.MPA)
+    {
+        return;
+    }
     // Prune self from owner list if added
     Player.MPA[ModuleTitle.Authority].owners =
         (Player.MPA[ModuleTitle.Authority].owners as string).split(",")
