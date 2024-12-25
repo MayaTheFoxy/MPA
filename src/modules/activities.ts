@@ -1,9 +1,9 @@
-import { GetAttributeFromChatDictionary } from "../util/messaging";
-import { activityImages, activityPrerequisites, activityTriggers } from "../util/activities";
-import { HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary } from "../util/messaging";
+import { activityImages, activityPrerequisites, activityReceived, activityTriggers } from "../util/activities";
+import { HookFunction } from "../util/sdk";
+import { ACTIVITY_NAME_PREFIX, BELL_SOUND } from "../util/constants";
 
-const BELL_SOUND = new Audio("Audio\\BellMedium.mp3");
 
 export class ActivitiesModule extends Module
 {
@@ -18,7 +18,15 @@ export class ActivitiesModule extends Module
             {
                 Name: "FlickBell",
                 MaxProgress: 50,
-                Prerequisite: ["UseHands", "HasBell"],
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HasBell",
+                    Prerequisite: (_acting, acted, _group) =>
+                    {
+                        return InventoryGet(acted, "ItemNeck")?.Asset?.Name === "LeatherCollarBell"
+                          || InventoryGet(acted, "ItemNeckAccessories")?.Asset?.Name === "CollarBell";
+                    }
+                },
                 Targets: [{
                     group: "ItemNeck",
                     label: "Flick Bell",
@@ -36,6 +44,18 @@ export class ActivitiesModule extends Module
                         BELL_SOUND.play();
                     }
                     return;
+                },
+                OnReceive: (source, target, _group, _data) =>
+                {
+                    if (
+                        source?.MemberNumber !== Player.MemberNumber
+                        && Player.AudioSettings?.PlayItem
+                        && (target?.MemberNumber === Player.MemberNumber
+                        || !Player.AudioSettings.PlayItemPlayerOnly)
+                    )
+                    {
+                        BELL_SOUND.play();
+                    }
                 }
             }
         ];
@@ -66,7 +86,7 @@ export class ActivitiesModule extends Module
             }
             // @ts-ignore - TS not finding type automatically, it exists
             const activityName = data?.Dictionary?.find((x) => x.ActivityName)?.ActivityName as string | undefined;
-            if (activityName?.startsWith("MPA_"))
+            if (activityName?.startsWith(ACTIVITY_NAME_PREFIX))
             {
                 data?.Dictionary?.push({
                     Tag: "MISSING ACTIVITY DESCRIPTION FOR KEYWORD " + data.Content,
@@ -84,6 +104,30 @@ export class ActivitiesModule extends Module
             return next(args);
         });
 
+        // Activity on received
+        HookFunction(ModuleTitle.Clicker, "ChatRoomMessage", 0, (args, next) =>
+        {
+            next(args);
+            const data = args[0];
+            if (
+                data.Type === "Activity"
+            )
+            {
+                const activityName = GetAttributeFromChatDictionary(data, "ActivityName") as string;
+                if (!activityName.startsWith(ACTIVITY_NAME_PREFIX)
+                  || !(activityName in activityReceived))
+                {
+                    return;
+                }
+                const sourceChar = FindCharacterInRoom(GetAttributeFromChatDictionary(data, "SourceCharacter"),
+                    { MemberNumber: true, NickName: false, Name: false }) ?? undefined;
+                const targetChar = FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter"),
+                    { MemberNumber: true, NickName: false, Name: false }) ?? undefined;
+                const group = GetAttributeFromChatDictionary(data, "FocusGroupName");
+                activityReceived[activityName](sourceChar, targetChar, group, data);
+            }
+        });
+
         // Draw custom images for activities
         HookFunction(this.Title, "ElementButton.CreateForActivity", 0, (args, next) =>
         {
@@ -97,24 +141,6 @@ export class ActivitiesModule extends Module
                 args[4].image = activityImages[activityName];
             }
             return next(args);
-        });
-
-        // Bell when other triggers
-        HookFunction(ModuleTitle.Clicker, "ChatRoomMessage", 0, (args, next) =>
-        {
-            next(args);
-            const data = args[0];
-            if (
-                data.Type === "Activity"
-                && GetAttributeFromChatDictionary(data, "ActivityName") === "MPA_FlickBell"
-                && GetAttributeFromChatDictionary(data, "SourceCharacter") !== Player.MemberNumber
-                && Player.AudioSettings?.PlayItem
-                && (GetAttributeFromChatDictionary(data, "TargetCharacter") === Player.MemberNumber
-                || !Player.AudioSettings?.PlayItemPlayerOnly)
-            )
-            {
-                BELL_SOUND.play();
-            }
         });
     }
 

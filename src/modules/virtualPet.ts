@@ -316,7 +316,14 @@ export class VirtualPetModule extends Module
                     actionSelf: "SourceCharacter eats from PronounPossessive bowl."
                 }],
                 Image: "Assets/Female3DCG/ItemDevices/Preview/PetBowl.png",
-                Prerequisite: ["UseMouth", "HasBowl"],
+                Prerequisite: ["UseMouth"],
+                CustomPrerequisite: {
+                    Name: "HasBowl",
+                    Prerequisite: (acting, _acted, _group) =>
+                    {
+                        return InventoryGet(acting, "ItemDevices")?.Asset?.Name === "PetBowl";
+                    }
+                },
                 OnTrigger: () =>
                 {
                     if (PlayerVP().enabled && PlayerVP().foodHours !== 0)
@@ -332,7 +339,10 @@ export class VirtualPetModule extends Module
                     actionSelf: "SourceCharacter drinks from PronounPossessive bowl."
                 }],
                 Image: "Assets/Female3DCG/ItemDevices/Preview/PetBowl.png",
-                Prerequisite: ["UseMouth", "HasBowl"],
+                Prerequisite: ["UseMouth"],
+                CustomPrerequisite: {
+                    Name: "HasBowl"
+                },
                 OnTrigger: () =>
                 {
                     if (PlayerVP().enabled && PlayerVP().waterHours !== 0)
@@ -348,7 +358,17 @@ export class VirtualPetModule extends Module
                     actionSelf: "SourceCharacter puts PronounPossessive head into PronounPossessive bowl in order to eat with the gag, making a mess."
                 }],
                 Image: "Assets/Female3DCG/ItemDevices/Preview/PetBowl.png",
-                Prerequisite: ["UseTongueNoMouth", "HasBowl"],
+                Prerequisite: [],
+                CustomPrerequisite: [
+                    { Name: "HasBowl" },
+                    {
+                        Name: "UseTongueNoMouth",
+                        Prerequisite: (acting, _acted, _group) =>
+                        {
+                            return !acting.CanTalk() && !acting.IsMouthBlocked();
+                        }
+                    }
+                ],
                 OnTrigger: () =>
                 {
                     if (PlayerVP().enabled && PlayerVP().foodHours !== 0)
@@ -364,7 +384,11 @@ export class VirtualPetModule extends Module
                     actionSelf: "SourceCharacter puts PronounPossessive head into PronounPossessive bowl in order to drink with the gag, making a mess."
                 }],
                 Image: "Assets/Female3DCG/ItemDevices/Preview/PetBowl.png",
-                Prerequisite: ["UseTongueNoMouth", "HasBowl"],
+                Prerequisite: [],
+                CustomPrerequisite: [
+                    { Name: "HasBowl" },
+                    { Name: "UseTongueNoMouth" }
+                ],
                 OnTrigger: () =>
                 {
                     if (PlayerVP().enabled && PlayerVP().waterHours !== 0)
