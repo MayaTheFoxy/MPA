@@ -59,6 +59,10 @@ export async function LoadStorage(): Promise<void>
 
 export function SaveStorage(syncWithOthers: boolean = true): void
 {
+    // Prune self from owner list if added
+    Player.MPA[ModuleTitle.Authority].owners =
+        (Player.MPA[ModuleTitle.Authority].owners as string).split(",")
+            .filter((val) => Number(val) !== Player.MemberNumber).join(",");
     Player.ExtensionSettings.MPA = LZString.compressToBase64(JSON.stringify(Player.MPA));
     ServerPlayerExtensionSettingsSync("MPA");
     if (syncWithOthers)

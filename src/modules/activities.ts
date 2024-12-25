@@ -4,7 +4,6 @@ import { activityImages, activityPrerequisites, activityReceived, activityTrigge
 import { HookFunction } from "../util/sdk";
 import { ACTIVITY_NAME_PREFIX, BELL_SOUND } from "../util/constants";
 
-
 export class ActivitiesModule extends Module
 {
     get Title(): ModuleTitle
