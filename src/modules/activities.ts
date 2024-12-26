@@ -4,6 +4,19 @@ import { activityImages, activityPrerequisites, activityReceived, activityTrigge
 import { HookFunction } from "../util/sdk";
 import { ACTIVITY_NAME_PREFIX, BELL_SOUND } from "../util/constants";
 
+const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
+{
+    if (
+        Player.AudioSettings?.PlayItem
+        && (!Player.AudioSettings.PlayItemPlayerOnly
+        || source?.MemberNumber === Player.MemberNumber
+        || target?.MemberNumber === Player.MemberNumber)
+    )
+    {
+        BELL_SOUND.play();
+    }
+}
+
 export class ActivitiesModule extends Module
 {
     get Title(): ModuleTitle
@@ -19,43 +32,41 @@ export class ActivitiesModule extends Module
                 MaxProgress: 50,
                 Prerequisite: ["UseHands"],
                 CustomPrerequisite: {
-                    Name: "HasBell",
+                    Name: "HasBellCollar",
                     Prerequisite: (_acting, acted, _group) =>
                     {
-                        return InventoryGet(acted, "ItemNeck")?.Asset?.Name === "LeatherCollarBell"
-                          || InventoryGet(acted, "ItemNeckAccessories")?.Asset?.Name === "CollarBell";
+                        return InventoryGet(acted, "ItemNeck")?.Asset?.Name?.toLocaleLowerCase()?.includes("bell")
+                          || InventoryGet(acted, "ItemNeckAccessories")?.Asset?.Name?.toLocaleLowerCase()?.includes("bell")
+                          || false;
                     }
                 },
                 Targets: [{
                     group: "ItemNeck",
                     label: "Flick Bell",
-                    actionSelf: "SourceCharacter flicks the bell on PronounPossessive collar."
-                }, {
-                    group: "ItemNeck",
-                    label: "Flick Bell",
+                    actionSelf: "SourceCharacter flicks the bell on PronounPossessive collar.",
                     actionOthers: "SourceCharacter flicks the bell on TargetCharacter's collar."
                 }],
                 Image: "Assets\\Female3DCG\\ItemNeckAccessories\\Preview\\CollarBell.png",
-                OnTrigger: () =>
-                {
-                    if (Player?.AudioSettings?.PlayItem)
+                OnReceive: RecieveBell
+            }, {
+                Name: "FlickBell2",
+                MaxProgress: 50,
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HasBellNipples",
+                    Prerequisite: (_acting, acted, _group) =>
                     {
-                        BELL_SOUND.play();
+                        return InventoryGet(acted, "ItemNipples")?.Asset?.Name?.toLocaleLowerCase()?.includes("bell") ?? false;
                     }
-                    return;
                 },
-                OnReceive: (source, target, _group, _data) =>
-                {
-                    if (
-                        source?.MemberNumber !== Player.MemberNumber
-                        && Player.AudioSettings?.PlayItem
-                        && (target?.MemberNumber === Player.MemberNumber
-                        || !Player.AudioSettings.PlayItemPlayerOnly)
-                    )
-                    {
-                        BELL_SOUND.play();
-                    }
-                }
+                Targets: [{
+                    group: "ItemNipples",
+                    label: "Flick Bell",
+                    actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipples.",
+                    actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipples."
+                }], 
+                Image: "Assets\\Female3DCG\\ItemNipples\\Preview\\BellClamps.png",
+                OnReceive: RecieveBell
             }
         ];
     }
