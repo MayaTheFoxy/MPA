@@ -112,8 +112,8 @@ export class ActivitiesModule extends Module
                 data.Type === "Activity"
             )
             {
-                const activityName = GetAttributeFromChatDictionary(data, "ActivityName") as string;
-                if (!activityName.startsWith(ACTIVITY_NAME_PREFIX)
+                const activityName = GetAttributeFromChatDictionary(data, "ActivityName") as string | undefined;
+                if (!activityName?.startsWith(ACTIVITY_NAME_PREFIX)
                   || !(activityName in activityReceived))
                 {
                     return;
