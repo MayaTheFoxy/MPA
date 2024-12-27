@@ -15,7 +15,7 @@ const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
     {
         BELL_SOUND.play();
     }
-}
+};
 
 export class ActivitiesModule extends Module
 {
@@ -64,7 +64,7 @@ export class ActivitiesModule extends Module
                     label: "Flick Bell",
                     actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipples.",
                     actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipples."
-                }], 
+                }],
                 Image: "Assets\\Female3DCG\\ItemNipples\\Preview\\BellClamps.png",
                 OnReceive: RecieveBell
             }

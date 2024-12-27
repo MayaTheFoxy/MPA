@@ -59,7 +59,7 @@ export async function LoadStorage(): Promise<void>
 
 export function SaveStorage(syncWithOthers: boolean = true): void
 {
-    if(!Player.MPA)
+    if (!Player.MPA)
     {
         return;
     }

@@ -1,5 +1,6 @@
 # 0.4.4b1
  - Flick bell collar activity added
+ - Flick bell nipples activity added
  - Fix: No longer able to set yourself as owner
  - Fix: Removed Profile settings has been updated message when it was not applicable
 
