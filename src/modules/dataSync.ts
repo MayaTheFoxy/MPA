@@ -91,6 +91,10 @@ export class DataSyncModule extends Module
                 message: "SettingSync",
                 action: function (sender: Character, content: MPAMessageContent): void
                 {
+                    if (sender.MemberNumber === Player.MemberNumber)
+                    {
+                        return;
+                    }
                     sender.MPA = content.settings;
                     if (content.reply)
                     {
@@ -102,6 +106,10 @@ export class DataSyncModule extends Module
                 message: "CategorySync",
                 action: function (sender: Character, content: MPAMessageContent): void
                 {
+                    if (sender.MemberNumber === Player.MemberNumber)
+                    {
+                        return;
+                    }
                     if (!sender.MPA)
                     {
                         SettingSync(false, sender.MemberNumber);
@@ -116,6 +124,10 @@ export class DataSyncModule extends Module
                 message: "RecordsSync",
                 action: function (sender: Character, content: MPAMessageContent): void
                 {
+                    if (sender.MemberNumber === Player.MemberNumber)
+                    {
+                        return;
+                    }
                     for (const record of content.records as TransmitRecords)
                     {
                         if (!sender?.MPA?.[record.category])
