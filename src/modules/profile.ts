@@ -28,7 +28,7 @@ function GetRecord(title: ModuleTitle, C: Character = Player): MPARecord
 export const GARBLE_PHRASES = Object.freeze({
     Human: ["hmmgm", "mmmm", "mhhmmaa", "hmmm"],
     Custom: [""],
-    Bunny: ["pon", "eep", "huff", "tk-tk", "nngh-nngh"],
+    Bunny: ["pon", "pyon", "eep", "huff", "tk-tk", "nngh-nngh"],
     Cat: ["meow", "mew", "nyah", "nya", "purr", "mrrow", "prrr"],
     Cow: ["moo", "mooooo", "muuhhh", "moooah"],
     Dog: ["arf", "woof", "bark", "ruff", "huff", "eep"],
