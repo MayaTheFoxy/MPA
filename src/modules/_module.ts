@@ -14,7 +14,8 @@ export enum ModuleTitle
     VirtualPetConditions = "VirtualPetConditions",
     DataSync = "DataSync",
     Profile = "Profile",
-    SettingsOther = "SettingsOther"
+    SettingsOther = "SettingsOther",
+    Private = "Private"
 }
 
 export abstract class Module

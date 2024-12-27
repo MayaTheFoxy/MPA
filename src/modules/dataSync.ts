@@ -1,3 +1,4 @@
+// Never send Private MPA data across the server and never accept Private MPA data
 import { HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
 import { FindCharacterInRoom, GetMPAMessageFromChat, HookedMessage, hookedMessages, MPAMessageContent, SendMPAMessage } from "../util/messaging";
@@ -9,9 +10,11 @@ import { FindCharacterInRoom, GetMPAMessageFromChat, HookedMessage, hookedMessag
  */
 export function SettingSync(reply: boolean = false, target?: number): void
 {
+    const settings = structuredClone(Player.MPA);
+    delete settings[ModuleTitle.Private];
     SendMPAMessage({
         message: "SettingSync",
-        settings: Player.MPA,
+        settings: settings,
         reply: reply
     }, target);
 }
@@ -23,6 +26,10 @@ export function SettingSync(reply: boolean = false, target?: number): void
  */
 export function CategorySync(category: ModuleTitle, target?: number): void
 {
+    if (category === ModuleTitle.Private)
+    {
+        return;
+    }
     SendMPAMessage({
         message: "CategorySync",
         category: category,
@@ -38,15 +45,6 @@ export function CategorySync(category: ModuleTitle, target?: number): void
  */
 export function RecordSync(category: ModuleTitle, record: string, target?: number): void
 {
-    // DEPRECIATED, DELETE AFTER STABLE PUSH MADE V0.4.4
-    // Currently here for backwards compatibility with dev and stable
-    SendMPAMessage({
-        message: "RecordSync",
-        category: category,
-        record: record,
-        value: Player.MPA[category][record]
-    }, target);
-
     RecordsSync([{ category: category, record: record }], target);
 }
 
@@ -59,9 +57,18 @@ type TransmitRecords = { category: ModuleTitle; record: string; value?: any }[];
  */
 export function RecordsSync(records: TransmitRecords, target?: number): void
 {
-    for (const record of records)
+    for (var i = records.length - 1; i >= 0; i--)
     {
+        const record = records[i];
+        if (record.category === ModuleTitle.Private)
+        {
+            records.splice(i, 1);
+        }
         record.value = Player.MPA[record.category][record.record];
+    }
+    if (records.length === 0)
+    {
+        return;
     }
     SendMPAMessage({
         message: "RecordsSync",
@@ -102,21 +109,6 @@ export class DataSyncModule extends Module
                     else
                     {
                         sender.MPA[content.category] = content.value;
-                    }
-                }
-            }, {
-                // DEPRECIATED, DELETE AFTER STABLE PUSH MADE V0.4.4
-                module: ModuleTitle.DataSync,
-                message: "RecordSync",
-                action: function (sender: Character, content: MPAMessageContent): void
-                {
-                    if (!sender?.MPA?.[content.category])
-                    {
-                        CategorySync(content.category, sender.MemberNumber);
-                    }
-                    else
-                    {
-                        sender.MPA[content.category][content.record] = content.value;
                     }
                 }
             }, {
