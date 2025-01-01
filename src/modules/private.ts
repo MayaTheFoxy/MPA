@@ -10,6 +10,11 @@ export class PrivateModule extends Module
     get Settings(): Setting[]
     {
         return [
+            {
+                name: "savedBed",
+                type: "record",
+                value: ""
+            }
         ];
     }
 

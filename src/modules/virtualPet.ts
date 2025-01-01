@@ -1,4 +1,5 @@
 import { Module, ModuleTitle } from "./_module";
+import { BED_BAD, BED_NORMAL, BED_PERFECT } from "../util/constants";
 import { HookFunction } from "../util/sdk";
 import { SaveStorage } from "../util/storage";
 import { GetAttributeFromChatDictionary } from "../util/messaging";
@@ -21,9 +22,6 @@ const ACTIVITIES_FOOD_GAIN = ["LSCG_Eat", "ThrowItem"];
 const ACTIVITIES_WATER_GAIN = ["LSCG_FunnelPour", "LSCG_Quaff"];
 
 const EMOTICONS_SLEEP = ["Sleep", "Afk", "Fork", "Coding", "Read"];
-const BED_PERFECT = ["PetBed", "Crib"];
-const BED_NORMAL = ["LowCage", "Kennel", "Bed", "MedicalBed"];
-const BED_BAD = ["FuturisticCrate", "DollBox"];
 
 const AFFECTION_ACTIVITY_LOVE = ["Pet", "TakeCare", "LSCG_Nuzzle", "Caress", "LSCG_Hug", "Scratch"];
 const AFFECTION_ACTIVITY_LIKE = ["Kiss", "MassageHands", "Lick", "Nibble", "Cuddle", "Grope"];

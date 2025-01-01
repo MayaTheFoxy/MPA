@@ -1,3 +1,7 @@
+# 0.4.4b2
+ - Allow tucking others into bed
+ - Allow saving custom beds
+
 # 0.4.4b1
  - Flick bell collar activity added
  - Flick bell nipples activity added
