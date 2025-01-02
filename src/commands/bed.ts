@@ -4,10 +4,14 @@ import { ALL_BEDS } from "../util/constants";
 import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction } from "../util/messaging";
 import { HookFunction } from "../util/sdk";
 
+const BOWL_SELF_TEXT = "SourceCharacter crawls into PronounPossessive bed.";
+const BOWL_OTHER_TEXT =  "SourceCharacter tucks TargetCharacter into bed.";
+
 function IsBed(bed: any): boolean
 {
     // Invalid craft = skip
-    return CraftingValidate(bed) === CraftingStatusType.OK
+    return Object.keys(bed).length > 0  
+      && CraftingValidate(bed) === CraftingStatusType.OK
       && (ALL_BEDS.includes(bed.Item)
       || bed?.Name?.toLocaleLowerCase()?.includes("bed"));
 }
@@ -20,7 +24,7 @@ function GiveBedText(character: Character = Player): void
     if (character.MemberNumber === Player.MemberNumber)
     {
         SendAction(
-            "SourceCharacter crawls into PronounPossessive bed.",
+            BOWL_SELF_TEXT,
             undefined,
             [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry]
         );
@@ -28,7 +32,7 @@ function GiveBedText(character: Character = Player): void
     else
     {
         SendAction(
-            "SourceCharacter tucks TargetCharacter into bed.",
+            BOWL_OTHER_TEXT,
             undefined,
             [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry,
                 { TargetCharacter: character.MemberNumber } as TargetCharacterDictionaryEntry]
@@ -87,7 +91,8 @@ function UseBed(): void
 function GiveBed(character: Character = Player): boolean
 {
     const unableToGiveBed = InventoryGet(character, "ItemDevices")
-      || InventoryGroupIsBlockedForCharacter(character, "ItemDevices");
+      || InventoryGroupIsBlockedForCharacter(character, "ItemDevices")
+      || (character.MemberNumber !== Player.MemberNumber && !Player.CanInteract());
 
     if (character.MemberNumber !== Player.MemberNumber)
     {
@@ -125,7 +130,7 @@ export function Bed(): void
 {
     CommandCombine([{
         Tag: "bed",
-        Description: "Crawl into bed without needing hands",
+        Description: "[(optional) Bed export code OR Other player] Crawl into bed without needing hands",
         Action: (_args, msg, _parsed) =>
         {
             // Argument is passed
@@ -157,7 +162,7 @@ export function Bed(): void
         }
     }, {
         Tag: "blanket",
-        Description: "Pull the blanket over yourself",
+        Description: "Pull the blanket over yourself (Only works on PetBed)",
         Action: () =>
         {
             // blanky
@@ -202,7 +207,7 @@ export function Bed(): void
           && GetAttributeFromChatDictionary(data, "TargetCharacter") === Player.MemberNumber
           && data.Dictionary?.some(
               (curr) => (curr as any)?.Tag === "MISSING ACTIVITY DESCRIPTION FOR KEYWORD MayaScript"
-              && (curr as any)?.Text === "SourceCharacter tucks TargetCharacter into bed."
+              && (curr as any)?.Text === BOWL_OTHER_TEXT
           )
         )
         {
