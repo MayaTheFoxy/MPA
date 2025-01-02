@@ -14,6 +14,10 @@ export class PrivateModule extends Module
                 name: "savedBed",
                 type: "record",
                 value: ""
+            }, {
+                name: "savedBowl",
+                type: "record",
+                value: ""
             }
         ];
     }
