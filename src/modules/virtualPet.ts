@@ -15,8 +15,8 @@ const PlayerVP: (C?: Character) => MPARecord = (C: Character = Player) =>
 
 // const CHARACTERS_MOVING = ["ServerMoveRight", "ServerSwap", "ServerMoveLeft"];
 
-const BOWL_CONSUME_RECOVERY = 0.4;
-const ITEM_CONUME_RECOVERY = 0.2;
+const BOWL_CONSUME_RECOVERY = 1;
+const ITEM_CONUME_RECOVERY = 0.33;
 
 const ACTIVITIES_FOOD_GAIN = ["LSCG_Eat", "ThrowItem"];
 const ACTIVITIES_WATER_GAIN = ["LSCG_FunnelPour", "LSCG_Quaff"];
