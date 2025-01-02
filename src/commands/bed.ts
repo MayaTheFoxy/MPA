@@ -1,15 +1,15 @@
 import { SaveStorage } from "../util/storage";
 import { ModuleTitle } from "../modules/_module";
 import { ALL_BEDS } from "../util/constants";
-import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction, SendMPAMessage } from "../util/messaging";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction } from "../util/messaging";
 import { HookFunction } from "../util/sdk";
 
 function IsBed(bed: any): boolean
 {
     // Invalid craft = skip
     return CraftingValidate(bed) === CraftingStatusType.OK
-        && (ALL_BEDS.includes(bed.Item)
-            || bed?.Name?.toLocaleLowerCase()?.includes("bed"));
+      && (ALL_BEDS.includes(bed.Item)
+      || bed?.Name?.toLocaleLowerCase()?.includes("bed"));
 }
 
 /**
@@ -27,23 +27,22 @@ function GiveBedText(character: Character = Player): void
     }
     else
     {
-        SendMPAMessage({message:"bedTuck"}, character.MemberNumber);
         SendAction(
             "SourceCharacter tucks TargetCharacter into bed.",
             undefined,
             [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry,
-             { TargetCharacter: character.MemberNumber } as TargetCharacterDictionaryEntry]
+                { TargetCharacter: character.MemberNumber } as TargetCharacterDictionaryEntry]
         );
     }
 }
 
-/** 
+/**
  * Use a bed on yourself
  */
 function UseBed(): void
 {
     if (InventoryGet(Player, "ItemDevices")
-        || InventoryGroupIsBlockedForCharacter(Player, "ItemDevices"))
+      || InventoryGroupIsBlockedForCharacter(Player, "ItemDevices"))
     {
         return;
     }
@@ -55,7 +54,7 @@ function UseBed(): void
             Player,
             savedBed.Item,
             "ItemDevices",
-            savedBed.Color.split(','),
+            savedBed.Color.split(","),
             0,
             Player.MemberNumber,
             savedBed,
@@ -88,7 +87,7 @@ function UseBed(): void
 function GiveBed(character: Character = Player): boolean
 {
     const unableToGiveBed = InventoryGet(character, "ItemDevices")
-        || InventoryGroupIsBlockedForCharacter(character, "ItemDevices");
+      || InventoryGroupIsBlockedForCharacter(character, "ItemDevices");
 
     if (character.MemberNumber !== Player.MemberNumber)
     {
@@ -100,7 +99,7 @@ function GiveBed(character: Character = Player): boolean
         if (!character.MPA || character.MPA?.version !== Player.MPA.version)
         {
             MPANotifyPlayer(`${character.Nickname || character.Name} does not have MPA, unable to give bed`, 30000);
-            return false
+            return false;
         }
         if (unableToGiveBed)
         {
@@ -110,7 +109,7 @@ function GiveBed(character: Character = Player): boolean
         GiveBedText(character);
         return true;
     }
-    
+
     if (unableToGiveBed)
     {
         MPANotifyPlayer("Unable to crawl into bed", 30000);
@@ -199,12 +198,12 @@ export function Bed(): void
     {
         const data = args[0];
         if (data.Type === "Activity"
-            && data.Content === "MayaScript"
-            && GetAttributeFromChatDictionary(data, "TargetCharacter") === Player.MemberNumber
-            && data.Dictionary?.some(
-                curr => (curr as any)?.Tag === "MISSING ACTIVITY DESCRIPTION FOR KEYWORD MayaScript" 
-                    && (curr as any)?.Text === "SourceCharacter tucks TargetCharacter into bed."
-            )
+          && data.Content === "MayaScript"
+          && GetAttributeFromChatDictionary(data, "TargetCharacter") === Player.MemberNumber
+          && data.Dictionary?.some(
+              (curr) => (curr as any)?.Tag === "MISSING ACTIVITY DESCRIPTION FOR KEYWORD MayaScript"
+              && (curr as any)?.Text === "SourceCharacter tucks TargetCharacter into bed."
+          )
         )
         {
             UseBed();

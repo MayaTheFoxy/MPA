@@ -57,7 +57,7 @@ type TransmitRecords = { category: ModuleTitle; record: string; value?: any }[];
  */
 export function RecordsSync(records: TransmitRecords, target?: number): void
 {
-    for (var i = records.length - 1; i >= 0; i--)
+    for (let i = records.length - 1; i >= 0; i--)
     {
         const record = records[i];
         if (record.category === ModuleTitle.Private)
