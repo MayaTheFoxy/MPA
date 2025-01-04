@@ -1,3 +1,8 @@
+# 0.4.4.4
+- Improved changelog documentation, displays in chat on first upgrade
+- Condition: Orgasm causes hydration loss
+- Condition: Orgasm causes energy loss
+
 # 0.4.4.3
 - /bowl command
     - Allow saving custom bowls
