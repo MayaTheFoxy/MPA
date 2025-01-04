@@ -1,9 +1,9 @@
 import { RandomElement } from "../util/general";
-import { SendAction } from "../util/messaging";
+import { GetAttributeFromChatDictionary, SendAction } from "../util/messaging";
 import { HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
 import { IsHardcoreOn } from "./profile";
-import { GetCharacterCurrentStatValue, VirtualPetStatCategory } from "./virtualPet";
+import { GetCharacterCurrentStatValue, ModifyStat, VirtualPetStatCategory } from "./virtualPet";
 
 const PlayerVP: (C?: Character) => MPARecord = (C: Character = Player) =>
 {
@@ -119,7 +119,7 @@ const SLEEP_TINT = {
 
 let passedOut = false;
 const PASSOUT_TALK_REPLACE: string[] = [
-    "SourceCharacter drools out of the corner of PronounPossessive lip as PronounSubject sleeps.",
+    "SourceCharacter drools out of the corner of PronounPossessive mouth as PronounSubject sleeps.",
     "SourceCharacter mumbles quietly in PronounPossessive slumber.",
     "SourceCharacter rests peacefully."
 ];
@@ -218,6 +218,10 @@ function AffectionSkillCheck(): void
 const MAX_SLOW_LEAVE_DURATION_SEC = 25;
 const SLOW_LEAVE_LEVEL_START = 0.3;
 
+const ORGASM_ACTIVITY_REGEX = /Orgasm[0-9]/;
+const ORGASM_WATER_DRAIN = -0.05;
+const ORGASM_SLEEP_DRAIN = -0.05;
+
 export class VirtualPetConditionsModule extends Module
 {
     get Title(): ModuleTitle
@@ -282,6 +286,18 @@ export class VirtualPetConditionsModule extends Module
                 active: (C) => !!PlayerVP(C).enabled && !!PlayerVPC(C).enabled && !IsHardcoreOn(C),
                 value: true,
                 label: "Takes longer to leave the room when hungry"
+            } as CheckboxSetting, {
+                name: "orgasmWater",
+                type: "checkbox",
+                active: (C) => !!PlayerVP(C).enabled && !!PlayerVPC(C).enabled && !IsHardcoreOn(C),
+                value: true,
+                label: "Orgasms make you lose some hydration"
+            } as CheckboxSetting, {
+                name: "orgasmSleep",
+                type: "checkbox",
+                active: (C) => !!PlayerVP(C).enabled && !!PlayerVPC(C).enabled && !IsHardcoreOn(C),
+                value: true,
+                label: "Orgasms make you lose some energy"
             } as CheckboxSetting
         ];
     }
@@ -434,6 +450,30 @@ export class VirtualPetConditionsModule extends Module
         HookFunction(this.Title, "Player.IsSlow", 0, (args, next) =>
         {
             return (ConditionIsEnforced("slowLeave", "food") && GetCharacterCurrentStatValue(Player, "food") <= SLOW_LEAVE_LEVEL_START) ? true : next(args);
+        });
+
+        // On orgasm
+        HookFunction(this.Title, "ChatRoomMessage", 10, (args, next) =>
+        {
+            const data = args[0];
+            if (data.Type !== "Activity"
+              || !ORGASM_ACTIVITY_REGEX.test(data.Content)
+              || GetAttributeFromChatDictionary(data, "SourceCharacter") !== Player.MemberNumber)
+            {
+                return next(args);
+            }
+
+            if (PlayerVPC().orgasmWater)
+            {
+                ModifyStat("water", ORGASM_WATER_DRAIN, false, true);
+            }
+
+            if (PlayerVPC().orgasmSleep)
+            {
+                ModifyStat("sleep", ORGASM_SLEEP_DRAIN, false, true);
+            }
+
+            return next(args);
         });
     }
 

@@ -278,8 +278,12 @@ export class ProfileModule extends Module
                 active: () => true,
                 value: false,
                 label: "Enable hardcore mode; Will set certain settings and prevent changing them back",
-                onSet(C)
+                onSet(C, value)
                 {
+                    if (value == false)
+                    {
+                        return;
+                    }
                     GetRecord(ModuleTitle.Clicker, C).enabled = true;
                     GetRecord(ModuleTitle.Clicker, C).bcxVoice = true;
                     GetRecord(ModuleTitle.VirtualPet, C).enabled = true;
@@ -292,6 +296,8 @@ export class ProfileModule extends Module
                     GetRecord(ModuleTitle.VirtualPetConditions, C).affectionSkillDebuffs = true;
                     GetRecord(ModuleTitle.VirtualPetConditions, C).hearingLoss = true;
                     GetRecord(ModuleTitle.VirtualPetConditions, C).slowLeave = true;
+                    GetRecord(ModuleTitle.VirtualPetConditions, C).orgasmWater = true;
+                    GetRecord(ModuleTitle.VirtualPetConditions, C).orgasmSleep = true;
                 }
             } as CheckboxSetting
         ];
