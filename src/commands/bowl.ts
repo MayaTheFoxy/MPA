@@ -10,7 +10,7 @@ const BOWL_REGEX = /^(?:\w|[ ~!$#%*+])*$/;
 function IsBowl(bowl: any): boolean
 {
     // Invalid craft = skip
-    return Object.keys(bowl).length > 0 
+    return Object.keys(bowl).length > 0
       && CraftingValidate(bowl) === CraftingStatusType.OK
       && bowl?.Item == "PetBowl";
 }

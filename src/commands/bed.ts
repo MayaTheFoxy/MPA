@@ -5,12 +5,12 @@ import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, N
 import { HookFunction } from "../util/sdk";
 
 const BOWL_SELF_TEXT = "SourceCharacter crawls into PronounPossessive bed.";
-const BOWL_OTHER_TEXT =  "SourceCharacter tucks TargetCharacter into bed.";
+const BOWL_OTHER_TEXT = "SourceCharacter tucks TargetCharacter into bed.";
 
 function IsBed(bed: any): boolean
 {
     // Invalid craft = skip
-    return Object.keys(bed).length > 0  
+    return Object.keys(bed).length > 0
       && CraftingValidate(bed) === CraftingStatusType.OK
       && (ALL_BEDS.includes(bed.Item)
       || bed?.Name?.toLocaleLowerCase()?.includes("bed"));

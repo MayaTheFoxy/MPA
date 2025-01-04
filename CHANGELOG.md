@@ -1,13 +1,13 @@
-# 0.4.4b3
+# 0.4.4.3
 - /bowl command
     - Allow saving custom bowls
     - Allow giving bowls to your pets
 
-# 0.4.4b2
+# 0.4.4.2
 - Allow tucking others into bed
 - Allow saving custom beds
 
-# 0.4.4b1
+# 0.4.4.1
 - Flick bell collar activity added
 - Flick bell nipples activity added
 - Fix: No longer able to set yourself as owner
