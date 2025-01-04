@@ -1,6 +1,6 @@
 import { SaveStorage } from "../util/storage";
 import { ModuleTitle } from "../modules/_module";
-import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction, SendMPAMessage } from "../util/messaging";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction } from "../util/messaging";
 import { HookFunction } from "../util/sdk";
 
 const BOWL_SELF_TEXT = "SourceCharacter lays a bowl of food and water on the ground in front of PronounObjectself.";

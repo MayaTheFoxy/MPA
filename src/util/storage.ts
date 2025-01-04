@@ -1,15 +1,80 @@
 import { LocalizedText } from "../localization/localization";
 import { settings as currentSettings } from "./registerModules";
-import { AwaitPlayer } from "./sdk";
+import { AwaitInChatRoom, AwaitPlayer, Sleep } from "./sdk";
 import { SettingSync } from "../modules/dataSync";
 import { ModuleTitle } from "../modules/_module";
 import { MPA_VERSION } from "./constants";
 import { LevelSync } from "../modules/virtualPet";
+import { NotifyPlayer } from "./messaging";
+
+const CHANGELOG_RAW_STABLE = "https://raw.githubusercontent.com/MayaTheFoxy/MPA/refs/heads/main/CHANGELOG.md";
+const CHANGELOG_RAW_DEV = "https://raw.githubusercontent.com/MayaTheFoxy/MPA/refs/heads/dev/CHANGELOG.md";
+
+const CHANGELOG_STABLE = "https://github.com/MayaTheFoxy/MPA/blob/main/CHANGELOG.md";
+const CHANGELOG_DEV = "https://github.com/MayaTheFoxy/MPA/blob/dev/CHANGELOG.md";
+
+const VERSION_STABLE_REGEX = /^\d+\.\d+\.\d+$/;
+// const VERSION_DEV_REGEX = /^\d+\.\d+\.\d+\.\d+$/;
+
+/**
+ * Fetch the changelog from the repo
+ * @returns
+ */
+async function FetchLatestChangelog(): Promise<void>
+{
+    const isStable = VERSION_STABLE_REGEX.test(MPA_VERSION);
+    const url = isStable ? CHANGELOG_RAW_STABLE : CHANGELOG_RAW_DEV;
+    try
+    {
+        const response = await fetch(url);
+        if (!response.ok)
+        {
+            console.warn(`MPA: Failed to fetch CHANGELOG.md: ${response.statusText}`);
+        }
+
+        const changelog = await response.text();
+        // Use a regular expression to extract the latest release section
+        const matches = /# (\d+\.\d+\.\d+(?:\.\d+)?)+\n([\s\S]*?)(?=\n# |$)/.exec(changelog);
+
+        console.log(matches);
+
+        if (matches)
+        {
+            const version = matches[1];
+
+            if (version === MPA_VERSION)
+            {
+                const changes = matches[2].trim();
+                while (true)
+                {
+                    await AwaitInChatRoom();
+                    await Sleep(100);
+                    if (ChatRoomCharacter.length > 0)
+                    {
+                        NotifyPlayer(`<b style='text-align:center;width:100%;display:block'>MPA Updated</b>
+Current MPA Version: ${MPA_VERSION}
+Changes from previous version:
+${changes}
+<a href="${isStable ? CHANGELOG_STABLE : CHANGELOG_DEV}" target="_blank">See Full Changelog</a>`);
+                        break;
+                    }
+                }
+                return;
+            }
+        }
+        console.warn("MPA: Could not get the latest MPA Changelogs");
+    }
+    catch (error)
+    {
+        console.error(`Error: ${error}`);
+    }
+}
 
 function MPAUpdateCheck(settings: MPARecords): void
 {
     if ((settings.version as any) !== MPA_VERSION)
     {
+        const isStable = VERSION_STABLE_REGEX.test(MPA_VERSION);
         ServerAccountBeep({
             MemberNumber: Player.MemberNumber ?? -1,
             MemberName: LocalizedText("MPA"),
@@ -17,10 +82,11 @@ function MPAUpdateCheck(settings: MPARecords): void
             ChatRoomName: LocalizedText("MPA Updated"),
             Private: false,
             BeepType: "",
-            Message: "MPA has been updated."
+            Message: `MPA has been updated. See the changelog here:\n${isStable ? CHANGELOG_STABLE : CHANGELOG_DEV}`
         });
         (settings.version as any) = MPA_VERSION;
         SaveStorage(false);
+        FetchLatestChangelog();
     }
 }
 
