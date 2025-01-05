@@ -190,7 +190,10 @@ export class SettingsOtherModule extends Module
                 message: "EditingSettings",
                 action: function (sender: Character, _content: MPAMessageContent): void
                 {
-                    NotifyPlayer(LocalizedText("SourceCharacter is accessing your MPA settings.").replace("SourceCharacter", sender.Nickname || sender.Name), 30000);
+                    if (Player.MPA[ModuleTitle.Authority].settingsNotify)
+                    {
+                        NotifyPlayer(LocalizedText("SourceCharacter is accessing your MPA settings.").replace("SourceCharacter", sender.Nickname || sender.Name), 30000);
+                    }
                 }
             }
         ];
