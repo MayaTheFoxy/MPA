@@ -1,3 +1,6 @@
+# 0.4.4.5
+- Notify when others are accessing your settings toggle
+
 # 0.4.4.4
 - Improved changelog documentation, displays in chat on first upgrade
 - Condition: Orgasm causes hydration loss

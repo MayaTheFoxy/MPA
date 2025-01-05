@@ -17,5 +17,5 @@ export const BELL_SOUND = new Audio("Audio\\BellMedium.mp3");
 
 export const BED_PERFECT = ["PetBed", "Crib"];
 export const BED_NORMAL = ["LowCage", "Kennel", "Bed", "MedicalBed", "Cushion"];
-export const BED_BAD = ["FuturisticCrate", "DollBox", "Kennel", "LowCage"];
+export const BED_BAD = ["FuturisticCrate", "DollBox"];
 export const ALL_BEDS = BED_PERFECT.concat(BED_NORMAL, BED_BAD);
