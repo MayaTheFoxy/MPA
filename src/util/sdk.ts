@@ -84,6 +84,41 @@ export async function AwaitPlayer(): Promise<void>
 }
 
 /**
+ * Only release the await when the Player has entered a chat room
+ */
+export async function AwaitInChatRoom()
+{
+    if (ChatRoomCharacter.length > 1)
+    {
+        return;
+    }
+
+    return new Promise<void>((resolve) =>
+    {
+        const hook = modAPI.hookFunction("ChatRoomSync", 100, (args, next) =>
+        {
+            // Let response happen first
+            next(args);
+
+            // Remove this hook when done
+            hook();
+
+            // Resolve the promise to end the await condition
+            resolve();
+        });
+    });
+}
+
+/**
+ * Do nothing but wait
+ * @param ms Duration to wait
+ */
+export function Sleep(ms: number)
+{
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
  * Get the BCX mod api for MPA
  */
 export function bcxAPI()

@@ -1,7 +1,6 @@
 // globals.d.ts
 
 import { ModuleTitle } from "../src/util/settingTypes";
-import { type NewPrerequisites } from "../src/modules/activities";
 import { type MPAMessageContent } from "../src/util/messaging";
 
 interface MPAWindow
@@ -84,7 +83,13 @@ declare global
 
     // Type used to create an activity
     type AcitivityTrigger = (target: Character | undefined) => void;
+    type ActivityReceived = (source: Character | undefined, target: Character| undefined, group: AssetGroupItemName, data: ServerChatRoomMessage) => void;
     type Prerequisite = (acting: Character, acted: Character, group: AssetGroup) => boolean;
+    type NewPrerequisite = 
+    {
+        Name: string;
+        Prerequisite?: (acting: Character, acted: Character, group: AssetGroup) => boolean;
+    };
     type AllowedPrerequisites = ActivityPrerequisite | NewPrerequisites;
     interface CustomTarget
     {
@@ -93,13 +98,14 @@ declare global
         actionSelf?: string;
         actionOthers?: string;
     }
-    interface CustomActivity extends Omit<Activity, "Name" | "ActivityID" | "Target" | "Prerequisite" | "MaxProgress">
+    interface CustomActivity extends Omit<Activity, "Name" | "ActivityID" | "Target" | "MaxProgress">
     {
         Name: string;
         Targets: CustomTarget[];
         Image: string;
         OnTrigger?: AcitivityTrigger;
-        Prerequisite: AllowedPrerequisites[];
+        OnReceive?: ActivityReceived;
+        CustomPrerequisite?: NewPrerequisite | NewPrerequisite[];
         MaxProgress?: number;
     }
 }

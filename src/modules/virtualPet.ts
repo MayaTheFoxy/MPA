@@ -1,4 +1,5 @@
 import { Module, ModuleTitle } from "./_module";
+import { BED_BAD, BED_NORMAL, BED_PERFECT } from "../util/constants";
 import { HookFunction } from "../util/sdk";
 import { SaveStorage } from "../util/storage";
 import { GetAttributeFromChatDictionary } from "../util/messaging";
@@ -14,16 +15,13 @@ const PlayerVP: (C?: Character) => MPARecord = (C: Character = Player) =>
 
 // const CHARACTERS_MOVING = ["ServerMoveRight", "ServerSwap", "ServerMoveLeft"];
 
-const BOWL_CONSUME_RECOVERY = 0.4;
-const ITEM_CONUME_RECOVERY = 0.2;
+const BOWL_CONSUME_RECOVERY = 0.67;
+const ITEM_CONUME_RECOVERY = 0.33;
 
 const ACTIVITIES_FOOD_GAIN = ["LSCG_Eat", "ThrowItem"];
 const ACTIVITIES_WATER_GAIN = ["LSCG_FunnelPour", "LSCG_Quaff"];
 
 const EMOTICONS_SLEEP = ["Sleep", "Afk", "Fork", "Coding", "Read"];
-const BED_PERFECT = ["PetBed", "Crib"];
-const BED_NORMAL = ["LowCage", "Kennel", "Bed", "MedicalBed"];
-const BED_BAD = ["FuturisticCrate", "DollBox"];
 
 const AFFECTION_ACTIVITY_LOVE = ["Pet", "TakeCare", "LSCG_Nuzzle", "Caress", "LSCG_Hug", "Scratch"];
 const AFFECTION_ACTIVITY_LIKE = ["Kiss", "MassageHands", "Lick", "Nibble", "Cuddle", "Grope"];
@@ -316,7 +314,14 @@ export class VirtualPetModule extends Module
                     actionSelf: "SourceCharacter eats from PronounPossessive bowl."
                 }],
                 Image: "Assets/Female3DCG/ItemDevices/Preview/PetBowl.png",
-                Prerequisite: ["UseMouth", "HasBowl"],
+                Prerequisite: ["UseMouth"],
+                CustomPrerequisite: {
+                    Name: "HasBowl",
+                    Prerequisite: (acting, _acted, _group) =>
+                    {
+                        return InventoryGet(acting, "ItemDevices")?.Asset?.Name === "PetBowl";
+                    }
+                },
                 OnTrigger: () =>
                 {
                     if (PlayerVP().enabled && PlayerVP().foodHours !== 0)
@@ -332,7 +337,10 @@ export class VirtualPetModule extends Module
                     actionSelf: "SourceCharacter drinks from PronounPossessive bowl."
                 }],
                 Image: "Assets/Female3DCG/ItemDevices/Preview/PetBowl.png",
-                Prerequisite: ["UseMouth", "HasBowl"],
+                Prerequisite: ["UseMouth"],
+                CustomPrerequisite: {
+                    Name: "HasBowl"
+                },
                 OnTrigger: () =>
                 {
                     if (PlayerVP().enabled && PlayerVP().waterHours !== 0)
@@ -348,7 +356,17 @@ export class VirtualPetModule extends Module
                     actionSelf: "SourceCharacter puts PronounPossessive head into PronounPossessive bowl in order to eat with the gag, making a mess."
                 }],
                 Image: "Assets/Female3DCG/ItemDevices/Preview/PetBowl.png",
-                Prerequisite: ["UseTongueNoMouth", "HasBowl"],
+                Prerequisite: [],
+                CustomPrerequisite: [
+                    { Name: "HasBowl" },
+                    {
+                        Name: "UseTongueNoMouth",
+                        Prerequisite: (acting, _acted, _group) =>
+                        {
+                            return !acting.CanTalk() && !acting.IsMouthBlocked();
+                        }
+                    }
+                ],
                 OnTrigger: () =>
                 {
                     if (PlayerVP().enabled && PlayerVP().foodHours !== 0)
@@ -364,7 +382,11 @@ export class VirtualPetModule extends Module
                     actionSelf: "SourceCharacter puts PronounPossessive head into PronounPossessive bowl in order to drink with the gag, making a mess."
                 }],
                 Image: "Assets/Female3DCG/ItemDevices/Preview/PetBowl.png",
-                Prerequisite: ["UseTongueNoMouth", "HasBowl"],
+                Prerequisite: [],
+                CustomPrerequisite: [
+                    { Name: "HasBowl" },
+                    { Name: "UseTongueNoMouth" }
+                ],
                 OnTrigger: () =>
                 {
                     if (PlayerVP().enabled && PlayerVP().waterHours !== 0)

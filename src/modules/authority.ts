@@ -25,6 +25,12 @@ export class AuthorityModule extends Module
     {
         return [
             {
+                name: "settingsNotify",
+                type: "checkbox",
+                active: () => true,
+                value: true,
+                label: "Notify when others are accessing TargetCharacter's settings"
+            } as CheckboxSetting, {
                 name: "owners",
                 type: "text",
                 active: () => true,

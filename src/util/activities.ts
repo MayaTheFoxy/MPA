@@ -1,27 +1,14 @@
 import { LocalizedText } from "../localization/localization";
-
-type NewPrerequisites = "HoldingClicker" | "HasBowl" | "UseTongueNoMouth";
+import { ACTIVITY_NAME_PREFIX } from "./constants";
 
 /** Stores the activity name and the image location or base 64 image for that activity */
 export const activityImages: Record<string, string> = {};
-/** When an activity happens, run this callback function */
+/** When an activity is used by the Player, run this callback function */
 export const activityTriggers: Record<string, AcitivityTrigger> = {};
 /** Custom prerequisites for activities */
-export const activityPrerequisites: Record<NewPrerequisites, Prerequisite> =
-{
-    HoldingClicker: (acting, _acted, _group) =>
-    {
-        return InventoryGet(acting, "ItemHandheld")?.Asset?.Name?.toLocaleLowerCase()?.includes("remote") ?? false;
-    },
-    HasBowl: (acting, _acted, _group) =>
-    {
-        return InventoryGet(acting, "ItemDevices")?.Asset?.Name === "PetBowl";
-    },
-    UseTongueNoMouth: (acting, _acted, _group) =>
-    {
-        return !acting.CanTalk() && !acting.IsMouthBlocked();
-    }
-};
+export const activityPrerequisites: Record<string, Prerequisite> = {};
+/** When an activity happens, run this callback function */
+export const activityReceived: Record<string, ActivityReceived> = {};
 
 /**
  * Create a new custom activity for the Player to use
@@ -30,13 +17,32 @@ export function CreateActivity(customActivity: CustomActivity): void
 {
     // Create the activity BC uses
     const activity: Activity = {
-        Name: `MPA_${customActivity.Name}` as ActivityName,
+        Name: `${ACTIVITY_NAME_PREFIX}${customActivity.Name}` as ActivityName,
         ActivityID: Math.max(...ActivityFemale3DCG.map((x) => x.ActivityID ?? -1)) + 1,
         MaxProgress: customActivity.MaxProgress ?? 50,
         // MaxProgressSelf: customActivity.MaxProgressSelf ?? customActivity.MaxProgress,
         Prerequisite: customActivity.Prerequisite,
         Target: []
     };
+
+    // Add custom activites to the record for checking when an activity is called later
+    if (customActivity.CustomPrerequisite)
+    {
+        let customPrerequisites = customActivity.CustomPrerequisite;
+        if (!Array.isArray(customPrerequisites))
+        {
+            customPrerequisites = [customPrerequisites];
+        }
+        customPrerequisites.forEach((newPrerequisite) =>
+        {
+            activity.Prerequisite.push(newPrerequisite.Name as ActivityPrerequisite);
+            if (!(newPrerequisite.Name in activityPrerequisites)
+              && newPrerequisite.Prerequisite)
+            {
+                activityPrerequisites[newPrerequisite.Name] = newPrerequisite.Prerequisite;
+            }
+        });
+    }
 
     // The lookup table for the activity
     customActivity.Targets.forEach((target) =>
@@ -71,6 +77,12 @@ export function CreateActivity(customActivity: CustomActivity): void
         activityTriggers[activity.Name] = customActivity.OnTrigger;
     }
 
+    // On activity recieved support
+    if (customActivity.OnReceive)
+    {
+        activityReceived[activity.Name] = customActivity.OnReceive;
+    }
+
     ActivityFemale3DCG.push(activity);
     ActivityFemale3DCGOrdering.push(activity.Name);
 }
@@ -92,7 +104,7 @@ export function CreateActivities(customActivities: CustomActivity[]): void
  */
 export function RemoveActivity(customActivity: CustomActivity): void
 {
-    const activityName = `MPA_${customActivity.Name}`;
+    const activityName = `${ACTIVITY_NAME_PREFIX}${customActivity.Name}`;
 
     // The lookup table for the activity
     customActivity.Targets.forEach((target) =>

@@ -1,6 +1,21 @@
-import { activityImages, activityPrerequisites, activityTriggers } from "../util/activities";
-import { HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary } from "../util/messaging";
+import { activityImages, activityPrerequisites, activityReceived, activityTriggers } from "../util/activities";
+import { HookFunction } from "../util/sdk";
+import { ACTIVITY_NAME_PREFIX, BELL_SOUND } from "../util/constants";
+
+const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
+{
+    if (
+        Player.AudioSettings?.PlayItem
+        && (!Player.AudioSettings.PlayItemPlayerOnly
+        || source?.MemberNumber === Player.MemberNumber
+        || target?.MemberNumber === Player.MemberNumber)
+    )
+    {
+        BELL_SOUND.play();
+    }
+};
 
 export class ActivitiesModule extends Module
 {
@@ -9,8 +24,57 @@ export class ActivitiesModule extends Module
         return ModuleTitle.Activities;
     }
 
+    get Activities(): CustomActivity[]
+    {
+        return [
+            {
+                Name: "FlickBell",
+                MaxProgress: 50,
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HasBellCollar",
+                    Prerequisite: (_acting, acted, _group) =>
+                    {
+                        return InventoryGet(acted, "ItemNeck")?.Asset?.Name?.toLocaleLowerCase()?.includes("bell")
+                          || InventoryGet(acted, "ItemNeckAccessories")?.Asset?.Name?.toLocaleLowerCase()?.includes("bell")
+                          || false;
+                    }
+                },
+                Targets: [{
+                    group: "ItemNeck",
+                    label: "Flick Bell",
+                    actionSelf: "SourceCharacter flicks the bell on PronounPossessive collar.",
+                    actionOthers: "SourceCharacter flicks the bell on TargetCharacter's collar."
+                }],
+                Image: "Assets\\Female3DCG\\ItemNeckAccessories\\Preview\\CollarBell.png",
+                OnReceive: RecieveBell
+            }, {
+                Name: "FlickBell2",
+                MaxProgress: 50,
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HasBellNipples",
+                    Prerequisite: (_acting, acted, _group) =>
+                    {
+                        return InventoryGet(acted, "ItemNipples")?.Asset?.Name?.toLocaleLowerCase()?.includes("bell") ?? false;
+                    }
+                },
+                Targets: [{
+                    group: "ItemNipples",
+                    label: "Flick Bell",
+                    actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipples.",
+                    actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipples."
+                }],
+                Image: "Assets\\Female3DCG\\ItemNipples\\Preview\\BellClamps.png",
+                OnReceive: RecieveBell
+            }
+        ];
+    }
+
     Load(): void
     {
+        super.Load();
+
         // Prerequisite handling
         HookFunction(this.Title, "ActivityCheckPrerequisite", 1, (args, next) =>
         {
@@ -32,7 +96,7 @@ export class ActivitiesModule extends Module
             }
             // @ts-ignore - TS not finding type automatically, it exists
             const activityName = data?.Dictionary?.find((x) => x.ActivityName)?.ActivityName as string | undefined;
-            if (activityName?.startsWith("MPA_"))
+            if (activityName?.startsWith(ACTIVITY_NAME_PREFIX))
             {
                 data?.Dictionary?.push({
                     Tag: "MISSING ACTIVITY DESCRIPTION FOR KEYWORD " + data.Content,
@@ -48,6 +112,30 @@ export class ActivitiesModule extends Module
             }
 
             return next(args);
+        });
+
+        // Activity on received
+        HookFunction(ModuleTitle.Clicker, "ChatRoomMessage", 0, (args, next) =>
+        {
+            next(args);
+            const data = args[0];
+            if (
+                data.Type === "Activity"
+            )
+            {
+                const activityName = GetAttributeFromChatDictionary(data, "ActivityName") as string | undefined;
+                if (!activityName?.startsWith(ACTIVITY_NAME_PREFIX)
+                  || !(activityName in activityReceived))
+                {
+                    return;
+                }
+                const sourceChar = FindCharacterInRoom(GetAttributeFromChatDictionary(data, "SourceCharacter"),
+                    { MemberNumber: true, NickName: false, Name: false }) ?? undefined;
+                const targetChar = FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter"),
+                    { MemberNumber: true, NickName: false, Name: false }) ?? undefined;
+                const group = GetAttributeFromChatDictionary(data, "FocusGroupName");
+                activityReceived[activityName](sourceChar, targetChar, group, data);
+            }
         });
 
         // Draw custom images for activities

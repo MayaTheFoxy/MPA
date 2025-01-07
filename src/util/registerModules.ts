@@ -10,6 +10,7 @@ import { VirtualPetConditionsModule } from "../modules/virtualPetConditions";
 import { ProfileModule } from "../modules/profile";
 import { SettingsOtherModule } from "../modules/settingsOthers";
 import { AuthorityModule } from "../modules/authority";
+import { PrivateModule } from "../modules/private";
 
 let modulesRegistered = false;
 
@@ -23,7 +24,8 @@ export const modules: Module[] = [
     new VirtualPetConditionsModule(),
     new ProfileModule(),
     new SettingsOtherModule(),
-    new AuthorityModule()
+    new AuthorityModule(),
+    new PrivateModule()
 ];
 
 export const settings: Partial<MPASettings> = {};

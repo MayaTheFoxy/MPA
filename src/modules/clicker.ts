@@ -93,7 +93,14 @@ export class ClickerModule extends Module
             {
                 Name: "Clicker1",
                 MaxProgress: 50,
-                Prerequisite: ["UseHands", "HoldingClicker"],
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HoldingClicker",
+                    Prerequisite: (acting, _acted, _group) =>
+                    {
+                        return InventoryGet(acting, "ItemHandheld")?.Asset?.Name?.toLocaleLowerCase()?.includes("remote") ?? false;
+                    }
+                },
                 Targets: [{
                     group: "ItemHands",
                     label: "Click Once",
@@ -103,7 +110,10 @@ export class ClickerModule extends Module
             }, {
                 Name: "Clicker2",
                 MaxProgress: 50,
-                Prerequisite: ["UseHands", "HoldingClicker"],
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HoldingClicker"
+                },
                 Targets: [{
                     group: "ItemHands",
                     label: "Click Twice",
@@ -113,7 +123,10 @@ export class ClickerModule extends Module
             }, {
                 Name: "Clicker3",
                 MaxProgress: 50,
-                Prerequisite: ["UseHands", "HoldingClicker"],
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HoldingClicker"
+                },
                 Targets: [{
                     group: "ItemHands",
                     label: "Click Thrice",

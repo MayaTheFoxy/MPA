@@ -11,3 +11,11 @@ export const ICONS = Object.freeze({
 export const INVOLUNTARY_PET_SPEAK_PERCENTAGE = 0.05;
 export const INVOLUNTARY_RUSHED_SPEAK_PERCENTAGE = 0.5;
 export const INVOLUNTARY_END_PET_SPEAK_PERCENTAGE = 0.2;
+
+export const ACTIVITY_NAME_PREFIX = "MPA_";
+export const BELL_SOUND = new Audio("Audio\\BellMedium.mp3");
+
+export const BED_PERFECT = ["PetBed", "Crib"];
+export const BED_NORMAL = ["LowCage", "Kennel", "Bed", "MedicalBed", "Cushion"];
+export const BED_BAD = ["FuturisticCrate", "DollBox"];
+export const ALL_BEDS = BED_PERFECT.concat(BED_NORMAL, BED_BAD);

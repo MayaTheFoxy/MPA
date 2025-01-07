@@ -14,6 +14,15 @@ const MPA_REMOTE = [1700, 765, 90, 90] as const;
 // BCX moves the button down by 35 for some reason
 const MPA_REMOTE_BCX = [1700, 800, 90, 90] as const;
 
+function ArraysEqual(arr1: any[], arr2: any[]): boolean
+{
+    if (arr1.length !== arr2.length)
+    {
+        return false;
+    };
+    return arr1.every((value, index) => value === arr2[index]);
+}
+
 export function ObjectDifferences(oldObj: object, newObj: object): object
 {
     const differences = {};
@@ -27,19 +36,36 @@ export function ObjectDifferences(oldObj: object, newObj: object): object
             continue;
         }
 
-        if (typeof oldObj[key] === "object" && typeof newObj[key] === "object" && !Array.isArray(oldObj[key]))
+        const oldValue = oldObj[key];
+        const newValue = newObj[key];
+
+        if (
+            Array.isArray(oldValue)
+            && Array.isArray(newValue)
+        )
+        {
+            // If both are arrays, compare their contents
+            if (!ArraysEqual(oldValue, newValue))
+            {
+                differences[key] = { old: oldValue, new: newValue };
+            }
+        }
+        else if (
+            typeof oldValue === "object"
+            && typeof newValue === "object"
+            && !Array.isArray(oldValue))
         {
             // If both are objects, recursively check for differences
-            const diff = ObjectDifferences(oldObj[key], newObj[key]);
+            const diff = ObjectDifferences(oldValue, newValue);
             if (Object.keys(diff).length > 0)
             {
                 differences[key] = diff;
             }
         }
-        else if (oldObj[key] !== newObj[key])
+        else if (oldValue !== newValue)
         {
             // If values are different, store the difference
-            differences[key] = { old: oldObj[key], new: newObj[key] };
+            differences[key] = { old: oldValue, new: newValue };
         }
     }
 
@@ -164,7 +190,10 @@ export class SettingsOtherModule extends Module
                 message: "EditingSettings",
                 action: function (sender: Character, _content: MPAMessageContent): void
                 {
-                    NotifyPlayer(LocalizedText("SourceCharacter is accessing your MPA settings.").replace("SourceCharacter", sender.Nickname || sender.Name), 30000);
+                    if (Player.MPA[ModuleTitle.Authority].settingsNotify)
+                    {
+                        NotifyPlayer(LocalizedText("SourceCharacter is accessing your MPA settings.").replace("SourceCharacter", sender.Nickname || sender.Name), 30000);
+                    }
                 }
             }
         ];
