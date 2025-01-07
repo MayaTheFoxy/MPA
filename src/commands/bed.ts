@@ -101,7 +101,7 @@ function GiveBed(character: Character = Player): boolean
             NotifyPlayer("MPA: No BC item permission", 30000);
             return false;
         }
-        if (!character.MPA || character.MPA?.version !== Player.MPA.version)
+        if (!character.MPA)
         {
             MPANotifyPlayer(`${character.Nickname || character.Name} does not have MPA, unable to give bed`, 30000);
             return false;
