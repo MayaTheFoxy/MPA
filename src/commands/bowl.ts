@@ -93,7 +93,7 @@ function GiveBowl(character: Character = Player): boolean
 {
     const unableToGiveBowl = InventoryGet(character, "ItemDevices")
       || InventoryGroupIsBlockedForCharacter(character, "ItemDevices")
-      || (character.MemberNumber !== Player.MemberNumber && !Player.CanInteract());
+      || !Player.CanInteract();
 
     if (character.MemberNumber !== Player.MemberNumber)
     {
