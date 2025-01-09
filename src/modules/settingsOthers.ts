@@ -3,7 +3,7 @@ import { LocalizedText } from "../localization/localization";
 import { ICONS } from "../util/constants";
 import { bcxFound, HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
-import { ExitButtonPressed, MENU_TITLES, PreferenceMenuClick, PreferenceMenuRun, SetSettingChar } from "./settings";
+import { currentMenu, ExitButtonPressed, MENU_TITLES, PreferenceMenuClick, PreferenceMenuRun, SetSettingChar } from "./settings";
 import { SaveStorage } from "../util/storage";
 import { LevelSync } from "./virtualPet";
 import { IsMemberNumberInAuthGroup } from "../util/authority";
@@ -13,6 +13,17 @@ import { settings as defaultSettings } from "../util/registerModules";
 const MPA_REMOTE = [1700, 765, 90, 90] as const;
 // BCX moves the button down by 35 for some reason
 const MPA_REMOTE_BCX = [1700, 800, 90, 90] as const;
+// Positioning for version text
+const VERSION_TEXT_SELF = [
+    275,
+    900,
+    350
+] as const;
+const VERSION_TEXT_OTHER = [
+    VERSION_TEXT_SELF[0],
+    VERSION_TEXT_SELF[1] - 50,
+    VERSION_TEXT_SELF[2]
+] as const;
 
 function ArraysEqual(arr1: any[], arr2: any[]): boolean
 {
@@ -216,6 +227,22 @@ export class SettingsOtherModule extends Module
             // MPA Settings are open
             if (window.MPA.menuLoaded)
             {
+                const char = InformationSheetSelection;
+                if (char?.MPA && !char.IsPlayer() && currentMenu == null)
+                {
+                    DrawTextFit(
+                        `${LocalizedText("Your Version")}: ${Player.MPA.version}`,
+                        ...VERSION_TEXT_SELF,
+                        "Black",
+                        "Gray"
+                    );
+                    DrawTextFit(
+                        `${LocalizedText("TargetCharacter's Version")}: ${char?.MPA.version}`.replace("TargetCharacter", char?.Nickname || char?.Name),
+                        ...VERSION_TEXT_OTHER,
+                        "Black",
+                        "Gray"
+                    );
+                }
                 PreferenceMenuRun();
                 return;
             }

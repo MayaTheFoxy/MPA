@@ -1,3 +1,7 @@
+# 0.4.5.1
+- MPA Discord created
+- See MPA version of self and others in settings
+
 # 0.4.5
 - Notify when others are accessing your settings toggle
 - Improved changelog documentation, displays in chat on first upgrade

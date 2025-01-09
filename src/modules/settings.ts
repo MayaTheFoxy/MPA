@@ -33,13 +33,20 @@ const BUTTON_GAP = 20;
 const BUTTON_TEXT_PADDING = 20;
 
 // Player only buttons
-const WIKI_POSITION = [100, 605, 350, 75] as const;
+const WIKI_POSITION = [100, 510, 350, 75] as const;
 const WIKI_LINK = "https://github.com/MayaTheFoxy/MPA/wiki";
-const RESET_POSITION = [
+const DISCORD_INVITE = "https://discord.gg/9GHwmHEMAS";
+const DISCORD_POSITION = [
     WIKI_POSITION[0],
     WIKI_POSITION[1] + WIKI_POSITION[3] + BUTTON_GAP,
     WIKI_POSITION[2],
     WIKI_POSITION[3]
+] as const;
+const RESET_POSITION = [
+    DISCORD_POSITION[0],
+    DISCORD_POSITION[1] + DISCORD_POSITION[3] + BUTTON_GAP,
+    DISCORD_POSITION[2],
+    DISCORD_POSITION[3]
 ] as const;
 const ALERT_POSITION = [
     RESET_POSITION[0],
@@ -62,6 +69,11 @@ const EXPORT_POSITION = [
 ] as const;
 const RESET_CONFIRM_POSITION = [300, 700, 250, 90] as const;
 const RESET_CANCEL_POSITION = [1450, 700, 250, 90] as const;
+const VERSION_TEXT = [
+    WIKI_POSITION[2] / 2 + WIKI_POSITION[0],
+    WIKI_POSITION[1] - (BUTTON_GAP * 2),
+    WIKI_POSITION[2]
+] as const;
 
 // Can add or remove modules depending on if wanting to display them or not
 // Order given is the order displayed
@@ -464,6 +476,11 @@ export function PreferenceMenuClick(): void
             window.open(WIKI_LINK, "_blank")?.focus();
             return;
         }
+        if (MouseIn(...DISCORD_POSITION))
+        {
+            window.open(DISCORD_INVITE, "_blank")?.focus();
+            return;
+        }
         if (MouseIn(...RESET_POSITION))
         {
             currentMenu = "RESET_Settings";
@@ -651,6 +668,13 @@ export function PreferenceMenuRun(): void
             LocalizedText("Open the MPA wiki in a new tab")
         );
         DrawButton(
+            ...DISCORD_POSITION,
+            "Discord",
+            "#ffffff",
+            ICONS.DISCORD,
+            "Join the MPA discord!"
+        );
+        DrawButton(
             ...RESET_POSITION,
             LocalizedText("RESET"),
             "#ff2e2eaa",
@@ -670,6 +694,12 @@ export function PreferenceMenuRun(): void
             "#ffffff",
             "",
             LocalizedText("Export your current settings to the clipboard")
+        );
+        DrawTextFit(
+            `${LocalizedText("Version")}: ${Player.MPA.version}`,
+            ...VERSION_TEXT,
+            "Black",
+            "Gray"
         );
     }
 
