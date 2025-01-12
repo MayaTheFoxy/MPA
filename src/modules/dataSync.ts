@@ -1,6 +1,6 @@
 // Never send Private MPA data across the server and never accept Private MPA data
 import { HookFunction } from "../util/sdk";
-import { Module, ModuleTitle } from "./_module";
+import { Module, ModuleIsPublic, ModuleTitle } from "./_module";
 import { FindCharacterInRoom, GetMPAMessageFromChat, HookedMessage, hookedMessages, MPAMessageContent, SendMPAMessage } from "../util/messaging";
 
 /**
@@ -11,7 +11,13 @@ import { FindCharacterInRoom, GetMPAMessageFromChat, HookedMessage, hookedMessag
 export function SettingSync(reply: boolean = false, target?: number): void
 {
     const settings = structuredClone(Player.MPA);
-    delete settings[ModuleTitle.Private];
+    Object.keys(settings).forEach((moduleTitle) =>
+    {
+        if (!ModuleIsPublic(moduleTitle as ModuleTitle))
+        {
+            delete settings[moduleTitle];
+        }
+    });
     SendMPAMessage({
         message: "SettingSync",
         settings: settings,
@@ -26,7 +32,7 @@ export function SettingSync(reply: boolean = false, target?: number): void
  */
 export function CategorySync(category: ModuleTitle, target?: number): void
 {
-    if (category === ModuleTitle.Private)
+    if (!ModuleIsPublic(category))
     {
         return;
     }
@@ -60,9 +66,10 @@ export function RecordsSync(records: TransmitRecords, target?: number): void
     for (let i = records.length - 1; i >= 0; i--)
     {
         const record = records[i];
-        if (record.category === ModuleTitle.Private)
+        if (!ModuleIsPublic(record.category))
         {
             records.splice(i, 1);
+            continue;
         }
         record.value = Player.MPA[record.category][record.record];
     }

@@ -2,7 +2,7 @@ import { ArrayToReadableString, HookedMessage, MPAMessageContent, MPANotifyPlaye
 import { LocalizedText } from "../localization/localization";
 import { ICONS } from "../util/constants";
 import { bcxFound, HookFunction } from "../util/sdk";
-import { Module, ModuleTitle } from "./_module";
+import { Module, ModuleIsPublic, ModuleTitle } from "./_module";
 import { currentMenu, ExitButtonPressed, MENU_TITLES, PreferenceMenuClick, PreferenceMenuRun, SetSettingChar } from "./settings";
 import { SaveStorage } from "../util/storage";
 import { LevelSync } from "./virtualPet";
@@ -109,6 +109,14 @@ export class SettingsOtherModule extends Module
                 {
                     const vpEnabled = Player.MPA[ModuleTitle.VirtualPet].enabled;
                     const differences = ObjectDifferences(Player.MPA, content.settings);
+                    // Don't change any private records from incoming sources
+                    Object.keys(differences).forEach((moduleTitle) =>
+                    {
+                        if (!ModuleIsPublic(moduleTitle as ModuleTitle))
+                        {
+                            delete differences[moduleTitle];
+                        }
+                    });
                     const changedSettings: string[] = [];
 
                     // Delete the VP levels as they will be synced with the player instead
