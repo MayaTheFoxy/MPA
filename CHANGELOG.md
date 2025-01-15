@@ -1,3 +1,6 @@
+# 0.4.5.2
+- Flick bell clit activity added
+
 # 0.4.5.1
 - MPA Discord created
 - See MPA version of self and others in settings
