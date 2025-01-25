@@ -62,8 +62,8 @@ export class ActivitiesModule extends Module
                 Targets: [{
                     group: "ItemNipples",
                     label: "Flick Bell",
-                    actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipples clamps.",
-                    actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipples clamps."
+                    actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipple clamps.",
+                    actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipple clamps."
                 }],
                 Image: "Assets\\Female3DCG\\ItemNipples\\Preview\\BellClamps.png",
                 OnReceive: RecieveBell
@@ -86,6 +86,25 @@ export class ActivitiesModule extends Module
                     actionOthers: "SourceCharacter flicks the bell on TargetCharacter's clit piercing."
                 }],
                 Image: "Assets\\Female3DCG\\ItemVulvaPiercings\\Preview\\RoundClitPiercing.png",
+                OnReceive: RecieveBell
+            }, {
+                Name: "FlickBell4",
+                MaxProgress: 50,
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HasBellNipplesPiercings",
+                    Prerequisite: (_acting, acted, _group) =>
+                    {
+                        return InventoryGet(acted, "ItemNipplesPiercings")?.Asset?.Name?.toLocaleLowerCase()?.includes("bell") ?? false;
+                    }
+                },
+                Targets: [{
+                    group: "ItemNipples",
+                    label: "Flick Bell",
+                    actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipple piercings.",
+                    actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipple piercings."
+                }],
+                Image: "Assets\\Female3DCG\\ItemNipplesPiercings\\Preview\\BellPiercing.png",
                 OnReceive: RecieveBell
             }
         ];

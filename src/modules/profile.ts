@@ -383,7 +383,6 @@ export class ProfileModule extends Module
                 }
 
                 const strength = (GAGGING_STRENGTH_MAP[PlayerP(Player).petGaggingStrength] ?? 0.05) * args[1];
-                console.log(strength);
                 if (PlayerP(Player).petGagging === "First")
                 {
                     args[0] = DisruptivePetSpeech(args[0], phrases, strength);

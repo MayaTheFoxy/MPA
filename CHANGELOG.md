@@ -1,5 +1,6 @@
 # 0.4.5.2
 - Flick bell clit activity added
+- Flick bell nipple piercings activity added
 - Pet Gagging
 
 # 0.4.5.1
