@@ -122,6 +122,13 @@ export function ApplyPetHearing([text, intensity, ignoreOOC]: [string, number, b
     return finalText;
 };
 
+/**
+ * Add pet sounds to the input speech while not garbling anything
+ * @param msg Speech to change
+ * @param next next of SpeechTransformGagGarble sdk hook
+ * @param allowedPetPhrases Pet sounds to add
+ * @returns
+ */
 export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) => string | boolean, allowedPetPhrases: string[]): string | boolean
 {
     // No phrases we can use, skip
@@ -133,7 +140,7 @@ export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) 
     // Use bucket system so words appear less random
     // Bucket is 2x allowed pet phrases before refilling
     let petPhraseBucket: string[] = [];
-    function GetPetPhase(): string
+    function GetPetPhrase(): string
     {
         if (petPhraseBucket.length === 0)
         {
@@ -195,7 +202,7 @@ export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) 
             if (Math.random() < INVOLUNTARY_PET_SPEAK_PERCENTAGE)
             {
                 spokePet = true;
-                const petSound = GetPetPhase();
+                const petSound = GetPetPhrase();
 
                 const noPrev = previousWord === null;
                 if (noPrev || /[.!?]$/.test(previousWord ?? ""))
@@ -218,9 +225,93 @@ export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) 
             && (!spokePet || Math.random() < INVOLUNTARY_END_PET_SPEAK_PERCENTAGE)
         )
         {
-            newMsg = AppendPetSpeech(newMsg, [GetPetPhase()]);
+            newMsg = AppendPetSpeech(newMsg, [GetPetPhrase()]);
         }
     }
 
     return next([newMsg]);
+}
+
+/**
+ * Replace each word in the text with a pet sound based on the strength
+ * @param msg - Text to process
+ * @param allowedPetPhrases - Pet sounds to use
+ * @param strength - 0 to 1 inclusive
+ * @returns A new copy of the processed text
+ */
+export function DisruptivePetSpeech(msg: string, allowedPetPhrases: string[], strength: number): string
+{
+    // No phrases we can use, skip
+    if (allowedPetPhrases.length === 0)
+    {
+        return msg;
+    }
+
+    // Strength should be between 0 and 1
+    strength = (strength > 1) ? 1 : (strength < 0) ? 0 : strength;
+
+    // Use bucket system so words appear less random
+    // Bucket is 2x allowed pet phrases before refilling
+    let petPhraseBucket: string[] = [];
+    function GetPetPhrase(): string
+    {
+        if (petPhraseBucket.length === 0)
+        {
+            petPhraseBucket = allowedPetPhrases.concat(allowedPetPhrases);
+            petPhraseBucket = ShuffleArray(petPhraseBucket);
+        }
+        return petPhraseBucket.pop() ?? "";
+    }
+
+    // Loop through all the ooc ranges to split text into ooc and non ooc chunks
+    // Skip adding pet sounds to ooc segments
+    let nextIndex = 0;
+    const segments: { text: string; ooc: boolean }[] = [];
+    const oocRanges = SpeechGetOOCRanges(msg);
+    for (const range of oocRanges)
+    {
+        if (msg.substring(nextIndex, range.start) !== "")
+        {
+            segments.push({ text: msg.substring(nextIndex, range.start), ooc: false });
+        }
+        segments.push({ text: msg.substring(range.start, range.start + range.length), ooc: true });
+        nextIndex = range.start + range.length;
+    }
+    // Add last segment from end of range to end of text
+    const lastBit = msg.substring(nextIndex);
+    if (lastBit !== "")
+    {
+        segments.push({ text: lastBit, ooc: false });
+    }
+
+    // For each non ooc segment petify speak it
+    let newMsg = "";
+    for (const segment of segments)
+    {
+        if (segment.ooc)
+        {
+            newMsg += segment.text;
+            continue;
+        }
+
+        newMsg += segment.text.replace(/\b\w+\b/g, (match) =>
+        {
+            if (Math.random() > strength)
+            {
+                return match;
+            }
+            const petPhrase = GetPetPhrase();
+            if (/^[A-Z]+$/.test(match) && match.length > 1)
+            {
+                return petPhrase.toLocaleUpperCase();
+            }
+            if (/^[A-Z].*$/.test(match))
+            {
+                return petPhrase.substring(0, 1).toLocaleUpperCase() + petPhrase.substring(1);
+            }
+            return petPhrase;
+        });
+    }
+
+    return newMsg;
 }

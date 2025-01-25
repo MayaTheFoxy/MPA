@@ -36,8 +36,6 @@ async function FetchLatestChangelog(): Promise<void>
         // Use a regular expression to extract the latest release section
         const matches = /# (\d+\.\d+\.\d+(?:\.\d+)?)+\n([\s\S]*?)(?=\n# |$)/.exec(changelog);
 
-        console.log(matches);
-
         if (matches)
         {
             const version = matches[1];
