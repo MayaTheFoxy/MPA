@@ -316,14 +316,14 @@ export class ProfileModule extends Module
                 value: "Off",
                 options: ["Off", "First", "Last"],
                 loop: true,
-                label: "Pet Gagging Mode"
+                label: "Pet gagging mode"
             } as OptionSetting, {
                 name: "petGaggingStrength",
                 type: "option",
                 value: "Medium",
                 options: ["Low", "Medium", "High", "Max"],
                 loop: false,
-                label: "Pet Gagging Strength",
+                label: "Pet gagging strength",
                 active: (C) => PlayerP(C).petGagging !== "Off"
             } as OptionSetting
         ];
