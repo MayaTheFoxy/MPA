@@ -247,11 +247,13 @@ export class ProfileModule extends Module
                 value: []
             } as Setting, {
                 name: "petSpeaking",
-                type: "checkbox",
+                type: "option",
                 active: () => true,
-                value: false,
+                options: ["Off", "Low", "Medium", "High", "Max"],
+                loop: false,
+                value: "Off",
                 label: "Automatically make the above pet sounds while talking"
-            } as CheckboxSetting, {
+            } as OptionSetting, {
                 name: "bcxSpeaking",
                 type: "checkbox",
                 active: (C) => PlayerP(C).petSpeaking && bcxFound(),
@@ -359,15 +361,13 @@ export class ProfileModule extends Module
             // Skip commands
             // Skip if not attempting to apply pet speech
             msg = msg.trim();
-            if (
-                [CommandsKey, "*", "@"].includes(msg.charAt(0))
-                || !PlayerP(Player).petSpeaking
-            )
+            if ([CommandsKey, "*", "@"].includes(msg.charAt(0)))
             {
                 return next([msg]);
             }
 
-            return NonDisruptivePetSpeech(msg, next, GetAllowedPetGarblePhrases());
+            const speak: "Off" | "Low" | "Medium" | "High" | "Max" = PlayerP(Player).petSpeaking;
+            return next([NonDisruptivePetSpeech(msg, GetAllowedPetGarblePhrases(), speak)]);
         });
 
         // Pet gagging

@@ -1,5 +1,6 @@
 # 0.4.5.3
 - Pet Gagging replace option
+- Variable levels of pet speak
 
 # 0.4.5.2
 - Flick bell clit activity added
