@@ -314,7 +314,7 @@ export class ProfileModule extends Module
                 type: "option",
                 active: () => true,
                 value: "Off",
-                options: ["Off", "First", "Last"],
+                options: ["Off", "First", "Last", "Replace"],
                 loop: true,
                 label: "Pet gagging mode"
             } as OptionSetting, {
@@ -383,14 +383,18 @@ export class ProfileModule extends Module
                 }
 
                 const strength = (GAGGING_STRENGTH_MAP[PlayerP(Player).petGaggingStrength] ?? 0.05) * args[1];
-                if (PlayerP(Player).petGagging === "First")
+
+                switch (PlayerP(Player).petGagging)
                 {
-                    args[0] = DisruptivePetSpeech(args[0], phrases, strength);
-                    return next(args);
-                }
-                else
-                {
-                    return DisruptivePetSpeech(next(args), phrases, strength);
+                    case "First":
+                        args[0] = DisruptivePetSpeech(args[0], phrases, strength);
+                        return next(args);
+
+                    case "Last":
+                        return DisruptivePetSpeech(next(args), phrases, strength);
+
+                    case "Replace":
+                        return DisruptivePetSpeech(args[0], phrases, strength);
                 }
             }
 

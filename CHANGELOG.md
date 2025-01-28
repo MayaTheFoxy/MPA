@@ -1,3 +1,6 @@
+# 0.4.5.3
+- Pet Gagging replace option
+
 # 0.4.5.2
 - Flick bell clit activity added
 - Flick bell nipple piercings activity added
