@@ -106,8 +106,24 @@ export async function LoadStorage(): Promise<void>
                 settings[settingTitle] = {};
             }
             // Setting already set
+            // Verify it is good data
             if (settingName in settings[settingTitle])
             {
+                // If current value is not in the options
+                if (
+                    (currentSettings?.[settingTitle]?.[settingName]?.type === "checkbox"
+                        && typeof settings[settingTitle][settingName] !== "boolean")
+                    ||
+                    (currentSettings?.[settingTitle]?.[settingName]?.type === "number"
+                        && isNaN(settings[settingTitle][settingName]))
+                    ||
+                    ("options" in (currentSettings?.[settingTitle]?.[settingName] ?? {})
+                        && !((currentSettings?.[settingTitle]?.[settingName] as OptionSetting)?.options ?? []).includes(settings[settingTitle][settingName]))
+                )
+                {
+                    settings[settingTitle][settingName] = set.value;
+                    console.warn(`MPA: Invalid setting of "${settings[settingTitle][settingName]}" at ${settingTitle}->${settingName}, resetting to default`);
+                }
                 continue;
             }
             settings[settingTitle][settingName] = set.value;
