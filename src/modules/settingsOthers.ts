@@ -274,13 +274,23 @@ export class SettingsOtherModule extends Module
 
         HookFunction(this.Title, "InformationSheetClick", hookPriority, (args, next) =>
         {
+            // LSCG or BCX subscreens open instead
+            if (window.bcx?.inBcxSubscreen() || window.LSCG_REMOTE_WINDOW_OPEN)
+            {
+                return next(args);
+            }
+
             if (window.MPA.menuLoaded)
             {
                 return PreferenceMenuClick();
             }
 
             const char = InformationSheetSelection;
-            if (MouseIn(...MPA_REMOTE_BCX) && char?.MPA && !char.IsPlayer())
+            if (
+                MouseIn(...((bcxFound() ? MPA_REMOTE_BCX : MPA_REMOTE) as readonly [number, number, number, number]))
+                && char?.MPA
+                && !char.IsPlayer()
+            )
             {
                 window.MPA.menuLoaded = true;
                 // MPA is defined from check above, so other character is same as self in structure
