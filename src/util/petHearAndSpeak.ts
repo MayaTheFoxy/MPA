@@ -273,6 +273,7 @@ export function DisruptivePetSpeech(
     {
         return msg;
     }
+    msg = msg ?? "";
 
     // Strength should be between 0 and 1
     strength = (strength > 1) ? 1 : (strength < 0) ? 0 : strength;

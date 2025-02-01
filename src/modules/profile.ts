@@ -374,7 +374,11 @@ export class ProfileModule extends Module
         HookFunction(this.Title, "SpeechTransformGagGarble", 5, (args, next) =>
         {
             const petGaggingOption = PlayerP(Player).petGagging;
-            if (!deafenProcess && petGaggingOption !== "Off")
+            if (
+                !deafenProcess
+                && petGaggingOption !== "Off"
+                && ChatRoomCharacter.length !== 0
+            )
             {
                 const phrases = GetAllowedPetGarblePhrases();
                 if (phrases.length === 0)
