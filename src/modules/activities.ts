@@ -9,8 +9,8 @@ const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
     if (
         Player.AudioSettings?.PlayItem
         && (!Player.AudioSettings.PlayItemPlayerOnly
-        || source?.MemberNumber === Player.MemberNumber
-        || target?.MemberNumber === Player.MemberNumber)
+          || source?.MemberNumber === Player.MemberNumber
+          || target?.MemberNumber === Player.MemberNumber)
     )
     {
         BELL_SOUND.play();

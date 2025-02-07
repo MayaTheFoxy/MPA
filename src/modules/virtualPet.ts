@@ -88,7 +88,7 @@ function SleepChangeCheck(sync: boolean = true): void
         PlayerVP().enabled
         && PlayerVP().sleepHours !== 0
         && (playerSleepingExpression !== IsSleepingExpression(Player)
-        || playerBedMultiplier !== IsBedMultiplier(Player))
+          || playerBedMultiplier !== IsBedMultiplier(Player))
     )
     {
         // if a change in sleeping expression or bed multiplier, sync levels
@@ -504,7 +504,7 @@ export class VirtualPetModule extends Module
             if (
                 !PlayerVP().enabled
                 || (!PlayerVP().noHands
-                && GetAttributeFromChatDictionary(data, "SourceCharacter") === Player.MemberNumber)
+                  && GetAttributeFromChatDictionary(data, "SourceCharacter") === Player.MemberNumber)
                 || data.Type !== "Activity"
                 || GetAttributeFromChatDictionary(data, "TargetCharacter") !== Player.MemberNumber
                 || GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemMouth"
@@ -520,7 +520,7 @@ export class VirtualPetModule extends Module
             if (
                 PlayerVP().foodHours !== 0
                 && (activity?.Prerequisite?.includes("Needs-EatItem")
-                || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
+                  || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
             )
             {
                 ModifyStat("food", ITEM_CONUME_RECOVERY, true);
@@ -529,7 +529,7 @@ export class VirtualPetModule extends Module
             if (
                 PlayerVP().waterHours !== 0
                 && (activity?.Prerequisite?.includes("Needs-SipItem")
-                || ACTIVITIES_WATER_GAIN.some((x) => activity?.Name === x))
+                  || ACTIVITIES_WATER_GAIN.some((x) => activity?.Name === x))
             )
             {
                 ModifyStat("water", ITEM_CONUME_RECOVERY, true);

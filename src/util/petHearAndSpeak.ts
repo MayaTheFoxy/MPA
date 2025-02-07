@@ -230,7 +230,7 @@ export function NonDisruptivePetSpeech(
                 if (noPrev || /[.!?]$/.test(previousWord ?? ""))
                 {
                     newMsg += `${noPrev ? "" : " "}${petSound.charAt(0).toLocaleUpperCase()}${petSound.slice(1)}`
-                    + `${/[.!?]$/.test(word) || noPrev ? `.${noPrev ? " " : ""}` : ", "}`;
+                      + `${/[.!?]$/.test(word) || noPrev ? `.${noPrev ? " " : ""}` : ", "}`;
                 }
                 else
                 {
@@ -245,7 +245,7 @@ export function NonDisruptivePetSpeech(
         if (
             segments.slice().reverse().find((item) => !item.ooc)?.text === segment.text // Last non ooc segment
             && ((speakRequired && !spokePet)
-            || Math.random() < endStength)
+              || Math.random() < endStength)
         )
         {
             newMsg = AppendPetSpeech(newMsg, [GetPetPhrase()]);

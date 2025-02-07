@@ -13,7 +13,7 @@ function IsBed(bed: any): boolean
     return Object.keys(bed).length > 0
       && CraftingValidate(bed) === CraftingStatusType.OK
       && (ALL_BEDS.includes(bed.Item)
-      || bed?.Name?.toLocaleLowerCase()?.includes("bed"));
+        || bed?.Name?.toLocaleLowerCase()?.includes("bed"));
 }
 
 /**
@@ -207,7 +207,7 @@ export function Bed(): void
           && GetAttributeFromChatDictionary(data, "TargetCharacter") === Player.MemberNumber
           && data.Dictionary?.some(
               (curr) => (curr as any)?.Tag === "MISSING ACTIVITY DESCRIPTION FOR KEYWORD MayaScript"
-              && (curr as any)?.Text === BOWL_OTHER_TEXT
+                && (curr as any)?.Text === BOWL_OTHER_TEXT
           )
         )
         {

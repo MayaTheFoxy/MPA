@@ -238,9 +238,9 @@ function DrawSubMenuOptions(subMenu: ModuleTitle): void
           || (
               !Player.CanInteract() && (
                   (settingChar?.MemberNumber === Player.MemberNumber
-                  && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
+                    && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
                   || (settingChar?.MemberNumber !== Player.MemberNumber
-                  && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
+                    && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
               )
           );
 
@@ -353,9 +353,9 @@ function GetClickedOption(subMenu: ModuleTitle): void
           || (
               !Player.CanInteract() && (
                   (settingChar?.MemberNumber === Player.MemberNumber
-                  && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
+                    && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
                   || (settingChar?.MemberNumber !== Player.MemberNumber
-                  && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
+                    && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
               )
           );
 
@@ -393,11 +393,11 @@ function GetClickedOption(subMenu: ModuleTitle): void
                 )
                 && !disabledSetting
                 && (setting.loop
-                || index > 0)
+                  || index > 0)
                 // Can't decrease authority beyond if the player is not of that rank
                 && (subMenu !== ModuleTitle.Authority
-                || !AUTHORITY_GROUP_OPTIONS.includes(settingChar!.MPA[subMenu][settingName])
-                || AuthorityIsComparisonToCharacter(settingChar!.MPA[subMenu][settingName] as AuthorityGroup, ">=", Player.MemberNumber ?? -1, settingChar!))
+                  || !AUTHORITY_GROUP_OPTIONS.includes(settingChar!.MPA[subMenu][settingName])
+                  || AuthorityIsComparisonToCharacter(settingChar!.MPA[subMenu][settingName] as AuthorityGroup, ">=", Player.MemberNumber ?? -1, settingChar!))
             )
             {
                 const prevValue = settingChar!.MPA[subMenu][settingName];
@@ -418,11 +418,11 @@ function GetClickedOption(subMenu: ModuleTitle): void
                 )
                 && !disabledSetting
                 && (setting.loop
-                || index + 1 < setting.options.length)
+                  || index + 1 < setting.options.length)
                 // Can't increase authority beyond what the player who is setting it is
                 && (subMenu !== ModuleTitle.Authority
-                || !AUTHORITY_GROUP_OPTIONS.includes(settingChar!.MPA[subMenu][settingName])
-                || AuthorityIsComparisonToCharacter(settingChar!.MPA[subMenu][settingName] as AuthorityGroup, ">", Player.MemberNumber ?? -1, settingChar!))
+                  || !AUTHORITY_GROUP_OPTIONS.includes(settingChar!.MPA[subMenu][settingName])
+                  || AuthorityIsComparisonToCharacter(settingChar!.MPA[subMenu][settingName] as AuthorityGroup, ">", Player.MemberNumber ?? -1, settingChar!))
             )
             {
                 const prevValue = settingChar!.MPA[subMenu][settingName];

@@ -171,7 +171,7 @@ export function Bowl(): void
           && GetAttributeFromChatDictionary(data, "TargetCharacter") === Player.MemberNumber
           && data.Dictionary?.some(
               (curr) => (curr as any)?.Tag === "MISSING ACTIVITY DESCRIPTION FOR KEYWORD MayaScript"
-              && (curr as any)?.Text === BOWL_OTHER_TEXT
+                && (curr as any)?.Text === BOWL_OTHER_TEXT
           )
         )
         {

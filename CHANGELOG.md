@@ -1,13 +1,10 @@
-# 0.4.5.3
+# 0.4.6
+- Fix: BCX menu compatibility bug reported by ringleshar
 - Pet Gagging replace option
 - Variable levels of pet speak
-
-# 0.4.5.2
 - Flick bell clit activity added
 - Flick bell nipple piercings activity added
 - Pet Gagging
-
-# 0.4.5.1
 - MPA Discord created
 - See MPA version of self and others in settings
 

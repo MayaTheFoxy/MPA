@@ -112,13 +112,11 @@ export async function LoadStorage(): Promise<void>
                 // If current value is not in the options
                 if (
                     (currentSettings?.[settingTitle]?.[settingName]?.type === "checkbox"
-                        && typeof settings[settingTitle][settingName] !== "boolean")
-                    ||
-                    (currentSettings?.[settingTitle]?.[settingName]?.type === "number"
-                        && isNaN(settings[settingTitle][settingName]))
-                    ||
-                    ("options" in (currentSettings?.[settingTitle]?.[settingName] ?? {})
-                        && !((currentSettings?.[settingTitle]?.[settingName] as OptionSetting)?.options ?? []).includes(settings[settingTitle][settingName]))
+                      && typeof settings[settingTitle][settingName] !== "boolean")
+                    || (currentSettings?.[settingTitle]?.[settingName]?.type === "number"
+                      && isNaN(settings[settingTitle][settingName]))
+                    || ("options" in (currentSettings?.[settingTitle]?.[settingName] ?? {})
+                      && !((currentSettings?.[settingTitle]?.[settingName] as OptionSetting)?.options ?? []).includes(settings[settingTitle][settingName]))
                 )
                 {
                     settings[settingTitle][settingName] = set.value;
