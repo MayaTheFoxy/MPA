@@ -18,6 +18,32 @@ export enum ModuleTitle
     Private = "Private"
 }
 
+export const ModuleTitlePublicity: Partial<Record<ModuleTitle, boolean>> = {
+    [ModuleTitle.Unknown]: false,
+    [ModuleTitle.Authority]: true,
+    [ModuleTitle.Activities]: true,
+    [ModuleTitle.Clicker]: true,
+    [ModuleTitle.Settings]: true,
+    [ModuleTitle.VirtualPet]: true,
+    [ModuleTitle.VirtualPetHUD]: false,
+    [ModuleTitle.VirtualPetConditions]: true,
+    [ModuleTitle.DataSync]: true,
+    [ModuleTitle.Profile]: true,
+    [ModuleTitle.SettingsOther]: true,
+    [ModuleTitle.Private]: false
+};
+
+/**
+ * Check if a module is public, allowing the data to be shared with others
+ *
+ * @param moduleTitle The module to check
+ * @returns
+ */
+export function ModuleIsPublic(moduleTitle: ModuleTitle): boolean
+{
+    return ModuleTitlePublicity[moduleTitle] ?? true;
+}
+
 export abstract class Module
 {
     get Title(): ModuleTitle

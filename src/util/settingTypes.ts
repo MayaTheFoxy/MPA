@@ -30,9 +30,9 @@ export function IsTextSetting(setting: Setting): setting is TextSetting
         && (setting as TextSetting).type === "text"
         && typeof (setting as TextSetting).value === "string"
         && (typeof (setting as TextSetting).width === "number"
-        || (setting as TextSetting).width === null)
+          || (setting as TextSetting).width === null)
         && (typeof (setting as TextSetting).maxChars === "number"
-        || (setting as TextSetting).maxChars === null)
+          || (setting as TextSetting).maxChars === null)
     );
 }
 export function IsNumberSetting(setting: Setting): setting is NumberSetting
@@ -42,10 +42,10 @@ export function IsNumberSetting(setting: Setting): setting is NumberSetting
         && (setting as NumberSetting).type === "number"
         && typeof (setting as NumberSetting).value === "number"
         && (typeof (setting as NumberSetting).width === "number"
-        || (setting as NumberSetting).width === null)
+          || (setting as NumberSetting).width === null)
         && typeof (setting as NumberSetting).min === "number"
         && typeof (setting as NumberSetting).max === "number"
         && (typeof (setting as NumberSetting).step === "number"
-        || (setting as NumberSetting).step === null)
+          || (setting as NumberSetting).step === null)
     );
 }

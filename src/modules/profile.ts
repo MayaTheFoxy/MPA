@@ -2,10 +2,11 @@ import { FilterArrayFromArray } from "../util/general";
 import { bcxAPI, bcxFound, HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
 import { ElementName } from "./settings";
-import { ApplyPetHearing, NonDisruptivePetSpeech } from "../util/petHearAndSpeak";
+import { ApplyPetHearing, DisruptivePetSpeech, NonDisruptivePetSpeech } from "../util/petHearAndSpeak";
 import { HookedMessage, MPAMessageContent, SendMPAMessage } from "../util/messaging";
 import { RecordsSync } from "./dataSync";
 import { IsMemberNumberInAuthGroup } from "../util/authority";
+import { deafenProcess } from "./private";
 
 const PlayerP: (C?: Character) => MPARecord = (C: Character = Player) =>
 {
@@ -63,7 +64,9 @@ function GetAllowedPetGarblePhrases(profile: PetSpeakingKeys = PlayerP(Player).t
     const petPhrases = bcxFound() && PlayerP(Player).bcxSpeaking ?
         bcxAPI()?.getRuleState("speech_mandatory_words")?.customData?.mandatoryWords ?? [] :
         GetPetGarblePhrases(profile);
-    return FilterArrayFromArray(petPhrases, bannedBCXWords);
+    return (FilterArrayFromArray(petPhrases, bannedBCXWords) as string[])
+        .map((phrase) => phrase.toLocaleLowerCase().trim())
+        .filter((str) => str.length != 0);
 }
 
 export const PET_HEARING = Object.freeze({
@@ -86,7 +89,7 @@ export const PET_HEARING = Object.freeze({
 type PetHearingKeys = keyof typeof PET_HEARING;
 
 /**
- *
+ * Getthe pet hearing phrases based on the selected profile
  * @param profile - Defaults to Player's profile
  */
 function GetPetHearingPhrases(profile: PetHearingKeys = PlayerP(Player).type): string[]
@@ -148,6 +151,13 @@ function SetBCXSpeak()
         ElementValue(eleID, PlayerP().garblePhrases);
     }
 }
+
+const GAGGING_STRENGTH_MAP = Object.freeze({
+    Low: 0.015,
+    Medium: 0.05,
+    High: 0.1,
+    Max: 1
+});
 
 export class ProfileModule extends Module
 {
@@ -237,11 +247,13 @@ export class ProfileModule extends Module
                 value: []
             } as Setting, {
                 name: "petSpeaking",
-                type: "checkbox",
+                type: "option",
                 active: () => true,
-                value: false,
+                options: ["Off", "Low", "Medium", "High", "Max"],
+                loop: false,
+                value: "Off",
                 label: "Automatically make the above pet sounds while talking"
-            } as CheckboxSetting, {
+            } as OptionSetting, {
                 name: "bcxSpeaking",
                 type: "checkbox",
                 active: (C) => PlayerP(C).petSpeaking && bcxFound(),
@@ -299,7 +311,23 @@ export class ProfileModule extends Module
                     GetRecord(ModuleTitle.VirtualPetConditions, C).orgasmWater = true;
                     GetRecord(ModuleTitle.VirtualPetConditions, C).orgasmSleep = true;
                 }
-            } as CheckboxSetting
+            } as CheckboxSetting, {
+                name: "petGagging",
+                type: "option",
+                active: () => true,
+                value: "Off",
+                options: ["Off", "First", "Last", "Replace"],
+                loop: true,
+                label: "Pet gagging mode"
+            } as OptionSetting, {
+                name: "petGaggingStrength",
+                type: "option",
+                value: "Medium",
+                options: ["Low", "Medium", "High", "Max"],
+                loop: false,
+                label: "Pet gagging strength",
+                active: (C) => PlayerP(C).petGagging !== "Off"
+            } as OptionSetting
         ];
     }
 
@@ -333,15 +361,48 @@ export class ProfileModule extends Module
             // Skip commands
             // Skip if not attempting to apply pet speech
             msg = msg.trim();
-            if (
-                [CommandsKey, "*", "@"].includes(msg.charAt(0))
-                || !PlayerP(Player).petSpeaking
-            )
+            if ([CommandsKey, "*", "@"].includes(msg.charAt(0)))
             {
                 return next([msg]);
             }
 
-            return NonDisruptivePetSpeech(msg, next, GetAllowedPetGarblePhrases());
+            const speak: "Off" | "Low" | "Medium" | "High" | "Max" = PlayerP(Player).petSpeaking;
+            return next([NonDisruptivePetSpeech(msg, GetAllowedPetGarblePhrases(), speak)]);
+        });
+
+        // Pet gagging
+        HookFunction(this.Title, "SpeechTransformGagGarble", 5, (args, next) =>
+        {
+            const petGaggingOption = PlayerP(Player).petGagging;
+            if (
+                !deafenProcess
+                && petGaggingOption !== "Off"
+                && ChatRoomCharacter.length !== 0
+            )
+            {
+                const phrases = GetAllowedPetGarblePhrases();
+                if (phrases.length === 0)
+                {
+                    return next(args);
+                }
+
+                const strength = (GAGGING_STRENGTH_MAP[PlayerP(Player).petGaggingStrength] ?? 0.05) * args[1];
+
+                switch (PlayerP(Player).petGagging)
+                {
+                    case "First":
+                        args[0] = DisruptivePetSpeech(args[0], phrases, strength);
+                        return next(args);
+
+                    case "Last":
+                        return DisruptivePetSpeech(next(args), phrases, strength);
+
+                    case "Replace":
+                        return DisruptivePetSpeech(args[0], phrases, strength);
+                }
+            }
+
+            return next(args);
         });
     }
 

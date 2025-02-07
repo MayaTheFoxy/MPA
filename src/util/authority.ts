@@ -151,7 +151,7 @@ export function HighestLevelAuthorityGroup(memberNumber: number, targetChar: Cha
     // Public
     if (
         !(targetChar.BlackList.includes(memberNumber)
-        || ((targetChar as PlayerCharacter)?.GhostList?.includes(memberNumber) ?? false))
+          || ((targetChar as PlayerCharacter)?.GhostList?.includes(memberNumber) ?? false))
     )
     {
         return "Public";

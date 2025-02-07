@@ -19,6 +19,9 @@
     "This action can not be undone!":"",
     "Export and save your settings BEFORE confirming if you are unsure.":"",
     "SourceCharacter is accessing your MPA settings.":"",
+    "Version":"",
+    "Your Version":"",
+    "TargetCharacter's Version":"",
 
     "Public":"",
     "Friends":"",
@@ -28,6 +31,15 @@
     "Clubowner":"",
     "Self":"",
     "None":"",
+
+    "Low":"",
+    "Medium":"",
+    "High":"",
+    "Max":"",
+    "Off":"",
+    "First":"",
+    "Last":"",
+    "Replace":"",
 
     "Authority":"",
     "Owner member numbers; Seperated by a ,":"",
@@ -50,6 +62,8 @@
     "Pet sounds you make":"",
     "Enable hardcore mode; Will set certain settings and prevent changing them back":"",
     "Automatically make the above pet sounds while talking":"",
+    "Pet gagging mode":"",
+    "Pet gagging strength":"",
     
     "Clicker":"",
     "Enable auditory clicker": "",
@@ -105,8 +119,12 @@
     "Flick Bell":"",
     "SourceCharacter flicks the bell on PronounPossessive collar.":"",
     "SourceCharacter flicks the bell on TargetCharacter's collar.":"",
-    "SourceCharacter flicks the bells on PronounPossessive nipples.":"",
-    "SourceCharacter flicks the bells on TargetCharacter's nipples.":"",
+    "SourceCharacter flicks the bells on PronounPossessive nipple clamps.":"",
+    "SourceCharacter flicks the bells on TargetCharacter's nipple clamps.":"",
+    "SourceCharacter flicks the bell on PronounPossessive clit piercing.":"",
+    "SourceCharacter flicks the bell on TargetCharacter's clit piercing.":"",
+    "SourceCharacter flicks the bells on PronounPossessive nipple piercings.":"",
+    "SourceCharacter flicks the bells on TargetCharacter's nipple piercings.":"",
     
     "SourceCharacter crawls into PronounPossessive bed.":"",
     "SourceCharacter tucks TargetCharacter into bed.":""

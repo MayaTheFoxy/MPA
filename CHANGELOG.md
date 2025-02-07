@@ -1,3 +1,13 @@
+# 0.4.6
+- Fix: BCX menu compatibility bug reported by ringleshar
+- Pet Gagging replace option
+- Variable levels of pet speak
+- Flick bell clit activity added
+- Flick bell nipple piercings activity added
+- Pet Gagging
+- MPA Discord created
+- See MPA version of self and others in settings
+
 # 0.4.5
 - Notify when others are accessing your settings toggle
 - Improved changelog documentation, displays in chat on first upgrade

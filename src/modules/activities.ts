@@ -9,8 +9,8 @@ const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
     if (
         Player.AudioSettings?.PlayItem
         && (!Player.AudioSettings.PlayItemPlayerOnly
-        || source?.MemberNumber === Player.MemberNumber
-        || target?.MemberNumber === Player.MemberNumber)
+          || source?.MemberNumber === Player.MemberNumber
+          || target?.MemberNumber === Player.MemberNumber)
     )
     {
         BELL_SOUND.play();
@@ -62,10 +62,49 @@ export class ActivitiesModule extends Module
                 Targets: [{
                     group: "ItemNipples",
                     label: "Flick Bell",
-                    actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipples.",
-                    actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipples."
+                    actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipple clamps.",
+                    actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipple clamps."
                 }],
                 Image: "Assets\\Female3DCG\\ItemNipples\\Preview\\BellClamps.png",
+                OnReceive: RecieveBell
+            }, {
+                Name: "FlickBell3",
+                MaxProgress: 50,
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HasBellClit",
+                    Prerequisite: (_acting, acted, _group) =>
+                    {
+                        const clitPiercing = InventoryGet(acted, "ItemVulvaPiercings");
+                        return clitPiercing?.Asset?.Name == "RoundClitPiercing" || clitPiercing?.Property?.TypeRecord?.typed == 2;
+                    }
+                },
+                Targets: [{
+                    group: "ItemVulvaPiercings",
+                    label: "Flick Bell",
+                    actionSelf: "SourceCharacter flicks the bell on PronounPossessive clit piercing.",
+                    actionOthers: "SourceCharacter flicks the bell on TargetCharacter's clit piercing."
+                }],
+                Image: "Assets\\Female3DCG\\ItemVulvaPiercings\\Preview\\RoundClitPiercing.png",
+                OnReceive: RecieveBell
+            }, {
+                Name: "FlickBell4",
+                MaxProgress: 50,
+                Prerequisite: ["UseHands"],
+                CustomPrerequisite: {
+                    Name: "HasBellNipplesPiercings",
+                    Prerequisite: (_acting, acted, _group) =>
+                    {
+                        return InventoryGet(acted, "ItemNipplesPiercings")?.Asset?.Name?.toLocaleLowerCase()?.includes("bell") ?? false;
+                    }
+                },
+                Targets: [{
+                    group: "ItemNipples",
+                    label: "Flick Bell",
+                    actionSelf: "SourceCharacter flicks the bells on PronounPossessive nipple piercings.",
+                    actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipple piercings."
+                }],
+                Image: "Assets\\Female3DCG\\ItemNipplesPiercings\\Preview\\BellPiercing.png",
                 OnReceive: RecieveBell
             }
         ];

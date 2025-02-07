@@ -1,4 +1,3 @@
-import { INVOLUNTARY_END_PET_SPEAK_PERCENTAGE, INVOLUNTARY_PET_SPEAK_PERCENTAGE, INVOLUNTARY_RUSHED_SPEAK_PERCENTAGE } from "./constants";
 import { RandomElement, ShuffleArray } from "./general";
 
 export function AppendPetSpeech(text: string, petPhrases: string[]): string
@@ -122,18 +121,43 @@ export function ApplyPetHearing([text, intensity, ignoreOOC]: [string, number, b
     return finalText;
 };
 
-export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) => string | boolean, allowedPetPhrases: string[]): string | boolean
+const RUSHED_SPEAK_PERCENTAGE = 0.5;
+const PET_SPEAK_STRENGTH_MAP = Object.freeze({
+    Low: 0.01,
+    Medium: 0.025,
+    High: 0.05,
+    Max: 0.125
+});
+const PET_SPEAK_END_PERCENTAGE = Object.freeze({
+    Low: 0.05,
+    Medium: 0.1,
+    High: 0.2,
+    Max: 0.25
+});
+
+/**
+ * Add pet sounds to the input speech while not garbling anything
+ * @param msg Speech to change
+ * @param allowedPetPhrases Pet sounds to add
+ * @param strength how much replacing to do
+ * @returns
+ */
+export function NonDisruptivePetSpeech(
+    msg: string,
+    allowedPetPhrases: string[],
+    strength: "Off" | "Low" | "Medium" | "High" | "Max"
+): string
 {
     // No phrases we can use, skip
-    if (allowedPetPhrases.length === 0)
+    if (allowedPetPhrases.length === 0 || strength === "Off")
     {
-        return next([msg]);
+        return msg;
     }
 
     // Use bucket system so words appear less random
     // Bucket is 2x allowed pet phrases before refilling
     let petPhraseBucket: string[] = [];
-    function GetPetPhase(): string
+    function GetPetPhrase(): string
     {
         if (petPhraseBucket.length === 0)
         {
@@ -176,6 +200,11 @@ export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) 
         return obj;
     });
 
+    // pet speak percent values
+    const wordStength = PET_SPEAK_STRENGTH_MAP[strength];
+    const endStength = PET_SPEAK_END_PERCENTAGE[strength];
+    const speakRequired = strength === "High" || strength === "Max";
+
     // For each non ooc segment petify speak it
     let spokePet = false;
     let newMsg = "";
@@ -192,20 +221,20 @@ export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) 
         splitPhrase.forEach((word) =>
         {
             // Random chance for a pet sound to appear before the current word
-            if (Math.random() < INVOLUNTARY_PET_SPEAK_PERCENTAGE)
+            if (Math.random() < wordStength)
             {
                 spokePet = true;
-                const petSound = GetPetPhase();
+                const petSound = GetPetPhrase();
 
                 const noPrev = previousWord === null;
                 if (noPrev || /[.!?]$/.test(previousWord ?? ""))
                 {
                     newMsg += `${noPrev ? "" : " "}${petSound.charAt(0).toLocaleUpperCase()}${petSound.slice(1)}`
-                    + `${/[.!?]$/.test(word) || noPrev ? `.${noPrev ? " " : ""}` : ", "}`;
+                      + `${/[.!?]$/.test(word) || noPrev ? `.${noPrev ? " " : ""}` : ", "}`;
                 }
                 else
                 {
-                    newMsg += `${Math.random() < INVOLUNTARY_RUSHED_SPEAK_PERCENTAGE && !(previousWord ?? "").endsWith(",") ? "," : ""} ${petSound},`;
+                    newMsg += `${Math.random() < RUSHED_SPEAK_PERCENTAGE && !(previousWord ?? "").endsWith(",") ? "," : ""} ${petSound},`;
                 }
             }
             newMsg += word;
@@ -215,12 +244,102 @@ export function NonDisruptivePetSpeech(msg: string, next: (args: [msg: string]) 
         // If no pet words have been spoken so far, end with one or a chance for it to end with one anyway
         if (
             segments.slice().reverse().find((item) => !item.ooc)?.text === segment.text // Last non ooc segment
-            && (!spokePet || Math.random() < INVOLUNTARY_END_PET_SPEAK_PERCENTAGE)
+            && ((speakRequired && !spokePet)
+              || Math.random() < endStength)
         )
         {
-            newMsg = AppendPetSpeech(newMsg, [GetPetPhase()]);
+            newMsg = AppendPetSpeech(newMsg, [GetPetPhrase()]);
         }
     }
 
-    return next([newMsg]);
+    return newMsg;
+}
+
+/**
+ * Replace each word in the text with a pet sound based on the strength
+ * @param msg - Text to process
+ * @param allowedPetPhrases - Pet sounds to use
+ * @param strength - 0 to 1 inclusive
+ * @returns A new copy of the processed text
+ */
+export function DisruptivePetSpeech(
+    msg: string,
+    allowedPetPhrases: string[],
+    strength: number
+): string
+{
+    // No phrases we can use, skip
+    if (allowedPetPhrases.length === 0)
+    {
+        return msg;
+    }
+    msg = msg ?? "";
+
+    // Strength should be between 0 and 1
+    strength = (strength > 1) ? 1 : (strength < 0) ? 0 : strength;
+
+    // Use bucket system so words appear less random
+    // Bucket is 2x allowed pet phrases before refilling
+    let petPhraseBucket: string[] = [];
+    function GetPetPhrase(): string
+    {
+        if (petPhraseBucket.length === 0)
+        {
+            petPhraseBucket = allowedPetPhrases.concat(allowedPetPhrases);
+            petPhraseBucket = ShuffleArray(petPhraseBucket);
+        }
+        return petPhraseBucket.pop() ?? "";
+    }
+
+    // Loop through all the ooc ranges to split text into ooc and non ooc chunks
+    // Skip adding pet sounds to ooc segments
+    let nextIndex = 0;
+    const segments: { text: string; ooc: boolean }[] = [];
+    const oocRanges = SpeechGetOOCRanges(msg);
+    for (const range of oocRanges)
+    {
+        if (msg.substring(nextIndex, range.start) !== "")
+        {
+            segments.push({ text: msg.substring(nextIndex, range.start), ooc: false });
+        }
+        segments.push({ text: msg.substring(range.start, range.start + range.length), ooc: true });
+        nextIndex = range.start + range.length;
+    }
+    // Add last segment from end of range to end of text
+    const lastBit = msg.substring(nextIndex);
+    if (lastBit !== "")
+    {
+        segments.push({ text: lastBit, ooc: false });
+    }
+
+    // For each non ooc segment petify speak it
+    let newMsg = "";
+    for (const segment of segments)
+    {
+        if (segment.ooc)
+        {
+            newMsg += segment.text;
+            continue;
+        }
+
+        newMsg += segment.text.replace(/\b\w+\b/g, (match) =>
+        {
+            if (Math.random() > strength)
+            {
+                return match;
+            }
+            const petPhrase = GetPetPhrase();
+            if (/^[A-Z]+$/.test(match) && match.length > 1)
+            {
+                return petPhrase.toLocaleUpperCase();
+            }
+            if (/^[A-Z].*$/.test(match))
+            {
+                return petPhrase.substring(0, 1).toLocaleUpperCase() + petPhrase.substring(1);
+            }
+            return petPhrase;
+        });
+    }
+
+    return newMsg;
 }
