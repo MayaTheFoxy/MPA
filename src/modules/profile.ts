@@ -348,6 +348,7 @@ export class ProfileModule extends Module
                 C?.IsGagged()
                 || !Player.IsDeaf()
                 || PlayerP().petHearing === false
+                || !text
             )
             {
                 return next([text, intensity, ignoreOOC]);

@@ -31,6 +31,15 @@ export function ApplyPetHearing([text, intensity, ignoreOOC]: [string, number, b
     next: (args: [text: string, intensity: number, ignoreOOC?: boolean | undefined]) => string,
     phrasesToKeep: string[]): string
 {
+    // Error correction because uhhhhh why??? Idk cuz string is not a string, its undefined
+    if (!text
+        || isNaN(intensity)
+        || !(typeof ignoreOOC == "boolean" || typeof ignoreOOC == "undefined") 
+    )
+    {
+        return next([text, intensity, ignoreOOC]);
+    }
+
     // Split the input text into different substrings exluding the words you want to keep
     // Step 1: Get the words you want to keep if any
     // const phrasesToKeep = GetPetHearingPhrases();
