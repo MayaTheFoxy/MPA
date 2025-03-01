@@ -297,7 +297,7 @@ export function LevelSync(pushToStorage: boolean = true, recordSync: boolean = t
 
 function CanNom(): boolean
 {
-    return PlayerVP().sexPet !== "Off" && !PlayerVP().sexPetOnly;
+    return PlayerVP().sexPet === "Off" || !PlayerVP().sexPetOnly;
 }
 
 function CanSex(): boolean
