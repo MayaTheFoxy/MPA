@@ -33,8 +33,8 @@ export function ApplyPetHearing([text, intensity, ignoreOOC]: [string, number, b
 {
     // Error correction because uhhhhh why??? Idk cuz string is not a string, its undefined
     if (!text
-        || isNaN(intensity)
-        || !(typeof ignoreOOC == "boolean" || typeof ignoreOOC == "undefined") 
+      || isNaN(intensity)
+      || !(typeof ignoreOOC == "boolean" || typeof ignoreOOC == "undefined")
     )
     {
         return next([text, intensity, ignoreOOC]);

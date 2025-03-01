@@ -1,3 +1,4 @@
+import { ORGASM_ACTIVITY_REGEX } from "../util/constants";
 import { RandomElement } from "../util/general";
 import { GetAttributeFromChatDictionary, SendAction } from "../util/messaging";
 import { HookFunction } from "../util/sdk";
@@ -218,7 +219,6 @@ function AffectionSkillCheck(): void
 const MAX_SLOW_LEAVE_DURATION_SEC = 25;
 const SLOW_LEAVE_LEVEL_START = 0.3;
 
-const ORGASM_ACTIVITY_REGEX = /Orgasm[0-9]/;
 const ORGASM_WATER_DRAIN = -0.05;
 const ORGASM_SLEEP_DRAIN = -0.05;
 
