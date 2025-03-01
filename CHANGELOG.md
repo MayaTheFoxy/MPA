@@ -1,3 +1,7 @@
+# 0.4.6.1
+- Sex pet option, able to gain food by eating out others, able to gain thrist by swallowing their cum
+- Sex pet ONLY option, regular food, drink, and bowls do not work anymore
+
 # 0.4.6
 - Fix: BCX menu compatibility bug reported by ringleshar
 - Pet Gagging replace option
