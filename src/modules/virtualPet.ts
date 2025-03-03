@@ -57,7 +57,8 @@ const LAST_ONLINE_INTERVAL_MS = 10000;
 let lastOnlineInterval: number;
 
 // Sex Pet
-const SEX_PET_ACTIVITIES = ["Lick", "MasturbateTongue", "Kiss", "Nibble", "LSCG_Throat"];
+const SEX_PET_ACTIVITIES = ["Lick", "MasturbateTongue", "Kiss", "Nibble", "LSCG_Throat", "LSCG_Suck"];
+const SEX_PET_ACTIVITIES_OTHER = ["PenetrateSlow", "PenetrateFast", "RubItem", "LSCG_SlapPenis"];
 const SEX_PET_REGIONS = ["ItemVulva", "ItemVulvaPiercings", "ItemButt"];
 const SEX_PET_RECOVERY = Object.freeze({
     Off: 0,
@@ -297,12 +298,12 @@ export function LevelSync(pushToStorage: boolean = true, recordSync: boolean = t
 
 function CanNom(): boolean
 {
-    return PlayerVP().sexPet === "Off" || !PlayerVP().sexPetOnly;
+    return PlayerVP().enabled && (PlayerVP().sexPet === "Off" || !PlayerVP().sexPetOnly);
 }
 
 function CanSex(): boolean
 {
-    return PlayerVP().sexPet !== "Off";
+    return PlayerVP().enabled && (PlayerVP().sexPet !== "Off");
 }
 
 /**
@@ -612,6 +613,36 @@ export class VirtualPetModule extends Module
 
             ModifyStat("food", SEX_PET_RECOVERY[PlayerVP().sexPet ?? "Low"], true, true, FindCharacterInRoom(targetChar) ?? undefined);
             performedOralOn[targetChar] = Date.now();
+            return next(args);
+        });
+
+        // Sexs from other
+        HookFunction(this.Title, "ChatRoomMessage", 0, (args, next) =>
+        {
+            const data = args[0];
+            const activityName = GetAttributeFromChatDictionary(data, "ActivityName");
+            const sourceChar = GetAttributeFromChatDictionary(data, "SourceCharacter");
+            const targetChar = GetAttributeFromChatDictionary(data, "TargetCharacter") as number;
+            if (
+                !PlayerVP().enabled
+                || data.Type !== "Activity"
+                || !CanSex()
+                || sourceChar === Player.MemberNumber
+                || targetChar !== Player.MemberNumber
+                || !(!(GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemMouth"
+                  || !SEX_PET_ACTIVITIES_OTHER.includes(activityName)
+                  || GetAttributeFromChatDictionary(data, "AssetName") !== "Penis"
+                  || GetAttributeFromChatDictionary(data, "GroupName") !== "Pussy")
+                || !(GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemHead"
+                  || activityName !== "LSCG_FuckWithPussy")
+                )
+            )
+            {
+                return next(args);
+            }
+
+            ModifyStat("food", SEX_PET_RECOVERY[PlayerVP().sexPet ?? "Low"], true, true, FindCharacterInRoom(sourceChar) ?? undefined);
+            performedOralOn[sourceChar] = Date.now();
             return next(args);
         });
 
