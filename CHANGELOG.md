@@ -1,3 +1,6 @@
+# 0.4.6.2
+- Sex pet can now gain food and water from others orally pleasing themselves with the pet
+
 # 0.4.6.1
 - Sex pet option, able to gain food by eating out others, able to gain thrist by swallowing their cum
 - Sex pet ONLY option, regular food, drink, and bowls do not work anymore
