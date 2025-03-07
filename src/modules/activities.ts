@@ -2,7 +2,7 @@ import { Module, ModuleTitle } from "./_module";
 import { FindCharacterInRoom, GetAttributeFromChatDictionary } from "../util/messaging";
 import { activityImages, activityPrerequisites, activityReceived, activityTriggers } from "../util/activities";
 import { HookFunction } from "../util/sdk";
-import { ACTIVITY_NAME_PREFIX, BELL_SOUND } from "../util/constants";
+import { ACTIVITY_NAME_PREFIX, BELL_SOUND, ICONS } from "../util/constants";
 
 const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
 {
@@ -16,6 +16,14 @@ const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
         BELL_SOUND.play();
     }
 };
+
+const PAW_TOOLTIP = document.createElement("img");
+PAW_TOOLTIP.src = ICONS.PAW;
+PAW_TOOLTIP.style.position = "absolute";
+PAW_TOOLTIP.style.right = "1%";
+PAW_TOOLTIP.style.bottom = "23%";
+PAW_TOOLTIP.style.width = "1.4em";
+PAW_TOOLTIP.style.height = "1.4em";
 
 export class ActivitiesModule extends Module
 {
@@ -181,7 +189,8 @@ export class ActivitiesModule extends Module
         HookFunction(this.Title, "ElementButton.CreateForActivity", 0, (args, next) =>
         {
             const activityName = args[1].Activity.Name;
-            if (Object.keys(activityImages).includes(activityName))
+            const isMPAActivity = Object.keys(activityImages).includes(activityName);
+            if (isMPAActivity)
             {
                 if (!args[4])
                 {
@@ -189,7 +198,15 @@ export class ActivitiesModule extends Module
                 }
                 args[4].image = activityImages[activityName];
             }
-            return next(args);
+
+            const buttonElement = next(args);
+
+            if (isMPAActivity)
+            {
+                buttonElement.appendChild(PAW_TOOLTIP.cloneNode());
+            }
+
+            return buttonElement;
         });
     }
 

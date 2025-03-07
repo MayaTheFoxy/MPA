@@ -1,3 +1,6 @@
+# 0.4.6.3
+- Paw icon on any activity from MPA
+
 # 0.4.6.2
 - Sex pet can now gain food and water from others orally pleasing themselves with the pet
 
