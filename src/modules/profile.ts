@@ -362,7 +362,7 @@ export class ProfileModule extends Module
             // Skip commands
             // Skip if not attempting to apply pet speech
             msg = msg.trim();
-            if ([CommandsKey, "*", "@"].includes(msg.charAt(0)))
+            if ([CommandsKey, "*", "@", "!"].includes(msg.charAt(0)))
             {
                 return next([msg]);
             }
