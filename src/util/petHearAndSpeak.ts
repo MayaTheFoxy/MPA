@@ -1,5 +1,7 @@
 import { RandomElement, ShuffleArray } from "./general";
 
+const LINK_REGEX = /^(https?:\/\/)?(www\.)?[\w-]+(\.[a-z]{2,})(\.[a-z]{2,})?(\/[^\s]*)?$/i;
+
 export function AppendPetSpeech(text: string, petPhrases: string[]): string
 {
     // No valid pet phrases to add
@@ -13,7 +15,7 @@ export function AppendPetSpeech(text: string, petPhrases: string[]): string
     {
         return `${text} ${petSound.charAt(0).toLocaleUpperCase() + petSound.slice(1)}.`;
     }
-    if (/[a-zA-Z]$/.test(text))
+    if (/[a-zA-Z]$/.test(text) && !LINK_REGEX.test(text))
     {
         return `${text}, ${petSound}.`;
     }
@@ -227,8 +229,16 @@ export function NonDisruptivePetSpeech(
 
         const splitPhrase = segment.text.match(/(\s*\S+)/g) || [];
         let previousWord: string | null = null;
-        splitPhrase.forEach((word) =>
+        console.log(splitPhrase);
+        for (const word of splitPhrase)
         {
+            if (LINK_REGEX.test(word))
+            {
+                newMsg += word;
+                previousWord = null;
+                continue;
+            }
+
             // Random chance for a pet sound to appear before the current word
             if (Math.random() < wordStength)
             {
@@ -248,7 +258,7 @@ export function NonDisruptivePetSpeech(
             }
             newMsg += word;
             previousWord = word;
-        });
+        }
 
         // If no pet words have been spoken so far, end with one or a chance for it to end with one anyway
         if (
