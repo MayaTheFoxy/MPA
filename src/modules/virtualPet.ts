@@ -507,7 +507,7 @@ export class VirtualPetModule extends Module
                   && GetAttributeFromChatDictionary(data, "SourceCharacter") === Player.MemberNumber)
                 || data.Type !== "Activity"
                 || GetAttributeFromChatDictionary(data, "TargetCharacter") !== Player.MemberNumber
-                || GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemMouth"
+                || !["ItemMouth", "ItemHands"].includes(GetAttributeFromChatDictionary(data, "FocusGroupName"))
                 || !activityName
             )
             {
