@@ -559,7 +559,7 @@ export class VirtualPetModule extends Module
                   && GetAttributeFromChatDictionary(data, "SourceCharacter") === Player.MemberNumber)
                 || data.Type !== "Activity"
                 || GetAttributeFromChatDictionary(data, "TargetCharacter") !== Player.MemberNumber
-                || !["ItemMouth", "ItemHands"].includes(GetAttributeFromChatDictionary(data, "FocusGroupName"))
+                || GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemMouth"
                 || !activityName
                 || !CanNom()
             )
@@ -569,14 +569,14 @@ export class VirtualPetModule extends Module
 
             // Get activity and check prerequisites
             const activity = ActivityFemale3DCG.find((x) => x.Name === activityName);
-
+            const source = FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter")) ?? undefined;
             if (
                 PlayerVP().foodHours !== 0
                 && (activity?.Prerequisite?.includes("Needs-EatItem")
                   || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
             )
             {
-                ModifyStat("food", ITEM_CONUME_RECOVERY, true);
+                ModifyStat("food", ITEM_CONUME_RECOVERY, true, undefined, source);
             }
 
             if (
@@ -585,9 +585,33 @@ export class VirtualPetModule extends Module
                   || ACTIVITIES_WATER_GAIN.some((x) => activity?.Name === x))
             )
             {
-                ModifyStat("water", ITEM_CONUME_RECOVERY, true);
+                ModifyStat("water", ITEM_CONUME_RECOVERY, true, undefined, source);
             }
 
+            return next(args);
+        });
+        // Eat out of hands (LSCG)
+        HookFunction(this.Title, "ChatRoomMessage", 0, (args, next) =>
+        {
+            const data = args[0];
+            const activityName = GetAttributeFromChatDictionary(data, "ActivityName");
+            const activity = ActivityFemale3DCG.find((x) => x.Name === activityName);
+            if (
+                !PlayerVP().enabled
+                || (GetAttributeFromChatDictionary(data, "SourceCharacter") !== Player.MemberNumber)
+                || data.Type !== "Activity"
+                || GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemHands"
+                || !activityName
+                || !CanNom()
+                || PlayerVP().foodHours === 0
+                || !(activity?.Prerequisite?.includes("Needs-EatItem")
+                || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
+            )
+            {
+                return next(args);
+            }
+
+            ModifyStat("food", ITEM_CONUME_RECOVERY, true, undefined, FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter")) ?? undefined);
             return next(args);
         });
 
