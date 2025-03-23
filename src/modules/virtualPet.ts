@@ -605,7 +605,7 @@ export class VirtualPetModule extends Module
                 || !CanNom()
                 || PlayerVP().foodHours === 0
                 || !(activity?.Prerequisite?.includes("Needs-EatItem")
-                || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
+                  || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
             )
             {
                 return next(args);

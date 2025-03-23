@@ -1,3 +1,9 @@
+# 0.4.6.4
+- RU localization by rubich9141
+- LSCG passout option when low energy
+- LSCG eating compatibility fixes
+- No pet speak on web links fix
+
 # 0.4.6.3
 - Paw icon on any activity from MPA
 

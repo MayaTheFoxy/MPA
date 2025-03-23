@@ -196,8 +196,8 @@ function MPAWakeup(): void
 function PassoutEnabled(): boolean
 {
     return (PlayerVPC().enabled
-    && PlayerVP().sleepHours !== 0
-    && PlayerVPC().passout);
+      && PlayerVP().sleepHours !== 0
+      && PlayerVPC().passout);
 }
 function IsPassedOut(): boolean
 {
@@ -205,7 +205,6 @@ function IsPassedOut(): boolean
       && (!globalThis?.LSSG || !PlayerVPC().passoutLSCG)
       && passedOut === PASSED_OUT.MPA);
 }
-
 
 let affectionCheckInterval: number;
 const skillDurationMS = 15000;
