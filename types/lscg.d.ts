@@ -8,6 +8,7 @@ declare global
     interface Window
     {
         LSCG_REMOTE_WINDOW_OPEN?: boolean;
+        LSCG?: any;
     }
 }
 

@@ -118,7 +118,14 @@ const SLEEP_TINT = {
     maxTint: 1
 };
 
-let passedOut = false;
+enum PASSED_OUT
+{
+    NOT = 0,
+    MPA = 1,
+    LSCG = 2
+}
+
+let passedOut = PASSED_OUT.NOT;
 const PASSOUT_TALK_REPLACE: string[] = [
     "SourceCharacter drools out of the corner of PronounPossessive mouth as PronounSubject sleeps.",
     "SourceCharacter mumbles quietly in PronounPossessive slumber.",
@@ -126,6 +133,25 @@ const PASSOUT_TALK_REPLACE: string[] = [
 ];
 function MPAPassout(): void
 {
+    // Don't pass out if unable to or already passed out
+    if (globalThis.LSCG?.getModule("StateModule")?.SleepState?.Active)
+    {
+        return;
+    }
+
+    SendAction("SourceCharacter passes out from exhaustion.", undefined, [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry]);
+
+    if (PlayerVPC().passoutLSCG && globalThis?.LSCG)
+    {
+        globalThis?.LSCG?.getModule("StateModule")?.SleepState?.Activate(Player.MemberNumber);
+        if (globalThis.LSCG?.getModule("StateModule")?.SleepState?.Active)
+        {
+            // success, don't fall back on MPA passout
+            passedOut = PASSED_OUT.LSCG;
+            return;
+        }
+    }
+
     CharacterSetFacialExpression(Player, "Emoticon", "Sleep");
     CharacterSetFacialExpression(Player, "Eyes", "Closed");
     CharacterSetFacialExpression(Player, "Fluids", "DroolMedium");
@@ -133,57 +159,53 @@ function MPAPassout(): void
     {
         PoseSetActive(Player, "Kneel", true);
     }
-    passedOut = true;
-
-    const sleepModule = Player?.LSCG?.StateModule?.states?.find((x) => x.type === "asleep");
-    if (PlayerVPC().passoutLSCG && sleepModule)
-    {
-        /*
-        this.stateModule.SleepState.Activate(undefined, undefined, doEmote);
-        this.settings.stats.sedatedCount++;
-        Activate(memberNumber?: number, duration?: number, emote?: boolean): BaseState | undefined {
-            if (!this.Active) {
-                if (emote)
-                    SendAction("%NAME% slumps weakly as %PRONOUN% slips into unconciousness.");
-                this.SetSleepExpression();
-                this.FallDownIfPossible();
-                addCustomEffect(Player, "ForceKneel");
-                return super.Activate(memberNumber, duration, emote);
-            }
-            return;
-        }
-        Activate(memberNumber?: number, duration?: number, emote?: boolean): BaseState | undefined {
-            this.config.active = true;
-            this.config.activatedAt = new Date().getTime();
-            this.config.activatedBy = memberNumber ?? -1;
-            this.config.activationCount++;
-            this.config.duration = duration;
-
-            settingsSave(true);
-            return this;
-        }
-        */
-        console.log("Calling LSCG passout");
-    }
-    SendAction("SourceCharacter passes out from exhaustion.", undefined, [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry]);
+    passedOut = PASSED_OUT.MPA;
 }
 function MPAWakeup(): void
 {
+    // LSCG passout
+    if (passedOut === PASSED_OUT.LSCG)
+    {
+        // Something keeping player asleep; gas or chloro
+        if (!globalThis?.LSCG?.getModule("StateModule")?.SleepState?.Active
+          || (Player?.LSCG?.InjectorModule?.sedativeLevel ?? 0) > 0
+          || (Player?.LSCG?.MiscModule?.chloroformEnabled
+            && (["ItemMouth", "ItemMouth2", "ItemMouth3"] as AssetGroupName[]).some((group) =>
+            {
+                return InventoryGet(Player, group)?.Asset?.Name === "ChloroformCloth";
+            })
+          ))
+        {
+            return;
+        }
+        if (globalThis?.LSCG?.getModule("StateModule")?.SleepState?.Recover()?.Active === false)
+        {
+            SendAction("SourceCharacter wakes up from PronounPossessive nap.", undefined, [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry]);
+        }
+        return;
+    }
+
+    // MPA passout
     CharacterSetFacialExpression(Player, "Emoticon", null);
     CharacterSetFacialExpression(Player, "Eyes", "Dazed");
     CharacterSetFacialExpression(Player, "Eyebrows", "Lowered");
 
-    passedOut = false;
+    passedOut = PASSED_OUT.NOT;
     SendAction("SourceCharacter wakes up from PronounPossessive nap.", undefined, [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry]);
 }
-function PassoutCheck(): boolean
+function PassoutEnabled(): boolean
 {
     return (PlayerVPC().enabled
-      && PlayerVP().sleepHours !== 0
-      && PlayerVPC().passout
-      && !PlayerVPC().passoutLSCG
-      && passedOut);
+    && PlayerVP().sleepHours !== 0
+    && PlayerVPC().passout);
 }
+function IsPassedOut(): boolean
+{
+    return (PassoutEnabled()
+      && (!globalThis?.LSSG || !PlayerVPC().passoutLSCG)
+      && passedOut === PASSED_OUT.MPA);
+}
+
 
 let affectionCheckInterval: number;
 const skillDurationMS = 15000;
@@ -256,13 +278,13 @@ export class VirtualPetConditionsModule extends Module
                 active: (C) => !!PlayerVP(C).enabled && !!PlayerVPC(C).enabled && !IsHardcoreOn(C),
                 value: true,
                 label: "Passout when exhausted"
-            } as CheckboxSetting, /* {
+            } as CheckboxSetting, {
                 name: "passoutLSCG",
                 type: "checkbox",
-                active: (C) => !!PlayerVP(C).enabled && !!PlayerVPC(C).enabled && !!PlayerVPC(C).passout && !!C.LSCG && !IsHardcoreOn(C) && false,
+                active: (C) => !!PlayerVP(C).enabled && !!PlayerVPC(C).enabled && !!PlayerVPC(C).passout && !!C.LSCG,
                 value: false,
                 label: "Use LSCG passout instead of MPA; Requires LSCG"
-            } as CheckboxSetting, */ {
+            } as CheckboxSetting, {
                 name: "affectionSkillBuffs",
                 type: "checkbox",
                 active: (C) => !!PlayerVP(C).enabled && !!PlayerVPC(C).enabled && !IsHardcoreOn(C),
@@ -357,7 +379,7 @@ export class VirtualPetConditionsModule extends Module
                 change: "rising",
                 action: function (): void
                 {
-                    if (passedOut)
+                    if (passedOut !== PASSED_OUT.NOT)
                     {
                         MPAWakeup();
                     }
@@ -369,23 +391,23 @@ export class VirtualPetConditionsModule extends Module
         // Passout Hooks
         HookFunction(this.Title, "Player.CanTalk", 5, (args, next) =>
         {
-            return PassoutCheck() ? false : next(args);
+            return IsPassedOut() ? false : next(args);
         });
         HookFunction(this.Title, "Player.CanWalk", 5, (args, next) =>
         {
-            return PassoutCheck() ? false : next(args);
+            return IsPassedOut() ? false : next(args);
         });
         HookFunction(this.Title, "Player.CanChangeOwnClothes", 5, (args, next) =>
         {
-            return PassoutCheck() ? false : next(args);
+            return IsPassedOut() ? false : next(args);
         });
         HookFunction(this.Title, "Player.CanInteract", 5, (args, next) =>
         {
-            return PassoutCheck() ? false : next(args);
+            return IsPassedOut() ? false : next(args);
         });
         HookFunction(this.Title, "ServerSend", 5, (args, next) =>
         {
-            if (!PassoutCheck())
+            if (!IsPassedOut())
             {
                 return next(args);
             }
@@ -404,11 +426,23 @@ export class VirtualPetConditionsModule extends Module
         });
         HookFunction(this.Title, "Player.GetDeafLevel", 5, (args, next) =>
         {
-            return PassoutCheck() ? 4 : next(args);
+            return IsPassedOut() ? 4 : next(args);
         });
         HookFunction(this.Title, "Player.GetBlindLevel", 5, (args, next) =>
         {
-            return PassoutCheck() ? (Player.GameplaySettings?.SensDepChatLog === "SensDepExtreme" || Player.GameplaySettings?.SensDepChatLog === "SensDepTotal") ? 3 : 2 : next(args);
+            return IsPassedOut() ? (Player.GameplaySettings?.SensDepChatLog === "SensDepExtreme" || Player.GameplaySettings?.SensDepChatLog === "SensDepTotal") ? 3 : 2 : next(args);
+        });
+        HookFunction(this.Title, "ChatRoomCharacterUpdate", 5, (args, next) =>
+        {
+            const char = args[0];
+            if (
+                char.IsPlayer()
+                && passedOut === PASSED_OUT.LSCG
+                && globalThis.LSCG?.getModule("StateModule")?.SleepState?.Active === false)
+            {
+                passedOut = PASSED_OUT.NOT;
+            }
+            return next(args);
         });
 
         // Can't focus while hungry (deaf)

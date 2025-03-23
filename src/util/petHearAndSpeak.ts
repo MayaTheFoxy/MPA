@@ -229,7 +229,6 @@ export function NonDisruptivePetSpeech(
 
         const splitPhrase = segment.text.match(/(\s*\S+)/g) || [];
         let previousWord: string | null = null;
-        console.log(splitPhrase);
         for (const word of splitPhrase)
         {
             if (LINK_REGEX.test(word))
