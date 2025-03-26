@@ -1,3 +1,6 @@
+# 0.4.6.5
+- Support clicker for activities (including Echo's custom activities)
+
 # 0.4.6.4
 - RU localization by rubich9141
 - LSCG passout option when low energy

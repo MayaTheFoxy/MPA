@@ -206,29 +206,46 @@ export class ClickerModule extends Module
             }
 
             let clicks: number = 0;
-            // Count the clicks in an emote or chat
-            if (data.Type == "Chat" || data.Type == "Emote" || data.Type == "Whisper")
+            const searchTag = `MISSING ACTIVITY DESCRIPTION FOR KEYWORD ${data.Content}`;
+            switch (data.Type)
             {
-                clicks = ClickCount(RemoveOOCContentFromMessage(data.Content));
-            }
-            // Count the clicks in an action, (support custom actions)
-            if (data.Type == "Action")
-            {
-                // Beeps
-                if (data.Content == "Beep")
-                {
-                    clicks = ClickCount((data?.Dictionary?.filter((x) => (x as TextDictionaryEntry).Tag == "Beep")[0] as TextDictionaryEntry)?.Text ?? "");
-                }
-                // MBCH actions
-                else if (data.Dictionary?.reduce((acc, curr) => acc || ((curr as any).Tag === "MISSING TEXT IN \"Interface.csv\": " && (curr as any).Text === "\u200c"), false))
-                {
-                    clicks = ClickCount(data.Content);
-                }
-                // BCX actions
-                else
-                {
-                    clicks = ClickCount((data?.Dictionary?.filter((x) => (x as TextDictionaryEntry).Tag == `MISSING TEXT IN "Interface.csv": ${data?.Content}`)[0] as TextDictionaryEntry)?.Text ?? "");
-                }
+                // Count the clicks in an emote or chat
+                case "Chat":
+                case "Emote":
+                case "Whisper":
+                    clicks = ClickCount(RemoveOOCContentFromMessage(data.Content));
+                    break;
+
+                // Count the clicks in an action, (support custom actions)
+                case "Action":
+                    // Beeps
+                    if (data.Content == "Beep")
+                    {
+                        clicks = ClickCount((data?.Dictionary?.filter((x) => (x as TextDictionaryEntry).Tag == "Beep")[0] as TextDictionaryEntry)?.Text ?? "");
+                    }
+                    // MBCH actions
+                    else if (data.Dictionary?.reduce((acc, curr) => acc || ((curr as any).Tag === "MISSING TEXT IN \"Interface.csv\": " && (curr as any).Text === "\u200c"), false))
+                    {
+                        clicks = ClickCount(data.Content);
+                    }
+                    // BCX actions
+                    else
+                    {
+                        clicks = ClickCount((data?.Dictionary?.filter((x) => (x as TextDictionaryEntry).Tag == `MISSING TEXT IN "Interface.csv": ${data?.Content}`)[0] as TextDictionaryEntry)?.Text ?? "");
+                    }
+                    break;
+
+                // Count the clicks in an activity
+                case "Activity":
+                    // Echo custom actions
+                    if (data?.Dictionary?.some((item) => (item as TextDictionaryEntry)?.Tag === searchTag))
+                    {
+                        clicks = ClickCount((data?.Dictionary?.filter((x) => (x as TextDictionaryEntry).Tag === searchTag)[0] as TextDictionaryEntry)?.Text ?? "");
+                    }
+                    break;
+
+                default:
+                    break;
             }
 
             // Play the clicks if needed
