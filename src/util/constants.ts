@@ -16,3 +16,5 @@ export const BED_PERFECT = ["PetBed", "Crib"];
 export const BED_NORMAL = ["LowCage", "Kennel", "Bed", "MedicalBed", "Cushion"];
 export const BED_BAD = ["FuturisticCrate", "DollBox"];
 export const ALL_BEDS = BED_PERFECT.concat(BED_NORMAL, BED_BAD);
+
+export const ORGASM_ACTIVITY_REGEX = /Orgasm[0-9]/;

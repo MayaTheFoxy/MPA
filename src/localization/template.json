@@ -64,7 +64,10 @@
     "Automatically make the above pet sounds while talking":"",
     "Pet gagging mode":"",
     "Pet gagging strength":"",
-    
+    "While deafened certain pet keywords can be picked up":"",
+    "Use BCX mandatory words instead of the pet sounds above":"",
+    "Notify when others are accessing TargetCharacter's settings":"",
+
     "Clicker":"",
     "Enable auditory clicker": "",
     "Phrases that trigger the click; Separate phrases with a comma":"",
@@ -82,6 +85,8 @@
     "Allow eating or drinking from items in your OWN hands":"",
     "Stats drain even when logged out of the club":"",
     "Masochist pet; Abuse raises affection":"",
+    "How much hunger and thirst gained from performing oral sex":"",
+    "ONLY Able to gain hunger and thirst from performing oral sex":"",
 
     "Virtual Pet HUD":"",
     "Display your own virtual pet stats on the HUD":"",
@@ -115,6 +120,8 @@
     "Affection will debuff skills based on its level":"",
     "Hearing becomes harder the hungrier you are":"",
     "Takes longer to leave the room when hungry":"",
+    "Orgasms make you lose some hydration":"",
+    "Orgasms make you lose some energy":"",
 
     "Flick Bell":"",
     "SourceCharacter flicks the bell on PronounPossessive collar.":"",

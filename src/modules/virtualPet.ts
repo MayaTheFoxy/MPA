@@ -1,10 +1,11 @@
 import { Module, ModuleTitle } from "./_module";
-import { BED_BAD, BED_NORMAL, BED_PERFECT } from "../util/constants";
+import { BED_BAD, BED_NORMAL, BED_PERFECT, ORGASM_ACTIVITY_REGEX } from "../util/constants";
 import { HookFunction } from "../util/sdk";
 import { SaveStorage } from "../util/storage";
-import { GetAttributeFromChatDictionary } from "../util/messaging";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary, SendAction } from "../util/messaging";
 import { RecordSync } from "./dataSync";
 import { IsHardcoreOn } from "./profile";
+import { RandomElement } from "../util/general";
 
 const MAX_SETTING_TIME_HOURS = 168;
 
@@ -54,6 +55,33 @@ const MIN_OFFLINE_DRAIN_LEVEL = 0.2;
 
 const LAST_ONLINE_INTERVAL_MS = 10000;
 let lastOnlineInterval: number;
+
+// Sex Pet
+const SEX_PET_ACTIVITIES = ["Lick", "MasturbateTongue", "Kiss", "Nibble", "LSCG_Throat", "LSCG_Suck"];
+const SEX_PET_ACTIVITIES_OTHER = ["PenetrateSlow", "PenetrateFast", "RubItem", "LSCG_SlapPenis"];
+const SEX_PET_REGIONS = ["ItemVulva", "ItemVulvaPiercings", "ItemButt"];
+const SEX_PET_RECOVERY = Object.freeze({
+    Off: 0,
+    Low: 0.05,
+    Medium: 0.1,
+    High: 0.2
+});
+const SEX_PET_THIRST_MOD = 7;
+const SEX_PET_ORGASM_TIME_MS = 1.5 * 60 * 1000;
+const performedOralOn: Record<number, number> = {};
+
+const SEX_PET_DRINK = Object.freeze({
+    FEMALE: [
+        "SourceCharacter gasps and sputters as PronounSubject slurps up all of DestinationCharacter climax.",
+        "SourceCharacter smiles as PronounSubject eagerly gulps down DestinationCharacter ejaculate, with some dripping down PronounPossessive chin.",
+        "SourceCharacter opens PronounPossessive mouth wide trying to catch and swallow as much of DestinationCharacter squirt."
+    ],
+    MALE: [
+        "SourceCharacter opens PronounPossessive mouth as TargetCharacter shoots TargetPronounPossessive load, hitting the back of PronounPossessive throat.",
+        "SourceCharacter wraps PronounPossessive lips around DestinationCharacter shaft to swallow and not waste a drop of TargetPronounPossessive cum.",
+        "TargetCharacter pumps TargetPronounPossessive load into SourceCharacter's awaiting mouth, looking up at TargetCharacter with pride as SourceCharacter swallows it all."
+    ]
+});
 
 export const IsSleepingExpression = (char: Character): boolean =>
 {
@@ -268,6 +296,16 @@ export function LevelSync(pushToStorage: boolean = true, recordSync: boolean = t
     }
 }
 
+function CanNom(): boolean
+{
+    return PlayerVP().enabled && (PlayerVP().sexPet === "Off" || !PlayerVP().sexPetOnly);
+}
+
+function CanSex(): boolean
+{
+    return PlayerVP().enabled && (PlayerVP().sexPet !== "Off");
+}
+
 /**
  * @param stat - Stat to modify
  * @param amount - Must be between -1 and 1
@@ -324,7 +362,7 @@ export class VirtualPetModule extends Module
                 },
                 OnTrigger: () =>
                 {
-                    if (PlayerVP().enabled && PlayerVP().foodHours !== 0)
+                    if (PlayerVP().enabled && PlayerVP().foodHours !== 0 && CanNom())
                     {
                         ModifyStat("food", BOWL_CONSUME_RECOVERY, true);
                     }
@@ -343,7 +381,7 @@ export class VirtualPetModule extends Module
                 },
                 OnTrigger: () =>
                 {
-                    if (PlayerVP().enabled && PlayerVP().waterHours !== 0)
+                    if (PlayerVP().enabled && PlayerVP().waterHours !== 0 && CanNom())
                     {
                         ModifyStat("water", BOWL_CONSUME_RECOVERY, true);
                     }
@@ -369,7 +407,7 @@ export class VirtualPetModule extends Module
                 ],
                 OnTrigger: () =>
                 {
-                    if (PlayerVP().enabled && PlayerVP().foodHours !== 0)
+                    if (PlayerVP().enabled && PlayerVP().foodHours !== 0 && CanNom())
                     {
                         ModifyStat("food", BOWL_CONSUME_RECOVERY, true);
                     }
@@ -389,7 +427,7 @@ export class VirtualPetModule extends Module
                 ],
                 OnTrigger: () =>
                 {
-                    if (PlayerVP().enabled && PlayerVP().waterHours !== 0)
+                    if (PlayerVP().enabled && PlayerVP().waterHours !== 0 && CanNom())
                     {
                         ModifyStat("water", BOWL_CONSUME_RECOVERY, true);
                     }
@@ -476,7 +514,21 @@ export class VirtualPetModule extends Module
                     lastUpdated: Date.now(),
                     lastOnline: Date.now()
                 }
-            } as Setting
+            } as Setting, {
+                name: "sexPet",
+                type: "option",
+                active: (C) => !!PlayerVP(C).enabled,
+                value: "Off",
+                options: ["Off", "Low", "Medium", "High"],
+                label: "How much hunger and thirst gained from performing oral sex",
+                loop: false
+            } as OptionSetting, {
+                name: "sexPetOnly",
+                type: "checkbox",
+                active: (C) => PlayerVP(C).sexPet != "Off",
+                value: false,
+                label: "ONLY Able to gain hunger and thirst from performing oral sex"
+            } as CheckboxSetting
         ];
     }
 
@@ -507,8 +559,9 @@ export class VirtualPetModule extends Module
                   && GetAttributeFromChatDictionary(data, "SourceCharacter") === Player.MemberNumber)
                 || data.Type !== "Activity"
                 || GetAttributeFromChatDictionary(data, "TargetCharacter") !== Player.MemberNumber
-                || !["ItemMouth", "ItemHands"].includes(GetAttributeFromChatDictionary(data, "FocusGroupName"))
+                || GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemMouth"
                 || !activityName
+                || !CanNom()
             )
             {
                 return next(args);
@@ -516,14 +569,14 @@ export class VirtualPetModule extends Module
 
             // Get activity and check prerequisites
             const activity = ActivityFemale3DCG.find((x) => x.Name === activityName);
-
+            const source = FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter")) ?? undefined;
             if (
                 PlayerVP().foodHours !== 0
                 && (activity?.Prerequisite?.includes("Needs-EatItem")
                   || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
             )
             {
-                ModifyStat("food", ITEM_CONUME_RECOVERY, true);
+                ModifyStat("food", ITEM_CONUME_RECOVERY, true, undefined, source);
             }
 
             if (
@@ -532,7 +585,120 @@ export class VirtualPetModule extends Module
                   || ACTIVITIES_WATER_GAIN.some((x) => activity?.Name === x))
             )
             {
-                ModifyStat("water", ITEM_CONUME_RECOVERY, true);
+                ModifyStat("water", ITEM_CONUME_RECOVERY, true, undefined, source);
+            }
+
+            return next(args);
+        });
+        // Eat out of hands (LSCG)
+        HookFunction(this.Title, "ChatRoomMessage", 0, (args, next) =>
+        {
+            const data = args[0];
+            const activityName = GetAttributeFromChatDictionary(data, "ActivityName");
+            const activity = ActivityFemale3DCG.find((x) => x.Name === activityName);
+            if (
+                !PlayerVP().enabled
+                || (GetAttributeFromChatDictionary(data, "SourceCharacter") !== Player.MemberNumber)
+                || data.Type !== "Activity"
+                || GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemHands"
+                || !activityName
+                || !CanNom()
+                || PlayerVP().foodHours === 0
+                || !(activity?.Prerequisite?.includes("Needs-EatItem")
+                  || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
+            )
+            {
+                return next(args);
+            }
+
+            ModifyStat("food", ITEM_CONUME_RECOVERY, true, undefined, FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter")) ?? undefined);
+            return next(args);
+        });
+
+        // Sexs
+        HookFunction(this.Title, "ChatRoomMessage", 0, (args, next) =>
+        {
+            const data = args[0];
+            const activityName = GetAttributeFromChatDictionary(data, "ActivityName");
+            const sourceChar = GetAttributeFromChatDictionary(data, "SourceCharacter");
+            const targetChar = GetAttributeFromChatDictionary(data, "TargetCharacter") as number;
+            if (
+                !PlayerVP().enabled
+                || data.Type !== "Activity"
+                || !CanSex()
+                || sourceChar !== Player.MemberNumber
+                || targetChar === Player.MemberNumber
+                || !SEX_PET_REGIONS.includes(GetAttributeFromChatDictionary(data, "FocusGroupName"))
+                || !SEX_PET_ACTIVITIES.includes(activityName)
+            )
+            {
+                return next(args);
+            }
+
+            ModifyStat("food", SEX_PET_RECOVERY[PlayerVP().sexPet ?? "Low"], true, true, FindCharacterInRoom(targetChar) ?? undefined);
+            performedOralOn[targetChar] = Date.now();
+            return next(args);
+        });
+
+        // Sexs from other
+        HookFunction(this.Title, "ChatRoomMessage", 0, (args, next) =>
+        {
+            const data = args[0];
+            const activityName = GetAttributeFromChatDictionary(data, "ActivityName");
+            const sourceChar = GetAttributeFromChatDictionary(data, "SourceCharacter");
+            const targetChar = GetAttributeFromChatDictionary(data, "TargetCharacter") as number;
+            if (
+                !PlayerVP().enabled
+                || data.Type !== "Activity"
+                || !CanSex()
+                || sourceChar === Player.MemberNumber
+                || targetChar !== Player.MemberNumber
+                || !(!(GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemMouth"
+                  || !SEX_PET_ACTIVITIES_OTHER.includes(activityName)
+                  || GetAttributeFromChatDictionary(data, "AssetName") !== "Penis"
+                  || GetAttributeFromChatDictionary(data, "GroupName") !== "Pussy")
+                || !(GetAttributeFromChatDictionary(data, "FocusGroupName") !== "ItemHead"
+                  || activityName !== "LSCG_FuckWithPussy")
+                )
+            )
+            {
+                return next(args);
+            }
+
+            ModifyStat("food", SEX_PET_RECOVERY[PlayerVP().sexPet ?? "Low"], true, true, FindCharacterInRoom(sourceChar) ?? undefined);
+            performedOralOn[sourceChar] = Date.now();
+            return next(args);
+        });
+
+        // On orgasm
+        HookFunction(this.Title, "ChatRoomMessage", 10, (args, next) =>
+        {
+            const data = args[0];
+            const sourceChar = GetAttributeFromChatDictionary(data, "SourceCharacter") as number;
+            if (data.Type !== "Activity"
+              || !ORGASM_ACTIVITY_REGEX.test(data.Content)
+              || sourceChar === Player.MemberNumber)
+            {
+                return next(args);
+            }
+
+            if ((performedOralOn[sourceChar] ?? 0) >= (Date.now() - SEX_PET_ORGASM_TIME_MS))
+            {
+                const sourceCharacter = FindCharacterInRoom(sourceChar);
+                ModifyStat("water",
+                    SEX_PET_RECOVERY[PlayerVP().sexPet ?? "Low"] * SEX_PET_THIRST_MOD,
+                    true,
+                    true,
+                    sourceCharacter ?? undefined
+                );
+                if (sourceCharacter)
+                {
+                    SendAction(RandomElement(SEX_PET_DRINK[sourceCharacter.HasPenis() ? "MALE" : "FEMALE"]) as string,
+                        undefined,
+                        [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry,
+                            { TargetCharacter: sourceChar } as TargetCharacterDictionaryEntry]
+                    );
+                }
             }
 
             return next(args);

@@ -78,7 +78,7 @@ export async function AwaitPlayer(): Promise<void>
             hook();
 
             // Resolve the promise to end the await condition
-            resolve();
+            setTimeout(resolve, 1000);
         });
     });
 }

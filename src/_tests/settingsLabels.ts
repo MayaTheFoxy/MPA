@@ -1,6 +1,5 @@
 import { IsDisplaySetting } from "../util/settingTypes";
 import template from "../localization/template.json";
-import { ArrayToReadableString } from "../util/messaging";
 import { modules } from "../util/registerModules";
 
 export function SettingTest()
@@ -34,6 +33,6 @@ export function SettingTest()
     }
     else
     {
-        console.log(`The following labels are missing from the localication template: ${ArrayToReadableString(labelsNotInTemplate)}`);
+        console.log(`The following labels are missing from the localication template:\n"${labelsNotInTemplate.join("\":\"\",\n\"")}":""`);
     }
 }
