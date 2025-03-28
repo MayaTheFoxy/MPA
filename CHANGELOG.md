@@ -1,19 +1,11 @@
-# 0.4.6.5
+# 0.4.7
 - Support clicker for activities (including Echo's custom activities)
-
-# 0.4.6.4
 - RU localization by rubich9141
 - LSCG passout option when low energy
 - LSCG eating compatibility fixes
 - No pet speak on web links fix
-
-# 0.4.6.3
 - Paw icon on any activity from MPA
-
-# 0.4.6.2
 - Sex pet can now gain food and water from others orally pleasing themselves with the pet
-
-# 0.4.6.1
 - Sex pet option, able to gain food by eating out others, able to gain thrist by swallowing their cum
 - Sex pet ONLY option, regular food, drink, and bowls do not work anymore
 
