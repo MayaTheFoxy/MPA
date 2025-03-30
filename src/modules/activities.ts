@@ -84,7 +84,7 @@ export class ActivitiesModule extends Module
                     Prerequisite: (_acting, acted, _group) =>
                     {
                         const clitPiercing = InventoryGet(acted, "ItemVulvaPiercings");
-                        return clitPiercing?.Asset?.Name == "RoundClitPiercing" || clitPiercing?.Property?.TypeRecord?.typed == 2;
+                        return clitPiercing?.Asset?.Name == "RoundClitPiercing" && clitPiercing?.Property?.TypeRecord?.typed == 2;
                     }
                 },
                 Targets: [{
