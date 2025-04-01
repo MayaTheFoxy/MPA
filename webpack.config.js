@@ -38,6 +38,12 @@ module.exports = (env) => {
 						configFile: "tsconfig.json",
 					},
 				}],
+			}, {
+				test: /\.mp3$/,
+				type: 'asset/resource',
+				generator: {
+				filename: 'assets/[name].[hash][ext]',
+				},
 			}],
 		},
 		optimization: {
