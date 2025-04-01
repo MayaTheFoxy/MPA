@@ -1,5 +1,5 @@
 # 0.4.7.1
-- Bell jingle on movement (emote, map, or pose)
+- Bell jingle on movement (emote, map, or pose); Thanks to Alexa (Corvidae) for the audio
 
 # 0.4.7
 - Support clicker for activities (including Echo's custom activities)
