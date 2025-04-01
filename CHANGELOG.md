@@ -1,3 +1,6 @@
+# 0.4.7.1
+- Bell jingle on movement (emote, map, or pose)
+
 # 0.4.7
 - Support clicker for activities (including Echo's custom activities)
 - RU localization by rubich9141
