@@ -4,13 +4,17 @@ import { AuthorityGroup, IsMemberNumberInAuthGroup } from "../util/authority";
 import { Module, ModuleTitle } from "./_module";
 import { IsHardcoreOn } from "./profile";
 
+import clicker1 from "../../assets/clicker1.mp3";
+import clicker2 from "../../assets/clicker2.mp3";
+import clicker3 from "../../assets/clicker3.mp3";
+
 // Clicker sounds to play
 // An array of audio files, 1 click in index 0, n+1 clicks in index n
 const ALL_CLICKS: HTMLAudioElement[] =
 [
-    new Audio("https://media.soundgasm.net/sounds/df33316bec7bc03902860d21fb4b8827466f2bad.m4a"),
-    new Audio("https://media.soundgasm.net/sounds/fa49b10dad3e1202de096859b339dcfc5eab90a5.m4a"),
-    new Audio("https://media.soundgasm.net/sounds/b25177a6a92d5a74d047a9d77a807f2d1ed28c71.m4a")
+    new Audio(clicker1),
+    new Audio(clicker2),
+    new Audio(clicker3)
 ];
 
 /**
