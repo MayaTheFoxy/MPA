@@ -535,7 +535,8 @@ export class ProfileModule extends Module
         HookFunction(this.Title, "ChatRoomMessage", 0, (args, next) =>
         {
             const data = args[0];
-            if (PlayerP().bellJingle !== "Off"
+            if (data?.Sender === Player.MemberNumber
+              && PlayerP().bellJingle !== "Off"
               && (data.Type === "Action" || data.Type === "Emote")
               && MOVEMENT_REGEX.test(data.Content))
             {
