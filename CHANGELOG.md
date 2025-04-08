@@ -1,3 +1,6 @@
+# 0.4.7.2
+- Stomp activity while wearing pony boots
+
 # 0.4.7.1
 - Bell jingle on movement (emote, map, or pose); Thanks to Alexa (Corvidae) for the audio
 

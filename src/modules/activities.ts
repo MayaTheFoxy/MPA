@@ -114,6 +114,37 @@ export class ActivitiesModule extends Module
                 }],
                 Image: "Assets\\Female3DCG\\ItemNipplesPiercings\\Preview\\BellPiercing.png",
                 OnReceive: RecieveBell
+            }, {
+                Name: "StompOnce",
+                MaxProgress: 50,
+                Prerequisite: ["UseFeet"],
+                CustomPrerequisite: {
+                    Name: "HasHooves",
+                    Prerequisite: (_acting, acted, _group) =>
+                    {
+                        return InventoryGet(acted, "ItemBoots")?.Asset?.Description?.toLocaleLowerCase()?.includes("pony")
+                          || ["pony", "hoof"].some((keyword) => InventoryGet(acted, "Shoes")?.Asset?.Description?.toLocaleLowerCase()?.includes(keyword));
+                    }
+                },
+                Targets: [{
+                    group: "ItemBoots",
+                    label: "Stomp Once",
+                    actionSelf: "SourceCharacter stomps PronounPossessive hoof on the ground once."
+                }],
+                Image: "Assets\\Female3DCG\\Shoes\\Preview\\PonyBoots.png"
+            }, {
+                Name: "StompTwice",
+                MaxProgress: 50,
+                Prerequisite: ["UseFeet"],
+                CustomPrerequisite: {
+                    Name: "HasHooves"
+                },
+                Targets: [{
+                    group: "ItemBoots",
+                    label: "Stomp Twice",
+                    actionSelf: "SourceCharacter stomps PronounPossessive hoof on the ground twice."
+                }],
+                Image: "Assets\\Female3DCG\\Shoes\\Preview\\PonyBoots.png"
             }
         ];
     }
