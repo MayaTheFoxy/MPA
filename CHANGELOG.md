@@ -1,5 +1,6 @@
 # 0.4.7.2
 - Stomp activity while wearing pony boots
+- Add Chinese localization thanks to Da'Inihlus 
 
 # 0.4.7.1
 - Bell jingle on movement (emote, map, or pose); Thanks to Alexa (Corvidae) for the audio
