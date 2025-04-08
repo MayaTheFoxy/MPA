@@ -9,12 +9,14 @@
 
 import template from "./template.json";
 import RU from "./RU.json";
+import CN from "./CN.json";
 
 // Everything is defaulted to English
 const translations =
 {
     template: template,
-    RU: RU
+    RU: RU,
+    CN
 };
 
 export function LocalizedText(text: string): string
