@@ -121,7 +121,7 @@ export const PET_HEARING = Object.freeze({
     Fox: ["trap", "bun", "bunny", "bone", "fox", "foxy"],
     Mouse: ["mouse", "ear", "ears", "trap", "wire", "wheel", "cheese", "nibble", "cat", "kitty", "kitten"],
     Pony: ["pony", "mare", "stallion", "bridle", "hoof", "hooves", "trot", "stall", "hay", "woah",
-        "stomp", "calm", "easy", "slow", "cart", "bay", "run", "race"],
+        "stomp", "calm", "easy", "slow", "cart", "bay", "run", "race", "show", "canter", "gallop"],
     Wolf: ["bone", "wolf", "dog", "pup", "puppy", "heel"]
 });
 type PetHearingKeys = keyof typeof PET_HEARING;
