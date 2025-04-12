@@ -290,6 +290,7 @@ export class SettingsOtherModule extends Module
                 MouseIn(...((bcxFound() ? MPA_REMOTE_BCX : MPA_REMOTE) as readonly [number, number, number, number]))
                 && char?.MPA
                 && !char.IsPlayer()
+                && ServerChatRoomGetAllowItem(Player, char)
             )
             {
                 window.MPA.menuLoaded = true;
