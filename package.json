@@ -13,7 +13,8 @@
 		"stable": "npx webpack --env stable=true",
 		"dev": "npx webpack --env stable=false",
 		"lint": "eslint ./src",
-		"lint-fix": "eslint ./src --fix"
+		"lint-fix": "eslint ./src --fix",
+		"lang": "node ./src/localization/updateTemplate.js"
 	},
 	"dependencies": {
 		"bondage-club-mod-sdk": "^1.2.0"
