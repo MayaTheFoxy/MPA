@@ -67,6 +67,7 @@
     "While deafened certain pet keywords can be picked up":"",
     "Use BCX mandatory words instead of the pet sounds above":"",
     "Notify when others are accessing TargetCharacter's settings":"",
+    "Always display the HUD; Overrides BCX rule \"Force-hide UI elements\"":"",
 
     "Clicker":"",
     "Enable auditory clicker": "",

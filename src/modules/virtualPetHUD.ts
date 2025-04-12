@@ -130,6 +130,49 @@ function DrawVirualPetHud(x: number, y: number, zoom: number, stats: VirtualPetS
     }
 }
 
+function ShouldDrawHud<T extends typeof DrawArousalMeter | typeof DrawCharacter>(
+    args: Parameters<T>,
+    next: any
+)
+{
+    const [character, x, y, zoom] = args;
+    // Get character stats when support for multplayer
+    if (
+        !ActivityAllowed()
+        || (character.IsPlayer() && (!PlayerVPHUD().self || !PlayerVP().enabled))
+        || (!character.IsPlayer() && PlayerVPHUD().others === "Off")
+        || (!character.IsPlayer() && !IsMemberNumberInAuthGroup(character.MemberNumber as number, PlayerVPHUD().others))
+    )
+    {
+        return next(args);
+    }
+
+    // Get the stats for the character, not just the player
+    const characterVPStats = character?.MPA?.[ModuleTitle.VirtualPet];
+    if (!characterVPStats?.enabled)
+    {
+        return next(args);
+    }
+
+    const stats: VirtualPetStat[] = [];
+    (["food", "water", "sleep", "affection"] as VirtualPetStatCategory[]).forEach((stat) =>
+    {
+        if (characterVPStats[`${stat}Hours`] !== 0)
+        {
+            stats.push({
+                stat: stat,
+                level: GetCharacterCurrentStatValue(character, stat)
+            });
+        }
+    });
+    if (stats.length !== 0)
+    {
+        DrawVirualPetHud(x, y, zoom, stats);
+    }
+
+    return next(args);
+}
+
 export class VirtualPetHUDModule extends Module
 {
     get Title(): ModuleTitle
@@ -168,7 +211,13 @@ export class VirtualPetHUDModule extends Module
                 value: "Friends",
                 label: "Display the virtual pet stats of others on the HUD",
                 loop: false
-            } as OptionSetting
+            } as OptionSetting, {
+                name: "forceDraw",
+                type: "checkbox",
+                active: () => !!PlayerVP().enabled || PlayerVPHUD().others !== "Off",
+                value: false,
+                label: "Always display the HUD; Overrides BCX rule \"Force-hide UI elements\""
+            } as CheckboxSetting
         ];
     }
 
@@ -176,41 +225,19 @@ export class VirtualPetHUDModule extends Module
     {
         HookFunction(this.Title, "DrawArousalMeter", 1, (args, next) =>
         {
-            const [character, x, y, zoom] = args;
-            // Get character stats when support for multplayer
-            if (
-                !ActivityAllowed()
-                || (character.IsPlayer() && (!PlayerVPHUD().self || !PlayerVP().enabled))
-                || (!character.IsPlayer() && PlayerVPHUD().others === "Off")
-                || (!character.IsPlayer() && !IsMemberNumberInAuthGroup(character.MemberNumber as number, PlayerVPHUD().others))
-            )
+            if (!PlayerVPHUD().forceDraw)
             {
-                return next(args);
+                return ShouldDrawHud(args, next);
             }
+            return next(args);
+        });
 
-            // Get the stats for the character, not just the player
-            const characterVPStats = character?.MPA?.[ModuleTitle.VirtualPet];
-            if (!characterVPStats?.enabled)
+        HookFunction(this.Title, "DrawCharacter", 0, (args, next) =>
+        {
+            if (PlayerVPHUD().forceDraw)
             {
-                return next(args);
+                return ShouldDrawHud(args, next);
             }
-
-            const stats: VirtualPetStat[] = [];
-            (["food", "water", "sleep", "affection"] as VirtualPetStatCategory[]).forEach((stat) =>
-            {
-                if (characterVPStats[`${stat}Hours`] !== 0)
-                {
-                    stats.push({
-                        stat: stat,
-                        level: GetCharacterCurrentStatValue(character, stat)
-                    });
-                }
-            });
-            if (stats.length !== 0)
-            {
-                DrawVirualPetHud(x, y, zoom, stats);
-            }
-
             return next(args);
         });
     }
