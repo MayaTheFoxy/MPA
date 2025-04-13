@@ -4,23 +4,36 @@ import tseslint from "typescript-eslint";
 import stylistic from '@stylistic/eslint-plugin';
 
 export default [
+	// JS base config
 	pluginJs.configs.recommended,
-	stylistic.configs.customize({ quotes: "double", semi: true, jsx: false, braceStyle: "allman", allowSingleLine: true }),
-	...tseslint.configs.recommended,
-	...tseslint.configs.stylisticTypeChecked,
+
+	// Stylistic rules (applied globally unless scoped)
+	stylistic.configs.customize({
+		quotes: "double",
+		semi: true,
+		jsx: false,
+		braceStyle: "allman",
+		allowSingleLine: true
+	}),
+
+	// --- TypeScript files: config + parser + rules ---
 	{
-		files: [
-			"src/**/*.{js,ts}"
-		],
-		ignores: [
-			"node_modules/**/*.*"
-		],
-		languageOptions: { 
+		files: ["src/**/*.{ts,tsx}"],
+		ignores: ["node_modules/**/*.*"],
+		plugins: {
+			"@typescript-eslint": tseslint.plugin
+		},
+		languageOptions: {
 			globals: globals.browser,
 			parser: tseslint.parser,
-			parserOptions: { project: "./tsconfig.json", tsconfigRootDir: import.meta.dirname },
+			parserOptions: {
+				project: "./tsconfig.json",
+				tsconfigRootDir: import.meta.dirname
+			}
 		},
 		rules: {
+			...tseslint.configs.recommended.rules,
+			...tseslint.configs.stylisticTypeChecked.rules,
 			"@stylistic/indent": ['error', 4],
 			"@stylistic/quotes": ["error", "double"],
 			"@stylistic/linebreak-style": ["error", "windows"],
@@ -38,17 +51,35 @@ export default [
 				"argsIgnorePattern": "^_",
 				"caughtErrorsIgnorePattern": "^_",
 				"destructuredArrayIgnorePattern": "^_",
-				"varsIgnorePattern": "^_",
+				"varsIgnorePattern": "^_"
 			}],
 			"@typescript-eslint/non-nullable-type-assertion-style": "off",
 			"@typescript-eslint/class-literal-property-style": ["error", "getters"],
 			"no-unused-vars": "off",
             "no-undef": "off",
-			"dot-notation" : "off"
+			"dot-notation": "off"
 		}
 	},
+
+	// --- JS files (no TS rules) ---
 	{
-		files: ["src/types/**/*.*"], 
+		files: ["src/**/*.js"],
+		ignores: ["node_modules/**/*.*"],
+		languageOptions: {
+			globals: globals.browser,
+			// uses default JS parser (espree)
+		},
+		rules: {
+			// JS-specific rules can go here if needed
+			"@stylistic/indent": ["error", 4],
+			"@stylistic/comma-dangle": ["error", "never"],
+			"no-undef": "off",
+		}
+	},
+
+	// --- Ignore all files in src/types ---
+	{
+		files: ["src/types/**/*.*"],
 		ignores: ["**/*"] // Ensures all files within /src/types are ignored
 	}
 ];

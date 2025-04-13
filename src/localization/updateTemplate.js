@@ -6,8 +6,8 @@ const path = require("path");
 // Get all language files and the template paths
 const templatePath = path.join(__dirname, "template.json");
 const langPaths = fs.readdirSync(__dirname)
-    .filter((file) => file.endsWith(".json") && file !== "template.json")
-    .map((file) => path.join(__dirname, file));
+    .filter(file => file.endsWith(".json") && file !== "template.json")
+    .map(file => path.join(__dirname, file));
 
 const template = JSON.parse(fs.readFileSync(templatePath, "utf-8"));
 
