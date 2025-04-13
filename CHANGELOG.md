@@ -1,3 +1,8 @@
+# 0.4.7.3
+- Virtual Pet HUD override option; Will display even with BCX rule "Force-hide UI elements"
+- Miscellaneous bug fixes
+- Localization improvements
+
 # 0.4.7.2
 - Stomp activity while wearing pony boots
 - Add Chinese localization thanks to Da'Inihlus 
