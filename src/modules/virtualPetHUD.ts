@@ -135,6 +135,7 @@ function ShouldDrawHud<T extends typeof DrawArousalMeter | typeof DrawCharacter>
     next: any
 )
 {
+    const output = next(args);
     const [character, x, y, zoom] = args;
     // Get character stats when support for multplayer
     if (
@@ -144,14 +145,14 @@ function ShouldDrawHud<T extends typeof DrawArousalMeter | typeof DrawCharacter>
         || (!character.IsPlayer() && !IsMemberNumberInAuthGroup(character.MemberNumber as number, PlayerVPHUD().others))
     )
     {
-        return next(args);
+        return output;
     }
 
     // Get the stats for the character, not just the player
     const characterVPStats = character?.MPA?.[ModuleTitle.VirtualPet];
     if (!characterVPStats?.enabled)
     {
-        return next(args);
+        return output;
     }
 
     const stats: VirtualPetStat[] = [];
@@ -170,7 +171,7 @@ function ShouldDrawHud<T extends typeof DrawArousalMeter | typeof DrawCharacter>
         DrawVirualPetHud(x, y, zoom, stats);
     }
 
-    return next(args);
+    return output;
 }
 
 export class VirtualPetHUDModule extends Module
