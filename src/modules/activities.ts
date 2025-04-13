@@ -122,8 +122,8 @@ export class ActivitiesModule extends Module
                     Name: "HasHooves",
                     Prerequisite: (_acting, acted, _group) =>
                     {
-                        return InventoryGet(acted, "ItemBoots")?.Asset?.Description?.toLocaleLowerCase()?.includes("pony")
-                          || ["pony", "hoof"].some((keyword) => InventoryGet(acted, "Shoes")?.Asset?.Description?.toLocaleLowerCase()?.includes(keyword));
+                        return InventoryGet(acted, "ItemBoots")?.Asset?.Name?.toLocaleLowerCase()?.includes("pony")
+                          || ["pony", "兽蹄鞋_luzi"].some((keyword) => InventoryGet(acted, "Shoes")?.Asset?.Name?.toLocaleLowerCase()?.includes(keyword));
                     }
                 },
                 Targets: [{
