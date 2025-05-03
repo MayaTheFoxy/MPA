@@ -65,7 +65,8 @@ function DrawStatCircle(x: number, y: number, radius: number, stat: VirtualPetSt
 
 function DrawStatTooltip(x: number, y: number, radius: number, stat: VirtualPetStat)
 {
-    const tootipText = LocalizedText(stat.stat.charAt(0).toUpperCase() + stat.stat.slice(1));
+    const statName = LocalizedText(stat.stat.charAt(0).toUpperCase() + stat.stat.slice(1));
+    const tootipText = `${statName}: ${Math.round(stat.level * 100)}%`;
 
     if (MouseIn(x - radius, y - radius, radius * 2, radius * 2))
     {
