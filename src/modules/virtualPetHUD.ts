@@ -56,8 +56,15 @@ function DrawStatCircle(x: number, y: number, radius: number, stat: VirtualPetSt
     if (PlayerVPHUD().exactStats)
     {
         const prevFont = MainCanvas.font;
-        MainCanvas.fillStyle = "#000000";
         MainCanvas.font = CommonGetFont(radius * 1.25);
+        
+        // Set up outline
+        MainCanvas.lineWidth = 2; // adjust as needed
+        MainCanvas.strokeStyle = "#000000";
+        MainCanvas.strokeText(Math.round(stat.level * 100).toString(), x, y + (radius * 0.125));
+
+        // Fill the text
+        MainCanvas.fillStyle = "#ffffff"; // or any fill color you want
         MainCanvas.fillText(Math.round(stat.level * 100).toString(), x, y + (radius * 0.125));
         MainCanvas.font = prevFont;
     }
