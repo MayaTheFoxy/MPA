@@ -13,8 +13,8 @@ export const ACTIVITY_NAME_PREFIX = "MPA_";
 export const BELL_SOUND = new Audio("Audio\\BellMedium.mp3");
 
 export const BED_PERFECT = ["PetBed", "Crib"];
-export const BED_NORMAL = ["LowCage", "Kennel", "Bed", "MedicalBed", "Cushion"];
-export const BED_BAD = ["FuturisticCrate", "DollBox"];
+export const BED_NORMAL = ["LowCage", "Kennel", "Bed", "MedicalBed", "Cushion", "床左边_Luzi", "床右边_Luzi"];
+export const BED_BAD = ["FuturisticCrate", "DollBox", "乳胶带床_Luzi"];
 export const ALL_BEDS = BED_PERFECT.concat(BED_NORMAL, BED_BAD);
 
 export const ORGASM_ACTIVITY_REGEX = /Orgasm[0-9]/;
