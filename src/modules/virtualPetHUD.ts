@@ -57,7 +57,7 @@ function DrawStatCircle(x: number, y: number, radius: number, stat: VirtualPetSt
     {
         const prevFont = MainCanvas.font;
         MainCanvas.font = CommonGetFont(radius * 1.25);
-        
+
         // Set up outline
         MainCanvas.lineWidth = 2; // adjust as needed
         MainCanvas.strokeStyle = "#000000";
@@ -72,11 +72,11 @@ function DrawStatCircle(x: number, y: number, radius: number, stat: VirtualPetSt
 
 function DrawStatTooltip(x: number, y: number, radius: number, stat: VirtualPetStat)
 {
-    const statName = LocalizedText(stat.stat.charAt(0).toUpperCase() + stat.stat.slice(1));
-    const tootipText = `${statName}: ${Math.round(stat.level * 100)}%`;
-
     if (MouseIn(x - radius, y - radius, radius * 2, radius * 2))
     {
+        const statName = LocalizedText(stat.stat.charAt(0).toUpperCase() + stat.stat.slice(1));
+        const tootipText = `${statName}: ${Math.round(stat.level * 100)}%`;
+
         const prevTextAlign = MainCanvas.textAlign;
         const prevFont = MainCanvas.font;
 
@@ -162,11 +162,20 @@ function DrawVirualPetHud(x: number, y: number, zoom: number, stats: VirtualPetS
         const cols: VirtualPetStat[][] = [];
         switch (stats.length)
         {
-            case 1: cols.push([stats[0]], []); break;
-            case 2: cols.push([stats[0]], [stats[1]]); break;
-            case 3: cols.push([stats[1], stats[0]], [stats[2]]); break;
-            case 4: cols.push([stats[1], stats[0]], [stats[3], stats[2]]); break;
+            case 1:
+                cols.push([stats[0]], []);
+                break;
+            case 2:
+                cols.push([stats[0]], [stats[1]]);
+                break;
+            case 3:
+                cols.push([stats[1], stats[0]], [stats[2]]);
+                break;
+            case 4:
+                cols.push([stats[1], stats[0]], [stats[3], stats[2]]);
+                break;
             default:
+                break;
         }
         cols.forEach((col, colIndex) =>
         {

@@ -1,3 +1,8 @@
+# 0.4.7.4
+- Virtual Pet Hud Statistic tooltip feature by dDeepLb
+- Add Echo's Clothing Extenions beds to energy regain list
+- Stability improvements
+
 # 0.4.7.3
 - Virtual Pet HUD override option; Will display even with BCX rule "Force-hide UI elements"
 - Miscellaneous bug fixes
