@@ -291,7 +291,7 @@ export class VirtualPetHUDModule extends Module
     {
         HookFunction(this.Title, "DrawArousalMeter", 1, (args, next) =>
         {
-            if (!PlayerVPHUD()?.forceDraw)
+            if (CurrentScreen !== "Wardrobe" && !PlayerVPHUD()?.forceDraw)
             {
                 return ShouldDrawHud(args, next);
             }
@@ -300,7 +300,7 @@ export class VirtualPetHUDModule extends Module
 
         HookFunction(this.Title, "DrawCharacter", 1, (args, next) =>
         {
-            if (PlayerVPHUD()?.forceDraw)
+            if (CurrentScreen !== "Wardrobe" && PlayerVPHUD()?.forceDraw)
             {
                 return ShouldDrawHud(args, next);
             }
