@@ -139,5 +139,10 @@
     "SourceCharacter stomps PronounPossessive hoof on the ground twice.":"",
 
     "SourceCharacter crawls into PronounPossessive bed.":"",
-    "SourceCharacter tucks TargetCharacter into bed.":""
+    "SourceCharacter tucks TargetCharacter into bed.":"",
+
+    "Water": "",
+    "Food": "",
+    "Sleep": "",
+    "Affection": ""
 }

@@ -2,6 +2,7 @@ import { HookFunction } from "../util/sdk";
 import { IsMemberNumberInAuthGroup } from "../util/authority";
 import { Module, ModuleTitle } from "./_module";
 import { GetCharacterCurrentStatValue, VirtualPetStatCategory, type VirtualPetStat } from "./virtualPet";
+import { LocalizedText } from "../localization/localization";
 
 const PlayerVP: () => MPARecord = () =>
 {
@@ -54,28 +55,93 @@ function DrawStatCircle(x: number, y: number, radius: number, stat: VirtualPetSt
     // Display the text
     if (PlayerVPHUD().exactStats)
     {
-        MainCanvas.fillStyle = "#000000";
+        const prevFont = MainCanvas.font;
         MainCanvas.font = CommonGetFont(radius * 1.25);
+        
+        // Set up outline
+        MainCanvas.lineWidth = 2; // adjust as needed
+        MainCanvas.strokeStyle = "#000000";
+        MainCanvas.strokeText(Math.round(stat.level * 100).toString(), x, y + (radius * 0.125));
+
+        // Fill the text
+        MainCanvas.fillStyle = "#ffffff"; // or any fill color you want
         MainCanvas.fillText(Math.round(stat.level * 100).toString(), x, y + (radius * 0.125));
-        // Default size, idk if needed but can't hurt
-        MainCanvas.font = CommonGetFont(36);
+        MainCanvas.font = prevFont;
+    }
+}
+
+function DrawStatTooltip(x: number, y: number, radius: number, stat: VirtualPetStat)
+{
+    const statName = LocalizedText(stat.stat.charAt(0).toUpperCase() + stat.stat.slice(1));
+    const tootipText = `${statName}: ${Math.round(stat.level * 100)}%`;
+
+    if (MouseIn(x - radius, y - radius, radius * 2, radius * 2))
+    {
+        const prevTextAlign = MainCanvas.textAlign;
+        const prevFont = MainCanvas.font;
+
+        MainCanvas.textAlign = "left";
+        MainCanvas.font = CommonGetFont(26);
+
+        const pad = 5;
+        const pos: "Left" | "Center" | "Right" | "Split" = PlayerVPHUD().position;
+        const size = MainCanvas.measureText(tootipText);
+        const width = size.actualBoundingBoxRight - size.actualBoundingBoxLeft + 2 * pad;
+        const height = size.actualBoundingBoxDescent + size.actualBoundingBoxAscent + 2 * pad;
+
+        let TextX = x;
+        let TextY = y;
+
+        // Adjust position based on HUD position
+        switch (pos)
+        {
+            case "Left":
+                TextX = x + pad;
+                break;
+            case "Center":
+            case "Split":
+                TextX = x - width / 2;
+                TextY = TextY - height;
+                break;
+            case "Right":
+                TextX = x - width;
+                break;
+        }
+
+        TextY = TextY - size.actualBoundingBoxAscent;
+
+        DrawRect(TextX - pad + 3, TextY - pad + 3, width, height, "rgba(0, 0, 0, .7)");
+        DrawRect(TextX - pad, TextY - pad, width, height, "#D7F6E9");
+        DrawTextFit(tootipText, TextX, TextY + pad * 2, size.width, "Black");
+
+        MainCanvas.textAlign = prevTextAlign;
+        MainCanvas.font = prevFont;
     }
 }
 
 function DrawVirualPetHud(x: number, y: number, zoom: number, stats: VirtualPetStat[]): void
 {
     const pos: "Left" | "Center" | "Right" | "Split" = PlayerVPHUD().position;
+
+    type PositionedStat = {
+        stat: VirtualPetStat;
+        x: number;
+        y: number;
+    };
+
+    const circles: PositionedStat[] = [];
+
     if (pos === "Left" || pos === "Right")
     {
-        stats.reverse();
-        stats.forEach((stat, index) =>
+        const baseX = x + (pos === "Left" ? 80 : 420) * zoom;
+        const reversedStats = [...stats].reverse();
+        reversedStats.forEach((stat, index) =>
         {
-            DrawStatCircle(
-                x + ((pos === "Left" ? 80 : 420) * zoom),
-                y + (950 - (index * 36)) * zoom,
-                16 * zoom,
-                stat
-            );
+            circles.push({
+                stat: stat,
+                x: baseX,
+                y: y + (950 - (index * 36)) * zoom
+            });
         });
     }
     else if (pos === "Center")
@@ -83,12 +149,11 @@ function DrawVirualPetHud(x: number, y: number, zoom: number, stats: VirtualPetS
         const statLen = stats.length;
         stats.forEach((stat, index) =>
         {
-            DrawStatCircle(
-                x + (250 - ((statLen - 1) * 18) + (index * 36)) * zoom,
-                y + (950 * zoom),
-                16 * zoom,
-                stat
-            );
+            circles.push({
+                stat: stat,
+                x: x + (250 - ((statLen - 1) * 18) + (index * 36)) * zoom,
+                y: y + (950 * zoom)
+            });
         });
     }
     // Probably a better way to do this, but I don't care. It works thats all I need.
@@ -97,37 +162,37 @@ function DrawVirualPetHud(x: number, y: number, zoom: number, stats: VirtualPetS
         const cols: VirtualPetStat[][] = [];
         switch (stats.length)
         {
-            case 1:
-                cols.push([stats[0]]);
-                cols.push([]);
-                break;
-            case 2:
-                cols.push([stats[0]]);
-                cols.push([stats[1]]);
-                break;
-            case 3:
-                cols.push([stats[1], stats[0]]);
-                cols.push([stats[2]]);
-                break;
-            case 4:
-                cols.push([stats[1], stats[0]]);
-                cols.push([stats[3], stats[2]]);
-                break;
+            case 1: cols.push([stats[0]], []); break;
+            case 2: cols.push([stats[0]], [stats[1]]); break;
+            case 3: cols.push([stats[1], stats[0]], [stats[2]]); break;
+            case 4: cols.push([stats[1], stats[0]], [stats[3], stats[2]]); break;
             default:
         }
-        cols.forEach((col, index) =>
+        cols.forEach((col, colIndex) =>
         {
+            const baseX = x + (colIndex === 0 ? 80 : 420) * zoom;
             col.forEach((stat, statIndex) =>
             {
-                DrawStatCircle(
-                    x + ((index == 0 ? 80 : 420) * zoom),
-                    y + (950 - (statIndex * 36)) * zoom,
-                    16 * zoom,
-                    stat
-                );
+                circles.push({
+                    stat: stat,
+                    x: baseX,
+                    y: y + (950 - statIndex * 36) * zoom
+                });
             });
         });
     }
+
+    // Draw all circles
+    circles.forEach(({ stat, x, y }) =>
+    {
+        DrawStatCircle(x, y, 16 * zoom, stat);
+    });
+
+    // Draw all tooltips after
+    circles.forEach(({ stat, x, y }) =>
+    {
+        DrawStatTooltip(x, y, 16 * zoom, stat);
+    });
 }
 
 function ShouldDrawHud<T extends typeof DrawArousalMeter | typeof DrawCharacter>(

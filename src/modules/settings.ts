@@ -116,8 +116,6 @@ export let currentMenu: ModuleTitle | null | "RESET_Settings" = null;
 let settingsOpen: boolean = false;
 let allowResetTime: number = 0;
 
-DrawButton(1520, 720, 200, 80, "Cancel", "White");
-
 function DrawMenuOptions(menuOptions: string[]): void
 {
     for (let i = 0; i < menuOptions.length; i++)
