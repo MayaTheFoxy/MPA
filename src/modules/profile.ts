@@ -1,4 +1,4 @@
-import { FilterArrayFromArray } from "../util/general";
+import { FilterArrayFromArray, RandomElement } from "../util/general";
 import { bcxAPI, bcxFound, HookFunction } from "../util/sdk";
 import { Module, ModuleTitle } from "./_module";
 import { ElementName } from "./settings";
@@ -7,6 +7,44 @@ import { HookedMessage, MPAMessageContent, SendMPAMessage } from "../util/messag
 import { RecordsSync } from "./dataSync";
 import { IsMemberNumberInAuthGroup } from "../util/authority";
 import { deafenProcess } from "./private";
+
+import bell1 from "../../assets/bell1.mp3";
+import bell2 from "../../assets/bell2.mp3";
+import bell3 from "../../assets/bell3.mp3";
+import bell4 from "../../assets/bell4.mp3";
+import bell5 from "../../assets/bell5.mp3";
+import jingle1 from "../../assets/jingle1.mp3";
+import jingle2 from "../../assets/jingle2.mp3";
+import jingle3 from "../../assets/jingle3.mp3";
+import jingle4 from "../../assets/jingle4.mp3";
+import jingle5 from "../../assets/jingle5.mp3";
+import ring1 from "../../assets/ring1.mp3";
+import ring2 from "../../assets/ring2.mp3";
+import ring3 from "../../assets/ring3.mp3";
+import ring4 from "../../assets/ring4.mp3";
+import ring5 from "../../assets/ring5.mp3";
+
+const BELLS = [
+    new Audio(bell1),
+    new Audio(bell2),
+    new Audio(bell3),
+    new Audio(bell4),
+    new Audio(bell5),
+    new Audio(jingle1),
+    new Audio(jingle2),
+    new Audio(jingle3),
+    new Audio(jingle4),
+    new Audio(jingle5),
+    new Audio(ring1),
+    new Audio(ring2),
+    new Audio(ring3),
+    new Audio(ring4),
+    new Audio(ring5)
+];
+BELLS.forEach((audio) =>
+{
+    audio.volume = 0.20;
+});
 
 const PlayerP: (C?: Character) => MPARecord = (C: Character = Player) =>
 {
@@ -83,7 +121,7 @@ export const PET_HEARING = Object.freeze({
     Fox: ["trap", "bun", "bunny", "bone", "fox", "foxy"],
     Mouse: ["mouse", "ear", "ears", "trap", "wire", "wheel", "cheese", "nibble", "cat", "kitty", "kitten"],
     Pony: ["pony", "mare", "stallion", "bridle", "hoof", "hooves", "trot", "stall", "hay", "woah",
-        "stomp", "calm", "easy", "slow", "cart", "bay", "run", "race"],
+        "stomp", "calm", "easy", "slow", "cart", "bay", "run", "race", "show", "canter", "gallop"],
     Wolf: ["bone", "wolf", "dog", "pup", "puppy", "heel"]
 });
 type PetHearingKeys = keyof typeof PET_HEARING;
@@ -108,7 +146,7 @@ function GetPetHearingPhrases(profile: PetHearingKeys = PlayerP(Player).type): s
  * @param value - What the new type is
  * @param prevValue - What the previous type was
  */
-function SetProfileType(C: Character, value: string, prevValue: string)
+function SetProfileType(C: Character, value: string, prevValue: string): void
 {
     const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
     if (value === "Custom")
@@ -135,7 +173,7 @@ function SetProfileType(C: Character, value: string, prevValue: string)
 /**
  * Set profile bcx speaking for the local player
  */
-function SetBCXSpeak()
+function SetBCXSpeak(): void
 {
     PlayerP().bcxSpeaking = true;
     const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
@@ -158,6 +196,77 @@ const GAGGING_STRENGTH_MAP = Object.freeze({
     High: 0.1,
     Max: 1
 });
+
+const MOVEMENT_VERBS: string[] = [
+    "bounce", "bounces", "crawl", "crawls", "dash", "dashes",
+    "fly", "flies", "gallop", "gallops", "hop", "hops",
+    "jog", "jogs", "run", "runs", "scamper", "scamper",
+    "spring", "springs", "step", "steps", "trot", "trots",
+    "walk", "walks", "wiggle", "wiggles", "wobble", "wobbles"
+];
+const MOVEMENT_REGEX = new RegExp(`\\b(${MOVEMENT_VERBS.join("|")})\\b`, "i");
+const BELL_JINGLE_CHANCE = Object.freeze({
+    options: ["Off", "Low", "Medium", "High", "Max"],
+    Off: 0,
+    Low: 0.05,
+    Medium: 0.15,
+    High: 0.33,
+    Max: 1
+});
+/**
+ * @returns The number of bells being worn by the player
+ */
+function NumberOfBellsWorn(): number
+{
+    // Count the number of bells being worn with "bell" in the name
+    let count = 0;
+    const bellGroups: AssetGroupName[] = ["ItemNeck", "ItemNeckAccessories", "ItemNipples", "ItemNipplesPiercings"];
+    bellGroups.forEach((group) =>
+    {
+        if ((InventoryGet(Player, group)?.Asset?.Name ?? "").toLocaleLowerCase().includes("bell"))
+        {
+            count++;
+        }
+    });
+    // Bell accessory on clit piercing
+    const clit = InventoryGet(Player, "ItemVulvaPiercings");
+    if (clit?.Asset?.Name === "RoundClitPiercing" && clit?.Property?.TypeRecord?.typed === 2)
+    {
+        count++;
+    }
+    // Bell accessory on piercing gag
+    const mouthGroups: AssetGroupName[] = ["ItemMouth", "ItemMouth2", "ItemMouth3"];
+    mouthGroups.forEach((group) =>
+    {
+        const gag = InventoryGet(Player, group);
+        if (gag?.Asset?.Name === "TonguePiercingGag" && gag?.Property?.TypeRecord?.typed === 2)
+        {
+            count++;
+        }
+    });
+    return count;
+}
+
+/**
+ * Player has moved, jingle bell maybe
+ * @param mapOrPose If moved on map or pose, else emotes
+ */
+function PlayerMovedBellJingle(mapOrPose: boolean): void
+{
+    // No bells, no ring
+    const bells = NumberOfBellsWorn();
+    if (bells === 0)
+    {
+        return;
+    }
+    // Random chance based on settings and number of bells
+    if (Math.random() > BELL_JINGLE_CHANCE[PlayerP().bellJingle ?? "Off"] * bells * (mapOrPose ? 1 : 3))
+    {
+        return;
+    }
+    // Play a random sound
+    RandomElement(BELLS)?.play();
+}
 
 export class ProfileModule extends Module
 {
@@ -327,6 +436,14 @@ export class ProfileModule extends Module
                 loop: false,
                 label: "Pet gagging strength",
                 active: (C) => PlayerP(C).petGagging !== "Off"
+            } as OptionSetting, {
+                name: "bellJingle",
+                type: "option",
+                value: "Off",
+                options: ["Off", "Low", "Medium", "High", "Max"],
+                loop: false,
+                label: "Bell jingle on movement",
+                active: () => true
             } as OptionSetting
         ];
     }
@@ -404,6 +521,43 @@ export class ProfileModule extends Module
             }
 
             return next(args);
+        });
+
+        // Bell jingle on movement
+        HookFunction(this.Title, "ChatRoomMapViewUpdatePlayerFlag", 0, (args, next) =>
+        {
+            next(args);
+            if (PlayerP().bellJingle !== "Off")
+            {
+                PlayerMovedBellJingle(true);
+            }
+        });
+        HookFunction(this.Title, "ChatRoomMessage", 0, (args, next) =>
+        {
+            const data = args[0];
+            if (data?.Sender === Player.MemberNumber
+              && PlayerP().bellJingle !== "Off"
+              && (data.Type === "Action" || data.Type === "Emote")
+              && MOVEMENT_REGEX.test(data.Content))
+            {
+                PlayerMovedBellJingle(false);
+            }
+            return next(args);
+        });
+        HookFunction(this.Title, "PoseRefresh", 0, (args, next) =>
+        {
+            const poseBefore = structuredClone(Player.Pose);
+            const poseMappingBefore = structuredClone(Player.PoseMapping);
+
+            next(args);
+
+            const fullBody: AssetPoseName[] = ["AllFours", "Hogtied", "Suspension"];
+            if (fullBody.some((pose) => poseBefore.includes(pose) !== Player.Pose.includes(pose))
+              || (poseMappingBefore?.BodyLower === "Kneel" || poseMappingBefore?.BodyLower === "KneelingSpread")
+              !== (Player.PoseMapping?.BodyLower === "Kneel" || Player.PoseMapping?.BodyLower === "KneelingSpread"))
+            {
+                PlayerMovedBellJingle(true);
+            }
         });
     }
 

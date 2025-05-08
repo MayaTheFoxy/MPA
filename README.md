@@ -1,7 +1,8 @@
 # Maya's Petplay Additions
 
 ### It is recommended to use the stable branch unless you want to opt in for experimental / buggy features on the dev branch.
-### MPA will probably be integrated into FUSAM in the future. But I do not feel like the project is ready yet.
+
+### Now added to FUSAM!
 
 ### Violentmonkey / TamperMonkey install:
 **Stable:** 
@@ -23,5 +24,4 @@ javascript:(()=>{fetch("https://mayathefoxy.github.io/MPA/devBundle.js").then(r=
 OOooo another addon? What does this do?
 Read the [Wiki](https://github.com/MayaTheFoxy/MPA/wiki)!
 
-Its not in FUSAM, how do I install? 
-Read above or check the [Wiki](https://github.com/MayaTheFoxy/MPA/wiki)!
+Join the [Discord](https://discord.gg/9GHwmHEMAS) while you are at it.

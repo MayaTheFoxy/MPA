@@ -62,7 +62,7 @@ export function RemoveHooks(module: ModuleTitle | null): void
  */
 export async function AwaitPlayer(): Promise<void>
 {
-    if (Player.MemberNumber && Player.ExtensionSettings)
+    if (Player?.MemberNumber && Player?.ExtensionSettings)
     {
         return;
     }

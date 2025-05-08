@@ -67,6 +67,7 @@
     "While deafened certain pet keywords can be picked up":"",
     "Use BCX mandatory words instead of the pet sounds above":"",
     "Notify when others are accessing TargetCharacter's settings":"",
+    "Always display the HUD; Overrides BCX rule \"Force-hide UI elements\"":"",
 
     "Clicker":"",
     "Enable auditory clicker": "",
@@ -132,7 +133,16 @@
     "SourceCharacter flicks the bell on TargetCharacter's clit piercing.":"",
     "SourceCharacter flicks the bells on PronounPossessive nipple piercings.":"",
     "SourceCharacter flicks the bells on TargetCharacter's nipple piercings.":"",
-    
+    "Stomp Once":"",
+    "Stomp Twice":"",
+    "SourceCharacter stomps PronounPossessive hoof on the ground once.":"",
+    "SourceCharacter stomps PronounPossessive hoof on the ground twice.":"",
+
     "SourceCharacter crawls into PronounPossessive bed.":"",
-    "SourceCharacter tucks TargetCharacter into bed.":""
+    "SourceCharacter tucks TargetCharacter into bed.":"",
+
+    "Water": "",
+    "Food": "",
+    "Sleep": "",
+    "Affection": ""
 }
