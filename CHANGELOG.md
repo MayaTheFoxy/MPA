@@ -1,18 +1,11 @@
-# 0.4.7.4
+# 0.4.8
 - Virtual Pet Hud Statistic tooltip feature by dDeepLb
 - Add Echo's Clothing Extenions beds to energy regain list
-- Stability improvements
-
-# 0.4.7.3
 - Virtual Pet HUD override option; Will display even with BCX rule "Force-hide UI elements"
-- Miscellaneous bug fixes
+- Miscellaneous bug fixes & Stability improvements
 - Localization improvements
-
-# 0.4.7.2
 - Stomp activity while wearing pony boots
 - Add Chinese localization thanks to Da'Inihlus 
-
-# 0.4.7.1
 - Bell jingle on movement (emote, map, or pose); Thanks to Alexa (Corvidae) for the audio
 
 # 0.4.7
