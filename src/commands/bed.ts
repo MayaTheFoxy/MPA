@@ -79,7 +79,7 @@ function UseBed(): void
             false
         );
     }
-    ChatRoomCharacterItemUpdate(Player, "ItemDevices");
+    ChatRoomCharacterUpdate(Player);
 }
 
 /**
