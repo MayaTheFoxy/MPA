@@ -19,7 +19,7 @@ const PlayerVP: (C?: Character) => MPARecord = (C: Character = Player) =>
 const BOWL_CONSUME_RECOVERY = 0.67;
 const ITEM_CONUME_RECOVERY = 0.33;
 
-const ACTIVITIES_FOOD_GAIN = ["LSCG_Eat", "ThrowItem"];
+const ACTIVITIES_FOOD_GAIN = ["LSCG_Eat", "ThrowItem", "吃掉嘴里食物_Luzi"];
 const ACTIVITIES_WATER_GAIN = ["LSCG_FunnelPour", "LSCG_Quaff"];
 
 const EMOTICONS_SLEEP = ["Sleep", "Afk", "Fork", "Coding", "Read"];
