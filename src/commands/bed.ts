@@ -4,8 +4,8 @@ import { ALL_BEDS } from "../util/constants";
 import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction } from "../util/messaging";
 import { HookFunction } from "../util/sdk";
 
-const BOWL_SELF_TEXT = "SourceCharacter crawls into PronounPossessive bed.";
-const BOWL_OTHER_TEXT = "SourceCharacter tucks TargetCharacter into bed.";
+const BED_SELF_TEXT = "SourceCharacter crawls into PronounPossessive bed.";
+const BED_OTHER_TEXT = "SourceCharacter tucks TargetCharacter into bed.";
 
 function IsBed(bed: any): boolean
 {
@@ -24,7 +24,7 @@ function GiveBedText(character: Character = Player): void
     if (character.MemberNumber === Player.MemberNumber)
     {
         SendAction(
-            BOWL_SELF_TEXT,
+            BED_SELF_TEXT,
             undefined,
             [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry]
         );
@@ -32,7 +32,7 @@ function GiveBedText(character: Character = Player): void
     else
     {
         SendAction(
-            BOWL_OTHER_TEXT,
+            BED_OTHER_TEXT,
             undefined,
             [{ SourceCharacter: Player.MemberNumber } as SourceCharacterDictionaryEntry,
                 { TargetCharacter: character.MemberNumber } as TargetCharacterDictionaryEntry]
@@ -79,7 +79,7 @@ function UseBed(): void
             false
         );
     }
-    ChatRoomCharacterItemUpdate(Player, "ItemDevices");
+    ChatRoomCharacterUpdate(Player);
 }
 
 /**
@@ -178,8 +178,9 @@ export function Bed(): void
                 MPANotifyPlayer("Unable to pull the blanket over yourself.", 20000);
                 return;
             }
-            bed.Property.TypeRecord.typed = Number(!bed.Property.TypeRecord.typed);
-            ChatRoomCharacterUpdate(Player);
+
+            TypedItemSetOptionByName(Player, "ItemDevices", `${bed.Property.TypeRecord.typed === 1 ? "No" : ""}Blanket`);
+
             if (bed.Property.TypeRecord.typed === 1)
             {
                 SendAction(
@@ -207,7 +208,7 @@ export function Bed(): void
           && GetAttributeFromChatDictionary(data, "TargetCharacter") === Player.MemberNumber
           && data.Dictionary?.some(
               (curr) => (curr as any)?.Tag === "MISSING ACTIVITY DESCRIPTION FOR KEYWORD MayaScript"
-                && (curr as any)?.Text === BOWL_OTHER_TEXT
+                && (curr as any)?.Text === BED_OTHER_TEXT
           )
         )
         {
