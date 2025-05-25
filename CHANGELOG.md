@@ -1,4 +1,4 @@
-# 0.4.8.1
+# 0.4.9
 - Add echo eat activity to gain food
 - Fix bed not appearing for the player
 - Fix poses when using /blanket
