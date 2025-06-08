@@ -1,4 +1,4 @@
-import { ArrayToReadableString, HookedMessage, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "../util/messaging";
+import { ArrayToReadableString, FindCharacterInRoom, HookedMessage, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "../util/messaging";
 import { LocalizedText } from "../localization/localization";
 import { ICONS } from "../util/constants";
 import { bcxFound, HookFunction } from "../util/sdk";
@@ -107,6 +107,7 @@ export class SettingsOtherModule extends Module
                 message: "SettingPutRequest",
                 action: function (sender: Character, content: MPAMessageContent): void
                 {
+                    const orginalSettings = structuredClone(Player.MPA);
                     const vpEnabled = Player.MPA[ModuleTitle.VirtualPet].enabled;
                     const differences = ObjectDifferences(Player.MPA, content.settings);
                     // Don't change any private records from incoming sources
@@ -201,6 +202,46 @@ export class SettingsOtherModule extends Module
                         );
                     }
 
+                    // Owner changes
+                    const previousOwners = ((orginalSettings?.[ModuleTitle.Authority]?.owners as string) ?? "").split(",").map((val) => parseInt(val)).filter((num) => !isNaN(num)).sort();
+                    const currentOwners = ((Player.MPA?.[ModuleTitle.Authority]?.owners as string) ?? "").split(",").map((val) => parseInt(val)).filter((num) => !isNaN(num)).sort();
+                    let ownerOutput = "";
+
+                    // Owners added
+                    for (const owner of currentOwners.filter((x) => !previousOwners.includes(x)))
+                    {
+                        ownerOutput += LocalizedText("SourceCharacter added TargetCharacter (TargetMemberNumber) as MPA owner.")
+                            .replace("SourceCharacter", sender.Nickname || sender.Name)
+                            .replaceAll("TargetCharacter", Player.FriendNames?.get(owner) ?? "NOT FOUND")
+                            .replaceAll("TargetMemberNumber", owner.toString());
+                        ownerOutput += "\n";
+
+                        if (owner !== sender.MemberNumber
+                          && FindCharacterInRoom(owner, { NickName: false, Name: false }))
+                        {
+                            SendMPAMessage({ message: "ownerAdded" }, owner);
+                        }
+                    }
+                    // Owners removed
+                    for (const owner of previousOwners.filter((x) => !currentOwners.includes(x)))
+                    {
+                        ownerOutput += LocalizedText("SourceCharacter removed TargetCharacter (TargetMemberNumber) as MPA owner.")
+                            .replace("SourceCharacter", sender.Nickname || sender.Name)
+                            .replaceAll("TargetCharacter", Player.FriendNames?.get(owner) ?? "NOT FOUND")
+                            .replaceAll("TargetMemberNumber", owner.toString());
+                        ownerOutput += "\n";
+
+                        if (owner !== sender.MemberNumber
+                          && FindCharacterInRoom(owner, { NickName: false, Name: false }))
+                        {
+                            SendMPAMessage({ message: "ownerRemoved" }, owner);
+                        }
+                    }
+                    if (ownerOutput !== "")
+                    {
+                        NotifyPlayer(ownerOutput.trimEnd());
+                    }
+
                     // LevelSync(false, false, false);
                     SaveStorage(true);
                 }
@@ -213,6 +254,20 @@ export class SettingsOtherModule extends Module
                     {
                         NotifyPlayer(LocalizedText("SourceCharacter is accessing your MPA settings.").replace("SourceCharacter", sender.Nickname || sender.Name), 30000);
                     }
+                }
+            }, {
+                module: this.Title,
+                message: "ownerAdded",
+                action: function (sender: Character, _content: MPAMessageContent): void
+                {
+                    NotifyPlayer(LocalizedText("You have been added as an MPA owner for SourceCharacter.").replace("SourceCharacter", sender.Nickname || sender.Name));
+                }
+            }, {
+                module: this.Title,
+                message: "ownerRemoved",
+                action: function (sender: Character, _content: MPAMessageContent): void
+                {
+                    NotifyPlayer(LocalizedText("You have been removed as an MPA owner for SourceCharacter.").replace("SourceCharacter", sender.Nickname || sender.Name));
                 }
             }
         ];

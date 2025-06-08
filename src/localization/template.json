@@ -144,5 +144,10 @@
     "Water": "",
     "Food": "",
     "Sleep": "",
-    "Affection": ""
+    "Affection": "",
+
+    "SourceCharacter added TargetCharacter (TargetMemberNumber) as MPA owner.":"",
+    "SourceCharacter removed TargetCharacter (TargetMemberNumber) as MPA owner.":"",
+    "You have been added as an MPA owner for SourceCharacter.":"",
+    "You have been removed as an MPA owner for SourceCharacter.":""
 }

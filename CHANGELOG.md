@@ -1,3 +1,6 @@
+# 0.4.9.1
+- Notifications on owners being added and removed from authority settings
+
 # 0.4.9
 - Add echo eat activity to gain food
 - Fix bed not appearing for the player
