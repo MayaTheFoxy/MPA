@@ -217,7 +217,7 @@ export class SettingsOtherModule extends Module
                         ownerOutput += "\n";
 
                         if (owner !== sender.MemberNumber
-                          && FindCharacterInRoom(owner, { NickName: false, Name: false }))
+                          && FindCharacterInRoom(owner, { Nickname: false, Name: false }))
                         {
                             SendMPAMessage({ message: "ownerAdded" }, owner);
                         }
@@ -232,7 +232,7 @@ export class SettingsOtherModule extends Module
                         ownerOutput += "\n";
 
                         if (owner !== sender.MemberNumber
-                          && FindCharacterInRoom(owner, { NickName: false, Name: false }))
+                          && FindCharacterInRoom(owner, { Nickname: false, Name: false }))
                         {
                             SendMPAMessage({ message: "ownerRemoved" }, owner);
                         }

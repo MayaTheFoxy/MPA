@@ -93,7 +93,7 @@ export function MPANotifyPlayer(content: string, timeout?: number): void
  *
  * @param search - The MemberNumber, Name, or Nickname of the person you want to find
  */
-export function FindCharacterInRoom(search: string | number, { MemberNumber = true, NickName: Nickname = true, Name = true } = {}): Character | null
+export function FindCharacterInRoom(search: string | number, { MemberNumber = true, Nickname = true, Name = true } = {}): Character | null
 {
     // Make sure playerSearch is a string - not case senstive
     if (typeof search !== "string")
