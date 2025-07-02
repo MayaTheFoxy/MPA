@@ -1,3 +1,8 @@
+# 0.4.9.2
+- Owners option subpage
+- Owner rework - Allows more authority control for the user to restrict access to the authority but still add / remove others
+- You will not be able to see non dev user's authority
+
 # 0.4.9.1
 - Notifications on owners being added and removed from authority settings
 

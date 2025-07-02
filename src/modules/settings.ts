@@ -1,10 +1,10 @@
 import { LocalizedText } from "../localization/localization";
 import { ExportSettingsToClipboard, ImportSettingsFromClipboard, ResetStorage, SaveStorage } from "../util/storage";
 import { ICONS } from "../util/constants";
-import { IsDisplaySetting, IsOptionSetting, IsCheckboxSetting, IsTextSetting, IsNumberSetting } from "../util/settingTypes";
+import { IsDisplaySetting, IsOptionSetting, IsCheckboxSetting, IsTextSetting, IsNumberSetting, IsCustomSetting } from "../util/settingTypes";
 import { settings as defaultSettings } from "../util/registerModules";
 import { AUTHORITY_GROUP_OPTIONS, AuthorityGroup, AuthorityIsComparisonToCharacter, IsMemberNumberInAuthGroup } from "../util/authority";
-import { SendMPAMessage } from "../util/messaging";
+import { FindCharacterInRoom, SendMPAMessage } from "../util/messaging";
 import { Module, ModuleTitle } from "./_module";
 import { LevelSync } from "./virtualPet";
 
@@ -15,22 +15,26 @@ export function SetSettingChar(character: PlayerCharacter): void
     settingsEdited = false;
     settingChar = character;
 }
+export function SetSettingsEdited(set: boolean)
+{
+    settingsEdited = set;
+}
 
 // Size of the canvas in game
-const CANVAS_WIDTH = 2000;
-const _CANVAS_HEIGHT = 1000;
+export const CANVAS_WIDTH = 2000;
+export const CANVAS_HEIGHT = 1000;
 
 // Exit button posistion on canvas
 const EXIT_POSISTION = [1815, 75, 90, 90] as const;
 
 // Menu layout values
-const BUTTON_MAX_NUMBER = 7;
-const BUTTON_WIDTH = 400;
-const BUTTON_HEIGHT = 90;
-const BUTTON_TOP = 160;
-const BUTTON_LEFT = 500;
-const BUTTON_GAP = 20;
-const BUTTON_TEXT_PADDING = 20;
+export const BUTTON_MAX_NUMBER = 7;
+export const BUTTON_WIDTH = 400;
+export const BUTTON_HEIGHT = 90;
+export const BUTTON_TOP = 160;
+export const BUTTON_LEFT = 500;
+export const BUTTON_GAP = 20;
+export const BUTTON_TEXT_PADDING = 20;
 
 // Player only buttons
 const WIKI_POSITION = [100, 510, 350, 75] as const;
@@ -95,6 +99,18 @@ function MENU_CATEGORIES(): ModuleTitle[]
             ModuleTitle.VirtualPetConditions
         ];
     }
+
+    // REMOVE WITH STABLE 0.4.9
+    if ((settingChar as PlayerCharacter).MPA.version !== Player.MPA.version)
+    {
+        return [
+            ModuleTitle.Profile,
+            ModuleTitle.Clicker,
+            ModuleTitle.VirtualPet,
+            ModuleTitle.VirtualPetConditions
+        ];
+    }
+
     // Display settings if you are an another player
     return [
         ModuleTitle.Authority,
@@ -115,6 +131,18 @@ export const MENU_TITLES: Partial<Record<ModuleTitle, string>> =
 export let currentMenu: ModuleTitle | null | "RESET_Settings" = null;
 let settingsOpen: boolean = false;
 let allowResetTime: number = 0;
+let customSettingOpen: null | string = null;
+let ownersAdded: number[] = [];
+let ownersRemoved: number[] = [];
+
+export function OwnerAdded(num: number)
+{
+    ownersAdded.push(num);
+}
+export function OwnerRemoved(num: number)
+{
+    ownersRemoved.push(num);
+}
 
 function DrawMenuOptions(menuOptions: string[]): void
 {
@@ -158,55 +186,101 @@ function GetClickedMenu(menuOptions: ModuleTitle[]): ModuleTitle | null
 
 // Options layout
 // May not be needed. Will have to use if there are more than 10 settings to display per category
-const OPTION_PER_PAGE = 9;
-const OPTION_HEIGHT = 64;
-const OPTION_TOP = 200;
-const OPTION_LEFT = 250;
-const OPTION_GAP = 10;
-const OPTION_CHECKBOX_SIZE = 64;
-const OPTION_BACK_NEXT_WIDTH = 256;
-const OPTION_TEXT_WIDTH = 256;
-const OPTION_TEXT_MAX_CHARS = 256;
+export const OPTION_PER_PAGE = 9;
+export const OPTION_HEIGHT = 64;
+export const OPTION_TOP = 200;
+export const OPTION_LEFT = 250;
+export const OPTION_GAP = 10;
+export const OPTION_CHECKBOX_SIZE = 64;
+export const OPTION_BACK_NEXT_WIDTH = 256;
+export const OPTION_TEXT_WIDTH = 256;
+export const OPTION_TEXT_MAX_CHARS = 256;
+export const OPTION_CUSTOM_WIDTH = 192;
 let currentPage: number = 1;
 let maxPages: number = 1;
 
 const NEXT_BUTTON_POS = [1635, 75, 90, 90] as const;
 const PREV_BUTTON_POS = [NEXT_BUTTON_POS[0] - NEXT_BUTTON_POS[2], NEXT_BUTTON_POS[1], NEXT_BUTTON_POS[2], NEXT_BUTTON_POS[2]] as const;
 
-function DrawPagesButtons(): void
+export function DrawPagesButtons(curPage?: number, maxNumOfPages?: number): void
 {
+    let [page, max] = curPage !== undefined && maxNumOfPages !== undefined ? [curPage, maxNumOfPages] : [currentPage, maxPages];
+
     // Asset current page is in correct range
-    if (currentPage > maxPages)
+    if (page > max)
     {
-        currentPage = maxPages;
+        page = max;
     }
-    if (currentPage < 1)
+    if (page < 1)
     {
-        currentPage = 1;
+        page = 1;
     }
 
     DrawButton(
         ...NEXT_BUTTON_POS,
         "",
-        currentPage >= maxPages ? "#aaaaaa" : "#ffffff",
+        page >= max ? "#aaaaaa" : "#ffffff",
         "Icons/Next.png",
         "Next Page",
-        currentPage >= maxPages
+        page >= max
     );
     DrawButton(
         ...PREV_BUTTON_POS,
         "",
-        1 >= currentPage ? "#aaaaaa" : "#ffffff",
+        1 >= page ? "#aaaaaa" : "#ffffff",
         "Icons/Prev.png",
         "Previous Page",
-        1 >= currentPage
+        1 >= page
     );
+}
+
+/**
+ * @returns True if next, False if previous, null if neither option
+ */
+export function ClickedPagesButtons(curPage?: number, maxNumOfPages?: number): boolean | null
+{
+    let [page, max] = curPage !== undefined && maxNumOfPages !== undefined ? [curPage, maxNumOfPages] : [currentPage, maxPages];
+
+    if (MouseIn(...NEXT_BUTTON_POS) && page < max)
+    {
+        return true;
+    }
+    if (MouseIn(...PREV_BUTTON_POS) && page > 1)
+    {
+        return false;
+    }
+    return null;
 }
 
 function DrawSubMenuOptions(subMenu: ModuleTitle): void
 {
     // Shouldn't be needed but acts as failsafe and makes typescript happy
     if (!settingChar) { return; }
+
+    const noPermission = (
+        `others${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
+        && `self${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
+        && !IsMemberNumberInAuthGroup(
+            Player.MemberNumber ?? -1,
+            settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
+            settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
+            settingChar!
+        )
+    )
+    || (
+        !Player.CanInteract() && (
+            (settingChar?.MemberNumber === Player.MemberNumber
+              && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
+            || (settingChar?.MemberNumber !== Player.MemberNumber
+              && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
+        )
+    );
+
+    if (customSettingOpen)
+    {
+        (defaultSettings[subMenu]?.[customSettingOpen] as CustomSetting).OnRun(settingChar!, !noPermission);
+        return;
+    }
 
     // Settings have to be displayable and have a value exist in the stored settings
     const settingsToDisplay = Object.entries(defaultSettings[subMenu] ?? {})
@@ -222,25 +296,7 @@ function DrawSubMenuOptions(subMenu: ModuleTitle): void
     {
         const [settingName, setting] = val as [string, DisplayedSetting];
 
-        const disabledSetting = !setting.active(settingChar!)
-          || (
-              `others${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
-              && `self${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
-              && !IsMemberNumberInAuthGroup(
-                  Player.MemberNumber ?? -1,
-                  settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
-                  settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
-                  settingChar!
-              )
-          )
-          || (
-              !Player.CanInteract() && (
-                  (settingChar?.MemberNumber === Player.MemberNumber
-                    && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
-                  || (settingChar?.MemberNumber !== Player.MemberNumber
-                    && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
-              )
-          );
+        const disabledSetting = !setting.active(settingChar!) || (noPermission);
 
         if (IsCheckboxSetting(setting))
         {
@@ -320,10 +376,38 @@ function DrawSubMenuOptions(subMenu: ModuleTitle): void
                 "Gray"
             );
         }
+        else if (IsCustomSetting(setting))
+        {
+            const prevTextAlign = MainCanvas.textAlign;
+            MainCanvas.textAlign = "center";
+            DrawButton(
+                OPTION_LEFT,
+                OPTION_TOP + (i * (OPTION_GAP + OPTION_HEIGHT)),
+                OPTION_CUSTOM_WIDTH,
+                OPTION_CHECKBOX_SIZE,
+                "Open",
+                "White",
+                "",
+                LocalizedText("Open options")
+            );
+            MainCanvas.textAlign = prevTextAlign;
+            DrawTextFit(
+                LocalizedText(setting.label),
+                OPTION_LEFT + 12 + OPTION_CUSTOM_WIDTH,
+                OPTION_TOP + (i * (OPTION_GAP + OPTION_HEIGHT)) + Math.ceil(OPTION_HEIGHT / 2),
+                CANVAS_WIDTH - (OPTION_LEFT * 2) - OPTION_CUSTOM_WIDTH,
+                "Black",
+                "Gray"
+            );
+        }
     });
 }
 
-function GetClickedOption(subMenu: ModuleTitle): void
+/**
+ * @param subMenu Menu we displaying
+ * @param noPermission Does the interecter have permission to change settings
+ */
+function GetClickedOption(subMenu: ModuleTitle, noPermission: boolean): void
 {
     // Shouldn't be needed but acts as failsafe and makes typescript happy
     if (!settingChar) { return; }
@@ -337,25 +421,7 @@ function GetClickedOption(subMenu: ModuleTitle): void
     {
         const [settingName, setting] = val as [string, DisplayedSetting];
 
-        const disabledSetting = !setting.active(settingChar!)
-          || (
-              `others${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
-              && `self${subMenu}` in settingChar!.MPA[ModuleTitle.Authority]
-              && !IsMemberNumberInAuthGroup(
-                  Player.MemberNumber ?? -1,
-                  settingChar!.MPA[ModuleTitle.Authority][`others${subMenu}`] as AuthorityGroup,
-                  settingChar!.MPA[ModuleTitle.Authority][`self${subMenu}`] as boolean,
-                  settingChar!
-              )
-          )
-          || (
-              !Player.CanInteract() && (
-                  (settingChar?.MemberNumber === Player.MemberNumber
-                    && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
-                  || (settingChar?.MemberNumber !== Player.MemberNumber
-                    && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
-              )
-          );
+        const disabledSetting = !setting.active(settingChar!) || noPermission;
 
         if (IsCheckboxSetting(setting))
         {
@@ -432,6 +498,22 @@ function GetClickedOption(subMenu: ModuleTitle): void
                 settingsEdited = true;
             }
         }
+        else if (IsCustomSetting(setting))
+        {
+            if (
+                MouseIn(
+                    OPTION_LEFT,
+                    OPTION_TOP + (i * (OPTION_GAP + OPTION_HEIGHT)),
+                    OPTION_CUSTOM_WIDTH,
+                    OPTION_CHECKBOX_SIZE
+                )
+            )
+            {
+                UpdateAndDeleteHTMLElements(subMenu);
+                customSettingOpen = setting.name;
+                setting.OnLoad(settingChar!, !noPermission);
+            }
+        }
     });
 }
 
@@ -451,6 +533,13 @@ export function ExitButtonPressed(): void
     }
     else
     {
+        if (customSettingOpen)
+        {
+            (defaultSettings[currentMenu]?.[customSettingOpen] as CustomSetting).OnExit(settingChar!);
+            customSettingOpen = null;
+            CreateHTMLElements(currentMenu);
+            return;
+        }
         // Save all text fields to their respective setting
         UpdateAndDeleteHTMLElements(currentMenu);
         currentPage = 1;
@@ -529,6 +618,31 @@ export function PreferenceMenuClick(): void
     // Get option of the current menu
     if (currentMenu !== null)
     {
+        const noPermission = (
+            `others${currentMenu}` in settingChar!.MPA[ModuleTitle.Authority]
+            && `self${currentMenu}` in settingChar!.MPA[ModuleTitle.Authority]
+            && !IsMemberNumberInAuthGroup(
+                Player.MemberNumber ?? -1,
+                settingChar!.MPA[ModuleTitle.Authority][`others${currentMenu}`] as AuthorityGroup,
+                settingChar!.MPA[ModuleTitle.Authority][`self${currentMenu}`] as boolean,
+                settingChar!
+            )
+        )
+        || (
+            !Player.CanInteract() && (
+                (settingChar?.MemberNumber === Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessSelf)
+                || (settingChar?.MemberNumber !== Player.MemberNumber
+                  && !Player.MPA[ModuleTitle.Authority].boundAccessOthers)
+            )
+        );
+
+        if (customSettingOpen && currentMenu)
+        {
+            (defaultSettings[currentMenu]?.[customSettingOpen] as CustomSetting).OnClick(settingChar!, !noPermission);
+            return;
+        }
+
         // Next and previous buttons
         // Only check if setting page needs it
         if (Object.entries(defaultSettings[currentMenu ?? ""] ?? {})
@@ -536,14 +650,15 @@ export function PreferenceMenuClick(): void
             .length > OPTION_PER_PAGE
         )
         {
-            if (MouseIn(...NEXT_BUTTON_POS) && currentPage < maxPages)
+            const nextPreviousButtons = ClickedPagesButtons();
+            if (nextPreviousButtons === true)
             {
                 UpdateAndDeleteHTMLElements(currentMenu);
                 currentPage++;
                 CreateHTMLElements(currentMenu);
                 return;
             }
-            if (MouseIn(...PREV_BUTTON_POS) && currentPage > 1)
+            if (nextPreviousButtons === false)
             {
                 UpdateAndDeleteHTMLElements(currentMenu);
                 currentPage--;
@@ -551,7 +666,7 @@ export function PreferenceMenuClick(): void
                 return;
             }
         }
-        GetClickedOption(currentMenu);
+        GetClickedOption(currentMenu, noPermission);
     }
 
     return;
@@ -738,6 +853,26 @@ function PreferenceMenuExit(): boolean | void
                 settingChar.MemberNumber
             );
         }
+        for (const owner of ownersAdded)
+        {
+            if (owner !== settingChar?.MemberNumber
+              && owner !== Player.MemberNumber
+              && FindCharacterInRoom(owner, { Nickname: false, Name: false }))
+            {
+                SendMPAMessage({ message: "ownerAdded" }, owner);
+            }
+        }
+        for (const owner of ownersRemoved)
+        {
+            if (owner !== settingChar?.MemberNumber
+              && owner !== Player.MemberNumber
+              && FindCharacterInRoom(owner, { Nickname: false, Name: false }))
+            {
+                SendMPAMessage({ message: "ownerRemoved" }, owner);
+            }
+        }
+        ownersAdded = [];
+        ownersRemoved = [];
     }
     if (settingChar.MemberNumber === Player.MemberNumber)
     {
@@ -762,6 +897,8 @@ function PlayerPreferenceMenuLoad(): void
 {
     settingsEdited = false;
     settingChar = Player;
+    ownersAdded = [];
+    ownersRemoved = [];
     PreferenceMenuLoad();
 }
 
@@ -877,6 +1014,14 @@ export class SettingsModule extends Module
                 else if (currentMenu === "RESET_Settings")
                 {
                     allowResetTime = 0;
+                }
+                else if (customSettingOpen !== null)
+                {
+                    (defaultSettings[currentMenu]?.[customSettingOpen] as CustomSetting).OnExit(settingChar!);
+                    customSettingOpen = null;
+                    CreateHTMLElements(currentMenu);
+                    event.stopPropagation();
+                    return;
                 }
                 else
                 {

@@ -228,3 +228,28 @@ export function ArrayToReadableString(arr: string[]): string
         return `${arr.slice(0, -1).join(", ")}, and ${arr[length - 1]}`;
     }
 }
+
+export function MemberNumberToName(member: number, notFound: string = "Unknown"): string
+{
+    // Self?
+    if (member === Player.MemberNumber)
+    {
+        return Player.Name;
+    }
+
+    // Friend?
+    let friend = Player.FriendNames?.get(member);
+    if (friend)
+    {
+        return friend;
+    }
+
+    // In room?
+    let room = FindCharacterInRoom(member, { MemberNumber: true, Nickname: false, Name: false });
+    if (room)
+    {
+        return room.Name;
+    }
+
+    return LocalizedText(notFound);
+}

@@ -1,7 +1,16 @@
+export function IsSetting(setting: any): setting is Setting
+{
+    return (
+        typeof (setting as Setting).name === "string"
+        && ["checkbox", "option", "text", "number", "record", "custom"].includes((setting as Setting).type)
+        && (setting as Setting).value !== undefined
+    );
+}
 export function IsDisplaySetting(setting: Setting): setting is DisplayedSetting
 {
     return (
-        typeof (setting as DisplayedSetting).active === "function"
+        IsSetting(setting)
+        && typeof (setting as DisplayedSetting).active === "function"
         && typeof (setting as DisplayedSetting).label === "string"
     );
 }
@@ -47,5 +56,16 @@ export function IsNumberSetting(setting: Setting): setting is NumberSetting
         && typeof (setting as NumberSetting).max === "number"
         && (typeof (setting as NumberSetting).step === "number"
           || (setting as NumberSetting).step === null)
+    );
+}
+export function IsCustomSetting(setting: Setting): setting is CustomSetting
+{
+    return (
+        IsDisplaySetting(setting)
+        && setting.type === "custom"
+        && typeof (setting as CustomSetting).OnClick === "function"
+        && typeof (setting as CustomSetting).OnExit === "function"
+        && typeof (setting as CustomSetting).OnLoad === "function"
+        && typeof (setting as CustomSetting).OnRun === "function"
     );
 }

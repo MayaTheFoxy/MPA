@@ -28,11 +28,7 @@ export const AUTHORITY_GROUPS =
 {
     Self: (C: Character) => [C.MemberNumber ?? -1],
     Clubowner: (C: Character) => C?.Ownership?.MemberNumber ? [C?.Ownership?.MemberNumber] : [],
-    Owners: function (C: Character): number[]
-    {
-        const owners = ((C.MPA?.[ModuleTitle.Authority]?.owners as string) ?? "").split(",").map((val) => parseInt(val)).filter((num) => !isNaN(num));
-        return owners.length === 0 ? [] : owners;
-    },
+    Owners: (C: Character) => C.MPA?.[ModuleTitle.Authority]?.newOwners.owners ?? [],
     Lovers: Lovers,
     WhiteList: (C: Character) => C.WhiteList ?? [],
     FriendList: () => Player.FriendList ?? []

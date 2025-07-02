@@ -128,6 +128,12 @@ export async function LoadStorage(): Promise<void>
         }
     });
 
+    // Port old onwers to new owners
+    if (settings[ModuleTitle.Authority].newOwners.owners.length === 0 && settings[ModuleTitle.Authority].owners !== "")
+    {
+        settings[ModuleTitle.Authority].newOwners.owners = (settings[ModuleTitle.Authority].owners as string).split(",").map((x) => Number(x));
+    }
+
     // Check and notify if there is an update
     MPAUpdateCheck(settings);
 
@@ -142,9 +148,7 @@ export function SaveStorage(syncWithOthers: boolean = true): void
         return;
     }
     // Prune self from owner list if added
-    Player.MPA[ModuleTitle.Authority].owners =
-        (Player.MPA[ModuleTitle.Authority].owners as string).split(",")
-            .filter((val) => Number(val) !== Player.MemberNumber).join(",");
+    Player.MPA[ModuleTitle.Authority].newOwners.owners = Player.MPA[ModuleTitle.Authority].newOwners.owners.filter((val) => Number(val) !== Player.MemberNumber);
     Player.ExtensionSettings.MPA = LZString.compressToBase64(JSON.stringify(Player.MPA));
     ServerPlayerExtensionSettingsSync("MPA");
     if (syncWithOthers)

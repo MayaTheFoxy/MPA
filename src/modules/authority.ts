@@ -1,3 +1,4 @@
+import { OWNERS_CUSTOM_SETTINGS } from "../settings/owners";
 import { AUTHORITY_GROUP_OPTIONS } from "../util/authority";
 import { Module, ModuleTitle } from "./_module";
 
@@ -24,6 +25,7 @@ export class AuthorityModule extends Module
     get Settings(): Setting[]
     {
         return [
+            OWNERS_CUSTOM_SETTINGS,
             {
                 name: "settingsNotify",
                 type: "checkbox",
@@ -31,14 +33,6 @@ export class AuthorityModule extends Module
                 value: true,
                 label: "Notify when others are accessing TargetCharacter's settings"
             } as CheckboxSetting, {
-                name: "owners",
-                type: "text",
-                active: () => true,
-                value: "",
-                label: "Owner member numbers; Seperated by a ,",
-                maxChars: 1024,
-                width: 400
-            } as TextSetting, {
                 name: "boundAccessSelf",
                 type: "checkbox",
                 active: () => true,

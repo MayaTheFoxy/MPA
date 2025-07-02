@@ -134,5 +134,12 @@
     "SourceCharacter added TargetCharacter (TargetMemberNumber) as MPA owner.": "",
     "SourceCharacter removed TargetCharacter (TargetMemberNumber) as MPA owner.": "",
     "You have been added as an MPA owner for SourceCharacter.": "",
-    "You have been removed as an MPA owner for SourceCharacter.": ""
+    "You have been removed as an MPA owner for SourceCharacter.": "",
+    "SourceCharacter can add owners": "",
+    "SourceCharacter can remove owners": "",
+    "Allow others to remove owners": "",
+    "Allow others to add owners": "",
+    "Add": "",
+    "Unknown": "",
+    "Remove Owner": ""
 }
