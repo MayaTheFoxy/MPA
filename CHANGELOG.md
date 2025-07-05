@@ -1,3 +1,8 @@
+# 0.5.0
+- Owners option subpage
+- Owner rework - Allows more authority control for the user to restrict access to the authority but still add / remove others
+- Notifications on owners being added and removed from authority settings
+
 # 0.4.9
 - Add echo eat activity to gain food
 - Fix bed not appearing for the player

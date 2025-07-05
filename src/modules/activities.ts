@@ -208,9 +208,9 @@ export class ActivitiesModule extends Module
                     return;
                 }
                 const sourceChar = FindCharacterInRoom(GetAttributeFromChatDictionary(data, "SourceCharacter"),
-                    { MemberNumber: true, NickName: false, Name: false }) ?? undefined;
+                    { MemberNumber: true, Nickname: false, Name: false }) ?? undefined;
                 const targetChar = FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter"),
-                    { MemberNumber: true, NickName: false, Name: false }) ?? undefined;
+                    { MemberNumber: true, Nickname: false, Name: false }) ?? undefined;
                 const group = GetAttributeFromChatDictionary(data, "FocusGroupName");
                 activityReceived[activityName](sourceChar, targetChar, group, data);
             }

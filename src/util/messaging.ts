@@ -93,7 +93,7 @@ export function MPANotifyPlayer(content: string, timeout?: number): void
  *
  * @param search - The MemberNumber, Name, or Nickname of the person you want to find
  */
-export function FindCharacterInRoom(search: string | number, { MemberNumber = true, NickName: Nickname = true, Name = true } = {}): Character | null
+export function FindCharacterInRoom(search: string | number, { MemberNumber = true, Nickname = true, Name = true } = {}): Character | null
 {
     // Make sure playerSearch is a string - not case senstive
     if (typeof search !== "string")
@@ -227,4 +227,29 @@ export function ArrayToReadableString(arr: string[]): string
     {
         return `${arr.slice(0, -1).join(", ")}, and ${arr[length - 1]}`;
     }
+}
+
+export function MemberNumberToName(member: number, notFound: string = "Unknown"): string
+{
+    // Self?
+    if (member === Player.MemberNumber)
+    {
+        return Player.Name;
+    }
+
+    // Friend?
+    let friend = Player.FriendNames?.get(member);
+    if (friend)
+    {
+        return friend;
+    }
+
+    // In room?
+    let room = FindCharacterInRoom(member, { MemberNumber: true, Nickname: false, Name: false });
+    if (room)
+    {
+        return room.Name;
+    }
+
+    return LocalizedText(notFound);
 }

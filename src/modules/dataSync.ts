@@ -177,7 +177,7 @@ export class DataSyncModule extends Module
             {
                 return next(args);
             }
-            const sender = FindCharacterInRoom(data.Sender ?? "", { MemberNumber: true, Name: false, NickName: false });
+            const sender = FindCharacterInRoom(data.Sender ?? "", { MemberNumber: true, Name: false, Nickname: false });
             if (!sender)
             {
                 return next(args);

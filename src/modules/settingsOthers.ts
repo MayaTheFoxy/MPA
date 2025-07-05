@@ -1,4 +1,4 @@
-import { ArrayToReadableString, HookedMessage, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "../util/messaging";
+import { ArrayToReadableString, FindCharacterInRoom, HookedMessage, MemberNumberToName, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "../util/messaging";
 import { LocalizedText } from "../localization/localization";
 import { ICONS } from "../util/constants";
 import { bcxFound, HookFunction } from "../util/sdk";
@@ -107,6 +107,7 @@ export class SettingsOtherModule extends Module
                 message: "SettingPutRequest",
                 action: function (sender: Character, content: MPAMessageContent): void
                 {
+                    const orginalSettings = structuredClone(Player.MPA);
                     const vpEnabled = Player.MPA[ModuleTitle.VirtualPet].enabled;
                     const differences = ObjectDifferences(Player.MPA, content.settings);
                     // Don't change any private records from incoming sources
@@ -138,6 +139,14 @@ export class SettingsOtherModule extends Module
                     if (newAuthority)
                     {
                         delete differences[ModuleTitle.Authority];
+
+                        let ownerOverride: any = null;
+                        if (newAuthority?.newOwners?.owners)
+                        {
+                            ownerOverride = newAuthority.newOwners.owners;
+                            delete newAuthority.newOwners.owners;
+                        }
+
                         // Validate that authority can be changed based on current authority first
                         if (IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, previousAuthority[`others${ModuleTitle.Authority}`]))
                         {
@@ -148,11 +157,95 @@ export class SettingsOtherModule extends Module
                                 {
                                     Player.MPA[ModuleTitle.Authority][entry] = newAuthority[entry].new;
                                 }
+                                // Sub setting object (new owners only for now)
+                                else
+                                {
+                                    for (const subentry in newAuthority[entry])
+                                    {
+                                        if (newAuthority[entry][subentry].new !== undefined && newAuthority[entry][subentry].old !== undefined)
+                                        {
+                                            Player.MPA[ModuleTitle.Authority][entry][subentry] = newAuthority[entry][subentry].new;
+                                        }
+                                    }
+                                }
                             }
                         }
-                        else
+                        if (ownerOverride)
                         {
-                            console.warn(`MPA: ${sender.Nickname || sender.Name} (${sender.MemberNumber}) tried to illegally modify your ${ModuleTitle.Authority} settings!`);
+                            // Owner changes
+                            const previousOwners = ((orginalSettings?.[ModuleTitle.Authority]?.newOwners?.owners as number[]) ?? []).sort();
+                            const pendingOwners: number[] = ownerOverride.new;
+                            let ownerOutput = "";
+
+                            // Owners added
+                            if (IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, orginalSettings?.[ModuleTitle.Authority]?.newOwners?.othersAdd ?? "None"))
+                            {
+                                for (const owner of pendingOwners.filter((x) => !previousOwners.includes(x)))
+                                {
+                                    Player.MPA[ModuleTitle.Authority]?.newOwners?.owners?.push(owner);
+
+                                    ownerOutput += LocalizedText("SourceCharacter added TargetCharacter (TargetMemberNumber) as MPA owner.")
+                                        .replace("SourceCharacter", sender.Nickname || sender.Name)
+                                        .replaceAll("TargetCharacter", MemberNumberToName(owner))
+                                        .replaceAll("TargetMemberNumber", owner.toString());
+                                    ownerOutput += "\n";
+
+                                    if (owner !== sender.MemberNumber
+                                      && FindCharacterInRoom(owner, { Nickname: false, Name: false }))
+                                    {
+                                        SendMPAMessage({ message: "ownerAdded" }, owner);
+                                    }
+                                }
+                            }
+
+                            // Owners removed
+                            if (IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, orginalSettings?.[ModuleTitle.Authority]?.newOwners?.othersRemove ?? "None"))
+                            {
+                                for (const owner of previousOwners.filter((x) => !pendingOwners.includes(x)))
+                                {
+                                    const filtered = Player.MPA[ModuleTitle.Authority]?.newOwners?.owners?.filter((x: number) => x !== owner);
+                                    if (filtered)
+                                    {
+                                        Player.MPA[ModuleTitle.Authority].newOwners.owners = filtered;
+                                    }
+
+                                    ownerOutput += LocalizedText("SourceCharacter removed TargetCharacter (TargetMemberNumber) as MPA owner.")
+                                        .replace("SourceCharacter", sender.Nickname || sender.Name)
+                                        .replaceAll("TargetCharacter", MemberNumberToName(owner))
+                                        .replaceAll("TargetMemberNumber", owner.toString());
+                                    ownerOutput += "\n";
+
+                                    if (owner !== sender.MemberNumber
+                                      && FindCharacterInRoom(owner, { Nickname: false, Name: false }))
+                                    {
+                                        SendMPAMessage({ message: "ownerRemoved" }, owner);
+                                    }
+                                }
+                            }
+
+                            // Allow self removal (if not have perms)
+                            if (!pendingOwners.includes(sender.MemberNumber as number) && Player.MPA[ModuleTitle.Authority]?.newOwners?.owners?.includes(sender.MemberNumber))
+                            {
+                                const filtered = Player.MPA[ModuleTitle.Authority]?.newOwners?.owners?.filter((x: number) => x !== sender.MemberNumber);
+                                if (filtered)
+                                {
+                                    Player.MPA[ModuleTitle.Authority].newOwners.owners = filtered;
+                                }
+
+                                ownerOutput += LocalizedText("SourceCharacter removed TargetCharacter (TargetMemberNumber) as MPA owner.")
+                                    .replace("SourceCharacter", sender.Nickname || sender.Name)
+                                    .replaceAll("TargetCharacter", MemberNumberToName(sender.MemberNumber ?? -1))
+                                    .replaceAll("TargetMemberNumber", (sender.MemberNumber as number).toString());
+                                ownerOutput += "\n";
+                            }
+
+                            // Owners have changed
+                            if (ownerOutput !== "")
+                            {
+                                NotifyPlayer(ownerOutput.trimEnd());
+                                // Make sure owners always sorted
+                                Player.MPA[ModuleTitle.Authority]?.newOwners?.owners.sort((a, b) => a - b); ;
+                            }
                         }
                     }
 
@@ -213,6 +306,20 @@ export class SettingsOtherModule extends Module
                     {
                         NotifyPlayer(LocalizedText("SourceCharacter is accessing your MPA settings.").replace("SourceCharacter", sender.Nickname || sender.Name), 30000);
                     }
+                }
+            }, {
+                module: this.Title,
+                message: "ownerAdded",
+                action: function (sender: Character, _content: MPAMessageContent): void
+                {
+                    NotifyPlayer(LocalizedText("You have been added as an MPA owner for SourceCharacter.").replace("SourceCharacter", sender.Nickname || sender.Name));
+                }
+            }, {
+                module: this.Title,
+                message: "ownerRemoved",
+                action: function (sender: Character, _content: MPAMessageContent): void
+                {
+                    NotifyPlayer(LocalizedText("You have been removed as an MPA owner for SourceCharacter.").replace("SourceCharacter", sender.Nickname || sender.Name));
                 }
             }
         ];

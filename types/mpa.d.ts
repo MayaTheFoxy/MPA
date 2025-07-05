@@ -34,7 +34,7 @@ declare global
     interface Setting
     {
         name: string;
-        type: "checkbox" | "option" | "text" | "number" | "record";
+        type: "checkbox" | "option" | "text" | "number" | "record" | "custom";
         value: any;
     }
     interface DisplayedSetting extends Setting
@@ -71,6 +71,30 @@ declare global
         min: number;
         max: number;
         step: number | null;
+    }
+    interface CustomSetting extends DisplayedSetting
+    {
+        type: "custom";
+        /**
+         * @param C The Character who you are viewing the settings for
+         * @param hasPermission If the user has permission to edit the settings
+         */
+        OnClick: (C: PlayerCharacter, hasPermission: boolean) => void;
+        /**
+         * @param C The Character who you are viewing the settings for
+         * @param hasPermission If the user has permission to edit the settings
+         */
+        OnExit: (C: PlayerCharacter, hasPermission?: boolean) => void;
+        /**
+         * @param C The Character who you are viewing the settings for
+         * @param hasPermission If the user has permission to edit the settings
+         */
+        OnLoad: (C: PlayerCharacter, hasPermission?: boolean) => void;
+        /**
+         * @param C The Character who you are viewing the settings for
+         * @param hasPermission If the user has permission to edit the settings
+         */
+        OnRun: (C: PlayerCharacter, hasPermission?: boolean) => void;
     }
 
     // Cumlative settings of all modules
