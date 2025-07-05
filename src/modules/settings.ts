@@ -100,17 +100,6 @@ function MENU_CATEGORIES(): ModuleTitle[]
         ];
     }
 
-    // REMOVE WITH STABLE 0.4.9
-    if ((settingChar as PlayerCharacter).MPA.version !== Player.MPA.version)
-    {
-        return [
-            ModuleTitle.Profile,
-            ModuleTitle.Clicker,
-            ModuleTitle.VirtualPet,
-            ModuleTitle.VirtualPetConditions
-        ];
-    }
-
     // Display settings if you are an another player
     return [
         ModuleTitle.Authority,
