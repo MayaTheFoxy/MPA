@@ -131,7 +131,7 @@ export async function LoadStorage(): Promise<void>
     // Port old onwers to new owners
     if (settings[ModuleTitle.Authority].newOwners.owners.length === 0 && settings[ModuleTitle.Authority].owners !== "")
     {
-        settings[ModuleTitle.Authority].newOwners.owners = (settings[ModuleTitle.Authority].owners as string).split(",").map((x) => Number(x));
+        settings[ModuleTitle.Authority].newOwners.owners = ((settings[ModuleTitle.Authority].owners ?? "") as string).split(",").map((x) => Number(x));
     }
 
     // Check and notify if there is an update
