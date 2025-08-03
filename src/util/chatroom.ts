@@ -56,7 +56,7 @@ export function ApplyItemsToCharacter(character: Character, items: CraftServerIt
             }
 
             // Apply the item we want
-            const wornItem = InventoryWear(character, item.Name, item.Group, item.Color, item.Difficulty === undefined ? 69 : item.Difficulty, Player.MemberNumber, item.Craft, false);
+            const wornItem = InventoryWear(character, item.Name, item.Group, item.Color, item.Difficulty === undefined ? 0 : item.Difficulty, Player.MemberNumber, item.Craft, false);
             if (wornItem !== null && item.Property)
             {
                 // Merge the properties on the new item
