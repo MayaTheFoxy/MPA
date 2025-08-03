@@ -1,3 +1,6 @@
+# 0.5.0.1
+- Crawl into bed with someone activity on arms
+
 # 0.5.0
 - Owners option subpage
 - Owner rework - Allows more authority control for the user to restrict access to the authority but still add / remove others
