@@ -1,3 +1,6 @@
+# 0.5.0.2
+ - Can select if chat, emotes, or actions can trigger the clicker independently
+
 # 0.5.0.1
 - Crawl into bed with someone activity on arms
 
