@@ -179,7 +179,7 @@ export function Bed(): void
                 return;
             }
 
-            TypedItemSetOptionByName(Player, "ItemDevices", `${bed.Property.TypeRecord.typed === 1 ? "No" : ""}Blanket`);
+            TypedItemSetOptionByName(Player, "ItemDevices", `${bed.Property.TypeRecord.typed === 1 ? "No" : ""}Blanket`, true, Player, true);
 
             if (bed.Property.TypeRecord.typed === 1)
             {
