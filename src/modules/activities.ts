@@ -161,7 +161,7 @@ export class ActivitiesModule extends Module
                 Targets: [{
                     group: "ItemArms",
                     label: "Crawl In Bed",
-                    actionOthers: "SourceCharacter cawls into bed with TargetCharacter."
+                    actionOthers: "SourceCharacter crawls into bed with TargetCharacter."
                 }],
                 Image: "Assets\\Female3DCG\\ItemDevices\\Preview\\Bed.png",
                 OnTrigger: (C) =>
