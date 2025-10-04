@@ -2,7 +2,8 @@ import { Module, ModuleTitle } from "./_module";
 import { FindCharacterInRoom, GetAttributeFromChatDictionary } from "../util/messaging";
 import { activityImages, activityPrerequisites, activityReceived, activityTriggers } from "../util/activities";
 import { HookFunction } from "../util/sdk";
-import { ACTIVITY_NAME_PREFIX, BELL_SOUND, ICONS } from "../util/constants";
+import { ACTIVITY_NAME_PREFIX, BELL_SOUND, ICONS, NO_STUCK_BEDS } from "../util/constants";
+import { ApplyItemsToCharacter, SaveCharacterItem } from "../util/chatroom";
 
 const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
 {
@@ -145,6 +146,39 @@ export class ActivitiesModule extends Module
                     actionSelf: "SourceCharacter stomps PronounPossessive hoof on the ground twice."
                 }],
                 Image: "Assets\\Female3DCG\\Shoes\\Preview\\PonyBoots.png"
+            }, {
+                Name: "CrawlInBed",
+                Prerequisite: [],
+                CustomPrerequisite: {
+                    Name: "InBed",
+                    Prerequisite: (acting, acted, _group) =>
+                    {
+                        // Target has bed, we do not
+                        return NO_STUCK_BEDS.some((bed) => bed === InventoryGet(acted, "ItemDevices")?.Asset?.Name)
+                          && InventoryGet(acting, "ItemDevices") === null;
+                    }
+                },
+                Targets: [{
+                    group: "ItemArms",
+                    label: "Crawl In Bed",
+                    actionOthers: "SourceCharacter crawls into bed with TargetCharacter."
+                }],
+                Image: "Assets\\Female3DCG\\ItemDevices\\Preview\\Bed.png",
+                OnTrigger: (C) =>
+                {
+                    // Copy bed of target and apply it
+                    console.log("crawling in bed");
+                    if (!C)
+                    {
+                        return;
+                    }
+                    const bed = SaveCharacterItem(C, "ItemDevices");
+                    if (!bed)
+                    {
+                        return;
+                    }
+                    ApplyItemsToCharacter(Player, [bed]);
+                }
             }
         ];
     }

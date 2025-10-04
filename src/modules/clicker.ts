@@ -8,6 +8,14 @@ import clicker1 from "../../assets/clicker1.mp3";
 import clicker2 from "../../assets/clicker2.mp3";
 import clicker3 from "../../assets/clicker3.mp3";
 
+enum CLICKER_TYPE
+{
+    NONE,
+    CHAT,
+    EMOTE,
+    ACTION
+};
+
 // Clicker sounds to play
 // An array of audio files, 1 click in index 0, n+1 clicks in index n
 const ALL_CLICKS: HTMLAudioElement[] =
@@ -37,7 +45,8 @@ function ClickCount(str: string = ""): number
         .filter((str) => str !== "")
         .forEach((trigger) =>
         {
-            totalClicks += str.toLocaleLowerCase().match(new RegExp(trigger.toLocaleLowerCase(), "g"))?.length ?? 0;
+            const escapedTrigger = trigger.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            totalClicks += str.toLocaleLowerCase().match(new RegExp(escapedTrigger.toLocaleLowerCase(), "g"))?.length ?? 0;
         });
     return totalClicks;
 }
@@ -159,6 +168,24 @@ export class ClickerModule extends Module
                 width: 384,
                 maxChars: null
             } as TextSetting, {
+                name: "chat",
+                type: "checkbox",
+                active: (C) => !!PlayerC(C).enabled,
+                value: true,
+                label: "Chat can trigger the clicker"
+            } as CheckboxSetting, {
+                name: "emotes",
+                type: "checkbox",
+                active: (C) => !!PlayerC(C).enabled,
+                value: true,
+                label: "Emotes can trigger the clicker"
+            } as CheckboxSetting, {
+                name: "activities",
+                type: "checkbox",
+                active: (C) => !!PlayerC(C).enabled,
+                value: true,
+                label: "Custom activities can trigger the clicker"
+            } as CheckboxSetting, {
                 name: "selfAuthed",
                 type: "checkbox",
                 active: (C) => !!PlayerC(C).enabled && PlayerC(C).authedGroup !== "Self",
@@ -210,14 +237,20 @@ export class ClickerModule extends Module
             }
 
             let clicks: number = 0;
+            let clickType: CLICKER_TYPE = CLICKER_TYPE.NONE;
             const searchTag = `MISSING ACTIVITY DESCRIPTION FOR KEYWORD ${data.Content}`;
             switch (data.Type)
             {
                 // Count the clicks in an emote or chat
                 case "Chat":
-                case "Emote":
                 case "Whisper":
                     clicks = ClickCount(RemoveOOCContentFromMessage(data.Content));
+                    clickType = CLICKER_TYPE.CHAT;
+                    break;
+
+                case "Emote":
+                    clicks = ClickCount(RemoveOOCContentFromMessage(data.Content));
+                    clickType = CLICKER_TYPE.EMOTE;
                     break;
 
                 // Count the clicks in an action, (support custom actions)
@@ -237,6 +270,7 @@ export class ClickerModule extends Module
                     {
                         clicks = ClickCount((data?.Dictionary?.filter((x) => (x as TextDictionaryEntry).Tag == `MISSING TEXT IN "Interface.csv": ${data?.Content}`)[0] as TextDictionaryEntry)?.Text ?? "");
                     }
+                    clickType = CLICKER_TYPE.ACTION;
                     break;
 
                 // Count the clicks in an activity
@@ -246,14 +280,22 @@ export class ClickerModule extends Module
                     {
                         clicks = ClickCount((data?.Dictionary?.filter((x) => (x as TextDictionaryEntry).Tag === searchTag)[0] as TextDictionaryEntry)?.Text ?? "");
                     }
+                    clickType = CLICKER_TYPE.ACTION;
                     break;
 
                 default:
                     break;
             }
 
-            // Play the clicks if needed
-            PlayClickerSound(clicks);
+            if (clicks !== 0
+              && ((clickType === CLICKER_TYPE.CHAT && PlayerC().chat)
+                || (clickType === CLICKER_TYPE.EMOTE && PlayerC().emotes)
+                || (clickType === CLICKER_TYPE.ACTION && PlayerC().activities)))
+            {
+                // Play the clicks if needed
+                PlayClickerSound(clicks);
+            }
+
             return next(args);
         });
 

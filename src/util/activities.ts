@@ -44,9 +44,17 @@ export function CreateActivity(customActivity: CustomActivity): void
         });
     }
 
+    // Only add the name and label once
+    let nameAdded = false;
     // The lookup table for the activity
     customActivity.Targets.forEach((target) =>
     {
+        if (!nameAdded)
+        {
+            ActivityDictionary?.push([`Activity${activity.Name}`, LocalizedText(target.label)]);
+            nameAdded = true;
+        }
+
         // Acitivity can be used on self
         if (target.actionSelf)
         {

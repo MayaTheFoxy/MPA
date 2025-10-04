@@ -17,4 +17,6 @@ export const BED_NORMAL = ["LowCage", "Kennel", "Bed", "MedicalBed", "Cushion", 
 export const BED_BAD = ["FuturisticCrate", "DollBox", "乳胶带床_Luzi"];
 export const ALL_BEDS = BED_PERFECT.concat(BED_NORMAL, BED_BAD);
 
+export const NO_STUCK_BEDS = ["PetBed", "Crib", "Bed", "MedicalBed"];
+
 export const ORGASM_ACTIVITY_REGEX = /Orgasm[0-9]/;
