@@ -68,7 +68,8 @@ export function ApplyPetHearing([text, intensity, ignoreOOC]: [string, number, b
     let foundPhrases: Range[] = [];
     phrasesToKeep.forEach((phrase) =>
     {
-        const regExp = new RegExp(`\\b${phrase}\\b`, "g");
+        const escapedPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regExp = new RegExp(`\\b${escapedPhrase}\\b`, "g");
         const regexMatches = [...message.matchAll(regExp)];
         regexMatches.forEach((match) =>
         {

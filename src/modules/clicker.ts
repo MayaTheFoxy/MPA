@@ -45,7 +45,8 @@ function ClickCount(str: string = ""): number
         .filter((str) => str !== "")
         .forEach((trigger) =>
         {
-            totalClicks += str.toLocaleLowerCase().match(new RegExp(trigger.toLocaleLowerCase(), "g"))?.length ?? 0;
+            const escapedTrigger = trigger.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            totalClicks += str.toLocaleLowerCase().match(new RegExp(escapedTrigger.toLocaleLowerCase(), "g"))?.length ?? 0;
         });
     return totalClicks;
 }
