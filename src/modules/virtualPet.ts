@@ -6,6 +6,7 @@ import { FindCharacterInRoom, GetAttributeFromChatDictionary, SendAction } from 
 import { RecordSync } from "./dataSync";
 import { IsHardcoreOn } from "./profile";
 import { RandomElement } from "../util/general";
+import { GetLastOnline, UpdateLastOnline } from "../util/localStorage";
 
 const MAX_SETTING_TIME_HOURS = 168;
 
@@ -204,7 +205,7 @@ function HourToMS(hours: number)
     return hours * 60 * 60 * 1000;
 }
 
-export function CalculateCurrentValue(value: number, duration: number, lastUpdated: number, lastOnline?: number, firstRunCheck: boolean = false, C: Character = Player): number
+export function CalculateCurrentValue(value: number, duration: number, lastUpdated: number, lastOnline?: number, firstRunCheck: boolean = false): number
 {
     /** How long in ms has elasped since now or last online */
     const diff: number = (lastOnline ? lastOnline : Date.now()) - lastUpdated;
@@ -212,7 +213,7 @@ export function CalculateCurrentValue(value: number, duration: number, lastUpdat
     // Max drain down to 20% while offline
     if (firstRunCheck && value > MIN_OFFLINE_DRAIN_LEVEL && currentValue < MIN_OFFLINE_DRAIN_LEVEL)
     {
-        const diff2: number = PlayerVP(C).levels.lastOnline - lastUpdated;
+        const diff2: number = GetLastOnline() - lastUpdated;
         const newValue2 = Math.max(0, Math.min(value - (diff2 / HourToMS(duration)), 1));
         return Math.min(MIN_OFFLINE_DRAIN_LEVEL, newValue2);
     }
@@ -244,12 +245,12 @@ export function LevelSync(pushToStorage: boolean = true, recordSync: boolean = t
     if (!PlayerVP().enabled)
     {
         PlayerVP().levels.lastUpdated = Date.now();
-        PlayerVP().levels.lastOnline = Date.now();
+        UpdateLastOnline();
         return;
     }
 
     const update: number = PlayerVP().levels.lastUpdated ?? Date.now();
-    const online: number | undefined = !PlayerVP().offlineDrain ? PlayerVP().levels.lastOnline : undefined;
+    const online: number | undefined = !PlayerVP().offlineDrain ? GetLastOnline() : undefined;
 
     const food = PlayerVP().foodHours;
     if (food !== 0)
@@ -268,7 +269,7 @@ export function LevelSync(pushToStorage: boolean = true, recordSync: boolean = t
           || playerSleepingExpression
           || playerBedMultiplier !== 1)
         {
-            const durationToUse = firstSync ? (Date.now() - PlayerVP().levels.lastOnline) - (PlayerVP().levels.lastOnline - update) : Date.now() - update;
+            const durationToUse = firstSync ? (Date.now() - GetLastOnline()) - (GetLastOnline() - update) : Date.now() - update;
             const newSleep = PlayerVP().levels.sleep + (durationToUse) / HourToMS(sleep) * playerBedMultiplier * (playerSleepingExpression ? 5 : 1);
             PlayerVP().levels.sleep = Math.max(0, Math.min(1, newSleep));
         }
@@ -283,7 +284,8 @@ export function LevelSync(pushToStorage: boolean = true, recordSync: boolean = t
         PlayerVP().levels.affection = CalculateCurrentValue(PlayerVP().levels.affection, affection, update, online, firstSync);
     }
     PlayerVP().levels.lastUpdated = Date.now();
-    PlayerVP().levels.lastOnline = Date.now();
+    UpdateLastOnline();
+
     // Save to local storage
     if (pushToStorage)
     {
@@ -511,8 +513,7 @@ export class VirtualPetModule extends Module
                     water: 1,
                     sleep: 1,
                     affection: 1,
-                    lastUpdated: Date.now(),
-                    lastOnline: Date.now()
+                    lastUpdated: Date.now()
                 }
             } as Setting, {
                 name: "sexPet",
@@ -543,8 +544,7 @@ export class VirtualPetModule extends Module
         {
             if (Player.MemberNumber)
             {
-                Player.MPA[this.Title].levels.lastOnline = Date.now();
-                SaveStorage(false);
+                UpdateLastOnline();
             }
         }, LAST_ONLINE_INTERVAL_MS);
 

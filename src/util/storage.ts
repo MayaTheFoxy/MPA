@@ -6,6 +6,7 @@ import { ModuleTitle } from "../modules/_module";
 import { MPA_VERSION } from "./constants";
 import { LevelSync } from "../modules/virtualPet";
 import { NotifyPlayer } from "./messaging";
+import { LoadLocalStorage, ResetLocalStorage } from "./localStorage";
 
 const CHANGELOG_RAW_STABLE = "https://raw.githubusercontent.com/MayaTheFoxy/MPA/refs/heads/main/CHANGELOG.md";
 const CHANGELOG_RAW_DEV = "https://raw.githubusercontent.com/MayaTheFoxy/MPA/refs/heads/dev/CHANGELOG.md";
@@ -92,6 +93,7 @@ export async function LoadStorage(): Promise<void>
 {
     // Ensure the player is loaded before attempting to read the extention settings
     await AwaitPlayer();
+    LoadLocalStorage();
 
     const settings: MPARecords = JSON.parse(LZString.decompressFromBase64(Player.ExtensionSettings?.MPA ?? "") ?? "{}") ?? {};
 
@@ -162,6 +164,7 @@ export async function ResetStorage(): Promise<void>
     delete (Player.ExtensionSettings as any).MPA;
     Player.ExtensionSettings.MPA = LZString.compressToBase64(JSON.stringify({ version: MPA_VERSION }));
     await LoadStorage();
+    ResetLocalStorage();
     SaveStorage();
     return;
 }
