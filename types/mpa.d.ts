@@ -103,7 +103,11 @@ declare global
 
     // Storage of the settings as records, trimming everything but value
     type MPARecord = Record<string, any>;
-    type MPARecords = Record<keyof typeof ModuleTitle | "version", MPARecord>;
+    type MPARecords = Record<keyof typeof ModuleTitle, MPARecord> 
+        & {
+            version: string,
+            lastOnline: number
+        };
 
     // Type used to create an activity
     type AcitivityTrigger = (target: Character | undefined) => void;
@@ -131,6 +135,11 @@ declare global
         OnReceive?: ActivityReceived;
         CustomPrerequisite?: NewPrerequisite | NewPrerequisite[];
         MaxProgress?: number;
+    }
+
+    interface MPALocalStorage
+    {
+        lastOnline: number;
     }
 }
 
