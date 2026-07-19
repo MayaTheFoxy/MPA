@@ -11,6 +11,30 @@ export const activityPrerequisites: Record<string, Prerequisite> = {};
 export const activityReceived: Record<string, ActivityReceived> = {};
 
 /**
+ * Adds a key value pair to BCs Lookup Activity Dictionary
+ */
+function AddActivityDictionary(key: string, value: string): void
+{
+    ActivityDictionaryLoad().cache[key] = value;
+}
+
+/**
+ * Removes key from BCs Lookup Activity Dictionary
+ * @returns If removed something or not
+ */
+function RemoveActivityDictionary(key: string): boolean
+{
+    const dict = ActivityDictionaryLoad().cache; 
+    let ret = false;
+    if (dict[key] !== undefined)
+    {
+        ret = true;
+    }
+    delete dict[key];
+    return ret;
+}
+
+/**
  * Create a new custom activity for the Player to use
  */
 export function CreateActivity(customActivity: CustomActivity): void
@@ -51,7 +75,7 @@ export function CreateActivity(customActivity: CustomActivity): void
     {
         if (!nameAdded)
         {
-            ActivityDictionary?.push([`Activity${activity.Name}`, LocalizedText(target.label)]);
+            AddActivityDictionary(`Activity${activity.Name}`, LocalizedText(target.label));
             nameAdded = true;
         }
 
@@ -63,16 +87,16 @@ export function CreateActivity(customActivity: CustomActivity): void
                 activity.TargetSelf = [];
             }
             (activity.TargetSelf as AssetGroupItemName[])?.push(target.group);
-            ActivityDictionary?.push([`Label-ChatSelf-${target.group}-${activity.Name}`, LocalizedText(target.label)]);
-            ActivityDictionary?.push([`ChatSelf-${target.group}-${activity.Name}`, LocalizedText(target.actionSelf)]);
+            AddActivityDictionary(`Label-ChatSelf-${target.group}-${activity.Name}`, LocalizedText(target.label));
+            AddActivityDictionary(`ChatSelf-${target.group}-${activity.Name}`, LocalizedText(target.actionSelf));
         }
 
         // Activity can be used on others
         if (target.actionOthers)
         {
             activity.Target.push(target.group);
-            ActivityDictionary?.push([`Label-ChatOther-${target.group}-${activity.Name}`, LocalizedText(target.label)]);
-            ActivityDictionary?.push([`ChatOther-${target.group}-${activity.Name}`, LocalizedText(target.actionOthers)]);
+            AddActivityDictionary(`Label-ChatOther-${target.group}-${activity.Name}`, LocalizedText(target.label));
+            AddActivityDictionary(`ChatOther-${target.group}-${activity.Name}`, LocalizedText(target.actionOthers));
         }
     });
 
@@ -120,13 +144,15 @@ export function RemoveActivity(customActivity: CustomActivity): void
         // Activity can be used on self
         if (target.actionSelf)
         {
-            ActivityDictionary = ActivityDictionary?.filter((x) => !(x[0] === `Label-ChatSelf-${target.group}-${activityName}` || x[0] === `ChatSelf-${target.group}-${activityName}`)) ?? null;
+            RemoveActivityDictionary(`Label-ChatSelf-${target.group}-${activityName}`);
+            RemoveActivityDictionary(`ChatSelf-${target.group}-${activityName}`);
         }
 
         // Activity can be used on others
         if (target.actionOthers)
         {
-            ActivityDictionary = ActivityDictionary?.filter((x) => !(x[0] === `Label-ChatOther-${target.group}-${activityName}` || x[0] === `ChatOther-${target.group}-${activityName}`)) ?? null;
+            RemoveActivityDictionary(`Label-ChatOther-${target.group}-${activityName}`);
+            RemoveActivityDictionary(`ChatOther-${target.group}-${activityName}`);
         }
     });
 
