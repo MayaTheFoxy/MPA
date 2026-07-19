@@ -211,7 +211,7 @@ export class ActivitiesModule extends Module
             if (activityName?.startsWith(ACTIVITY_NAME_PREFIX))
             {
                 data?.Dictionary?.push({
-                    Tag: "MISSING ACTIVITY DESCRIPTION FOR KEYWORD " + data.Content,
+                    Tag: `${TEXT_NOT_FOUND_PREFIX} "ActivityDictionary.csv": ${data.Content}`,
                     Text: ActivityDictionaryText(data.Content)
                 });
 

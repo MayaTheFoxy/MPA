@@ -24,7 +24,7 @@ function AddActivityDictionary(key: string, value: string): void
  */
 function RemoveActivityDictionary(key: string): boolean
 {
-    const dict = ActivityDictionaryLoad().cache; 
+    const dict = ActivityDictionaryLoad().cache;
     let ret = false;
     if (dict[key] !== undefined)
     {
