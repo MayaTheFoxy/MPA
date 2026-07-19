@@ -6,13 +6,15 @@
 	},
 	"compilerOptions": {
 		"target": "ES2018",
-		"baseUrl": "./src",
+		"paths": {
+			"@/*": ["./src/*"]
+		},
 		"rootDir": "./src",
 		"noEmit": false,
 		"lib": ["ESNext", "DOM"],
 		"types": [],
 		"module": "ESNext",
-		"moduleResolution": "Node",
+		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
 		"experimentalDecorators": true,
 		"esModuleInterop": true,

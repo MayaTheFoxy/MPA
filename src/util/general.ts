@@ -8,7 +8,7 @@ export function RandomElement<T>(array: T[]): T | null
 }
 
 /**
- * Make a new array that is a copy of the orginal minus any matching elements in the filter
+ * Make a new array that is a copy of the original minus any matching elements in the filter
  */
 export function FilterArrayFromArray<T>(array: T[], filterArray: T[]): T[]
 {

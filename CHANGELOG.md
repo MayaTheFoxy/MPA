@@ -1,3 +1,6 @@
+# 0.6.1
+- Fix what BC broke and maintenance 
+
 # 0.6.0
 - Can select if chat, emotes, or actions can trigger the clicker independently
 - Crawl into bed with someone activity on arms
@@ -14,7 +17,7 @@
 
 # 0.4.8
 - Virtual Pet Hud Statistic tooltip feature by dDeepLb
-- Add Echo's Clothing Extenions beds to energy regain list
+- Add Echo's Clothing Extension beds to energy regain list
 - Virtual Pet HUD override option; Will display even with BCX rule "Force-hide UI elements"
 - Miscellaneous bug fixes & Stability improvements
 - Localization improvements
@@ -30,7 +33,7 @@
 - No pet speak on web links fix
 - Paw icon on any activity from MPA
 - Sex pet can now gain food and water from others orally pleasing themselves with the pet
-- Sex pet option, able to gain food by eating out others, able to gain thrist by swallowing their cum
+- Sex pet option, able to gain food by eating out others, able to gain thirst by swallowing their cum
 - Sex pet ONLY option, regular food, drink, and bowls do not work anymore
 
 # 0.4.6
@@ -80,6 +83,6 @@
 - Authority system for self and others
 - Clicker training module
 - Virtual Pet system allowing users to become a pet requiring food, water, sleep, and affection
-    - Customizeable to fit your needs and wants (or your owner's)
+    - Customizable to fit your needs and wants (or your owner's)
     - Various buffs and debuffs based on the current amount of food, water, sleep or affection
     - Can use /bed to give yourself a petbed and /blanket to draw the blanket over yourself when bound

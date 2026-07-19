@@ -1,8 +1,8 @@
-import { HookFunction } from "../util/sdk";
-import { IsMemberNumberInAuthGroup } from "../util/authority";
-import { Module, ModuleTitle } from "./_module";
-import { GetCharacterCurrentStatValue, VirtualPetStatCategory, type VirtualPetStat } from "./virtualPet";
-import { LocalizedText } from "../localization/localization";
+import { HookFunction } from "@/util/sdk";
+import { IsMemberNumberInAuthGroup } from "@/util/authority";
+import { Module, ModuleTitle } from "@/modules/_module";
+import { GetCharacterCurrentStatValue, VirtualPetStatCategory, type VirtualPetStat } from "@/modules/virtualPet";
+import { LocalizedText } from "@/localization/localization";
 
 const PlayerVP: () => MPARecord = () =>
 {
@@ -75,7 +75,7 @@ function DrawStatTooltip(x: number, y: number, radius: number, stat: VirtualPetS
     if (MouseIn(x - radius, y - radius, radius * 2, radius * 2))
     {
         const statName = LocalizedText(stat.stat.charAt(0).toUpperCase() + stat.stat.slice(1));
-        const tootipText = `${statName}: ${Math.round(stat.level * 100)}%`;
+        const toolTipText = `${statName}: ${Math.round(stat.level * 100)}%`;
 
         const prevTextAlign = MainCanvas.textAlign;
         const prevFont = MainCanvas.font;
@@ -85,7 +85,7 @@ function DrawStatTooltip(x: number, y: number, radius: number, stat: VirtualPetS
 
         const pad = 5;
         const pos: "Left" | "Center" | "Right" | "Split" = PlayerVPHUD().position;
-        const size = MainCanvas.measureText(tootipText);
+        const size = MainCanvas.measureText(toolTipText);
         const width = size.actualBoundingBoxRight - size.actualBoundingBoxLeft + 2 * pad;
         const height = size.actualBoundingBoxDescent + size.actualBoundingBoxAscent + 2 * pad;
 
@@ -112,14 +112,14 @@ function DrawStatTooltip(x: number, y: number, radius: number, stat: VirtualPetS
 
         DrawRect(TextX - pad + 3, TextY - pad + 3, width, height, "rgba(0, 0, 0, .7)");
         DrawRect(TextX - pad, TextY - pad, width, height, "#D7F6E9");
-        DrawTextFit(tootipText, TextX, TextY + pad * 2, size.width, "Black");
+        DrawTextFit(toolTipText, TextX, TextY + pad * 2, size.width, "Black");
 
         MainCanvas.textAlign = prevTextAlign;
         MainCanvas.font = prevFont;
     }
 }
 
-function DrawVirualPetHud(x: number, y: number, zoom: number, stats: VirtualPetStat[]): void
+function DrawVirtualPetHud(x: number, y: number, zoom: number, stats: VirtualPetStat[]): void
 {
     const pos: "Left" | "Center" | "Right" | "Split" = PlayerVPHUD().position;
 
@@ -211,7 +211,7 @@ function ShouldDrawHud<T extends typeof DrawArousalMeter | typeof DrawCharacter>
 {
     const output = next(args);
     const [character, x, y, zoom] = args;
-    // Get character stats when support for multplayer
+    // Get character stats when support for multilayer
     if (
         !ActivityAllowed()
         || (character.IsPlayer() && (!PlayerVPHUD().self || !PlayerVP().enabled))
@@ -242,7 +242,7 @@ function ShouldDrawHud<T extends typeof DrawArousalMeter | typeof DrawCharacter>
     });
     if (stats.length !== 0)
     {
-        DrawVirualPetHud(x, y, zoom, stats);
+        DrawVirtualPetHud(x, y, zoom, stats);
     }
 
     return output;

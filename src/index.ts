@@ -1,6 +1,6 @@
-import { RegisterModules } from "./util/registerModules";
-import { BuildAllCommands } from "./commands/buildAllCommands";
-import { MPA_VERSION } from "./util/constants";
+import { RegisterModules } from "@/util/registerModules";
+import { BuildAllCommands } from "@/commands/buildAllCommands";
+import { MPA_VERSION } from "@/util/constants";
 
 // Testing for Localization, ensuring all fields in the template
 // import { SettingTest } from "./_tests/settingsLabels";

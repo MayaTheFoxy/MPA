@@ -13,7 +13,7 @@ interface MPAMessage extends ServerChatRoomMessage
     Dictionary: [MPAMessageContent];
 }
 
-export function ContentIsMPAMesage(content: ServerChatRoomMessage): content is MPAMessage
+export function ContentIsMPAMessage(content: ServerChatRoomMessage): content is MPAMessage
 {
     return (
         content.Type === "Hidden"
@@ -24,7 +24,7 @@ export function ContentIsMPAMesage(content: ServerChatRoomMessage): content is M
 
 export function GetMPAMessageFromChat(message: ServerChatRoomMessage): MPAMessageContent | null
 {
-    return ContentIsMPAMesage(message) ? message.Dictionary[0] : null;
+    return ContentIsMPAMessage(message) ? message.Dictionary[0] : null;
 }
 
 export function SendMPAMessage(message: MPAMessageContent, target?: number): void
@@ -87,15 +87,15 @@ export function MPANotifyPlayer(content: string, timeout?: number): void
 }
 
 /**
- * Find a Character in the chat room with by number, name, or nick. Not case senstive.
+ * Find a Character in the chat room with by number, name, or nick. Not case sensitive.
  * If multiple people exists with the same nickname or name. It will return the first person that matches.
- * Use MemberNumber if you want to gurantee to find that specific character.
+ * Use MemberNumber if you want to guarantee to find that specific character.
  *
  * @param search - The MemberNumber, Name, or Nickname of the person you want to find
  */
 export function FindCharacterInRoom(search: string | number, { MemberNumber = true, Nickname = true, Name = true } = {}): Character | null
 {
-    // Make sure playerSearch is a string - not case senstive
+    // Make sure playerSearch is a string - not case sensitive
     if (typeof search !== "string")
     {
         search = search.toString();

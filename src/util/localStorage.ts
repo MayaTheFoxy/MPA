@@ -16,7 +16,7 @@ export function GetLocalStorage(): MPALocalStorage
 
 export function LoadLocalStorage(): void
 {
-    storage = JSON.parse(LZString.decompressFromBase64(window.localStorage.getItem(KEY) ?? "") ?? "{}") ?? BlankStorage() as MPALocalStorage;
+    storage = (JSON.parse(LZString.decompressFromBase64(window.localStorage.getItem(KEY) ?? "") ?? "{}") ?? BlankStorage()) as MPALocalStorage;
 }
 
 export function ResetLocalStorage(): void
@@ -27,7 +27,7 @@ export function ResetLocalStorage(): void
 
 export function SaveToLocalStorage(): void
 {
-    // Check if existing local storge
+    // Check if existing local storage
     window.localStorage.setItem(KEY, LZString.compressToBase64(JSON.stringify(storage)));
 }
 

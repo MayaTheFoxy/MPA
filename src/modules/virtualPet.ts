@@ -1,12 +1,12 @@
-import { Module, ModuleTitle } from "./_module";
-import { BED_BAD, BED_NORMAL, BED_PERFECT, ORGASM_ACTIVITY_REGEX } from "../util/constants";
-import { HookFunction } from "../util/sdk";
-import { SaveStorage } from "../util/storage";
-import { FindCharacterInRoom, GetAttributeFromChatDictionary, SendAction } from "../util/messaging";
-import { RecordSync } from "./dataSync";
-import { IsHardcoreOn } from "./profile";
-import { RandomElement } from "../util/general";
-import { GetLastOnline, UpdateLastOnline } from "../util/localStorage";
+import { Module, ModuleTitle } from "@/modules/_module";
+import { BED_BAD, BED_NORMAL, BED_PERFECT, ORGASM_ACTIVITY_REGEX } from "@/util/constants";
+import { HookFunction } from "@/util/sdk";
+import { SaveStorage } from "@/util/storage";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary, SendAction } from "@/util/messaging";
+import { RecordSync } from "@/modules/dataSync";
+import { IsHardcoreOn } from "@/modules/profile";
+import { RandomElement } from "@/util/general";
+import { GetLastOnline, UpdateLastOnline } from "@/util/localStorage";
 
 const MAX_SETTING_TIME_HOURS = 168;
 
@@ -18,7 +18,7 @@ const PlayerVP: (C?: Character) => MPARecord = (C: Character = Player) =>
 // const CHARACTERS_MOVING = ["ServerMoveRight", "ServerSwap", "ServerMoveLeft"];
 
 const BOWL_CONSUME_RECOVERY = 0.67;
-const ITEM_CONUME_RECOVERY = 0.33;
+const ITEM_CONSUME_RECOVERY = 0.33;
 
 const ACTIVITIES_FOOD_GAIN = ["LSCG_Eat", "ThrowItem", "吃掉嘴里食物_Luzi"];
 const ACTIVITIES_WATER_GAIN = ["LSCG_FunnelPour", "LSCG_Quaff"];
@@ -207,7 +207,7 @@ function HourToMS(hours: number)
 
 export function CalculateCurrentValue(value: number, duration: number, lastUpdated: number, lastOnline?: number, firstRunCheck: boolean = false): number
 {
-    /** How long in ms has elasped since now or last online */
+    /** How long in ms has elapsed since now or last online */
     const diff: number = (lastOnline ? lastOnline : Date.now()) - lastUpdated;
     const currentValue = Math.max(0, Math.min(value - (diff / HourToMS(duration)), 1));
     // Max drain down to 20% while offline
@@ -576,7 +576,7 @@ export class VirtualPetModule extends Module
                   || ACTIVITIES_FOOD_GAIN.some((x) => activity?.Name === x))
             )
             {
-                ModifyStat("food", ITEM_CONUME_RECOVERY, true, undefined, source);
+                ModifyStat("food", ITEM_CONSUME_RECOVERY, true, undefined, source);
             }
 
             if (
@@ -585,7 +585,7 @@ export class VirtualPetModule extends Module
                   || ACTIVITIES_WATER_GAIN.some((x) => activity?.Name === x))
             )
             {
-                ModifyStat("water", ITEM_CONUME_RECOVERY, true, undefined, source);
+                ModifyStat("water", ITEM_CONSUME_RECOVERY, true, undefined, source);
             }
 
             return next(args);
@@ -611,7 +611,7 @@ export class VirtualPetModule extends Module
                 return next(args);
             }
 
-            ModifyStat("food", ITEM_CONUME_RECOVERY, true, undefined, FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter")) ?? undefined);
+            ModifyStat("food", ITEM_CONSUME_RECOVERY, true, undefined, FindCharacterInRoom(GetAttributeFromChatDictionary(data, "TargetCharacter")) ?? undefined);
             return next(args);
         });
 

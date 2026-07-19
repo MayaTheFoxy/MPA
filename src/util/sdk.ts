@@ -1,6 +1,6 @@
 import bcModSdk, { GetDotedPathType, ModSDKModAPI, PatchHook } from "bondage-club-mod-sdk";
-import { ModuleTitle } from "../modules/_module";
-import { MPA_NAME, MPA_REPO, MPA_VERSION } from "./constants";
+import { ModuleTitle } from "@/modules/_module";
+import { MPA_NAME, MPA_REPO, MPA_VERSION } from "@/util/constants";
 
 interface HookedFunction
 {
@@ -98,13 +98,14 @@ export async function AwaitInChatRoom()
         const hook = modAPI.hookFunction("ChatRoomSync", 100, (args, next) =>
         {
             // Let response happen first
-            next(args);
+            const ret = next(args);
 
             // Remove this hook when done
             hook();
 
             // Resolve the promise to end the await condition
             resolve();
+            return ret;
         });
     });
 }

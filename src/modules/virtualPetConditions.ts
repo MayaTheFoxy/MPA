@@ -1,10 +1,10 @@
-import { ORGASM_ACTIVITY_REGEX } from "../util/constants";
-import { RandomElement } from "../util/general";
-import { GetAttributeFromChatDictionary, SendAction } from "../util/messaging";
-import { HookFunction } from "../util/sdk";
-import { Module, ModuleTitle } from "./_module";
-import { IsHardcoreOn } from "./profile";
-import { GetCharacterCurrentStatValue, ModifyStat, VirtualPetStatCategory } from "./virtualPet";
+import { ORGASM_ACTIVITY_REGEX } from "@/util/constants";
+import { RandomElement } from "@/util/general";
+import { GetAttributeFromChatDictionary, SendAction } from "@/util/messaging";
+import { HookFunction } from "@/util/sdk";
+import { Module, ModuleTitle } from "@/modules/_module";
+import { IsHardcoreOn } from "@/modules/profile";
+import { GetCharacterCurrentStatValue, ModifyStat, VirtualPetStatCategory } from "@/modules/virtualPet";
 
 const PlayerVP: (C?: Character) => MPARecord = (C: Character = Player) =>
 {
@@ -28,7 +28,7 @@ function ConditionIsEnforced(condition: string, vpStatNeedToBeEnabled?: VirtualP
     return (!vpStatNeedToBeEnabled || (PlayerVP().enabled && PlayerVP()?.[`${vpStatNeedToBeEnabled}Hours`] !== 0));
 };
 
-/** [Skill, postive or negative corrlation] */
+/** [Skill, positive or negative corelation] */
 const AFFECTION_SKILLS: [SkillType, boolean][] =
 [
     ["SelfBondage", true],
@@ -41,7 +41,7 @@ const AFFECTION_SKILLS: [SkillType, boolean][] =
 interface OnStatChangeEvent
 {
     stat: VirtualPetStatCategory;
-    threshhold: number;
+    threshold: number;
     change: "rising" | "falling" | "both";
     action: () => void;
     firstRun?: () => void;
@@ -83,8 +83,8 @@ export function ConditionCheck(): void
                     && prevValue !== -1
                     && prevValue > currValue // Falling
                     && changeEvent.change !== "rising"
-                    && currValue <= changeEvent.threshhold
-                    && changeEvent.threshhold < prevValue
+                    && currValue <= changeEvent.threshold
+                    && changeEvent.threshold < prevValue
                 )
                 {
                     changeEvent.action();
@@ -94,8 +94,8 @@ export function ConditionCheck(): void
                     && prevValue !== -1
                     && prevValue < currValue // Rising
                     && changeEvent.change !== "falling"
-                    && prevValue < changeEvent.threshhold
-                    && changeEvent.threshhold <= currValue
+                    && prevValue < changeEvent.threshold
+                    && changeEvent.threshold <= currValue
                 )
                 {
                     changeEvent.action();
@@ -258,7 +258,7 @@ export class VirtualPetConditionsModule extends Module
                 type: "checkbox",
                 active: (C) => !!PlayerVP(C).enabled && !IsHardcoreOn(C),
                 value: false,
-                label: "Recive conditions based on current level of your virtual pet stats"
+                label: "Receive conditions based on current level of your virtual pet stats"
             } as CheckboxSetting, {
                 name: "foodNOW",
                 type: "checkbox",
@@ -359,7 +359,7 @@ export class VirtualPetConditionsModule extends Module
         onStatLevel = [
             {
                 stat: "sleep",
-                threshhold: 0,
+                threshold: 0,
                 change: "falling",
                 action: function (): void
                 {
@@ -374,7 +374,7 @@ export class VirtualPetConditionsModule extends Module
                 }
             }, {
                 stat: "sleep",
-                threshhold: 0.1,
+                threshold: 0.1,
                 change: "rising",
                 action: function (): void
                 {

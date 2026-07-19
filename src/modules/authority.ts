@@ -1,6 +1,6 @@
-import { OWNERS_CUSTOM_SETTINGS } from "../settings/owners";
-import { AUTHORITY_GROUP_OPTIONS } from "../util/authority";
-import { Module, ModuleTitle } from "./_module";
+import { OWNERS_CUSTOM_SETTINGS } from "@/settings/owners";
+import { AUTHORITY_GROUP_OPTIONS } from "@/util/authority";
+import { Module, ModuleTitle } from "@/modules/_module";
 
 const PlayerP: (C?: Character) => MPARecord = (C: Character = Player) =>
 {

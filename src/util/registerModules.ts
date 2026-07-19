@@ -1,16 +1,16 @@
-import { Module } from "../modules/_module";
-import { LoadStorage } from "./storage";
-import { DataSyncModule } from "../modules/dataSync";
-import { SettingsModule } from "../modules/settings";
-import { ActivitiesModule } from "../modules/activities";
-import { ClickerModule } from "../modules/clicker";
-import { VirtualPetModule } from "../modules/virtualPet";
-import { VirtualPetHUDModule } from "../modules/virtualPetHUD";
-import { VirtualPetConditionsModule } from "../modules/virtualPetConditions";
-import { ProfileModule } from "../modules/profile";
-import { SettingsOtherModule } from "../modules/settingsOthers";
-import { AuthorityModule } from "../modules/authority";
-import { PrivateModule } from "../modules/private";
+import { Module } from "@/modules/_module";
+import { LoadStorage } from "@/util/storage";
+import { DataSyncModule } from "@/modules/dataSync";
+import { SettingsModule } from "@/modules/settings";
+import { ActivitiesModule } from "@/modules/activities";
+import { ClickerModule } from "@/modules/clicker";
+import { VirtualPetModule } from "@/modules/virtualPet";
+import { VirtualPetHUDModule } from "@/modules/virtualPetHUD";
+import { VirtualPetConditionsModule } from "@/modules/virtualPetConditions";
+import { ProfileModule } from "@/modules/profile";
+import { SettingsOtherModule } from "@/modules/settingsOthers";
+import { AuthorityModule } from "@/modules/authority";
+import { PrivateModule } from "@/modules/private";
 
 let modulesRegistered = false;
 

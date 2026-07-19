@@ -1,11 +1,11 @@
-import { Module, ModuleTitle } from "./_module";
-import { FindCharacterInRoom, GetAttributeFromChatDictionary } from "../util/messaging";
-import { activityImages, activityPrerequisites, activityReceived, activityTriggers } from "../util/activities";
-import { HookFunction } from "../util/sdk";
-import { ACTIVITY_NAME_PREFIX, BELL_SOUND, ICONS, NO_STUCK_BEDS } from "../util/constants";
-import { ApplyItemsToCharacter, SaveCharacterItem } from "../util/chatroom";
+import { Module, ModuleTitle } from "@/modules/_module";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary } from "@/util/messaging";
+import { activityImages, activityPrerequisites, activityReceived, activityTriggers } from "@/util/activities";
+import { HookFunction } from "@/util/sdk";
+import { ACTIVITY_NAME_PREFIX, BELL_SOUND, ICONS, NO_STUCK_BEDS } from "@/util/constants";
+import { ApplyItemsToCharacter, SaveCharacterItem } from "@/util/chatroom";
 
-const RecieveBell: ActivityReceived = (source, target, _group, _data) =>
+const ReceiveBell: ActivityReceived = (source, target, _group, _data) =>
 {
     if (
         Player.AudioSettings?.PlayItem
@@ -56,7 +56,7 @@ export class ActivitiesModule extends Module
                     actionOthers: "SourceCharacter flicks the bell on TargetCharacter's collar."
                 }],
                 Image: "Assets\\Female3DCG\\ItemNeckAccessories\\Preview\\CollarBell.png",
-                OnReceive: RecieveBell
+                OnReceive: ReceiveBell
             }, {
                 Name: "FlickBell2",
                 MaxProgress: 50,
@@ -75,7 +75,7 @@ export class ActivitiesModule extends Module
                     actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipple clamps."
                 }],
                 Image: "Assets\\Female3DCG\\ItemNipples\\Preview\\BellClamps.png",
-                OnReceive: RecieveBell
+                OnReceive: ReceiveBell
             }, {
                 Name: "FlickBell3",
                 MaxProgress: 50,
@@ -95,7 +95,7 @@ export class ActivitiesModule extends Module
                     actionOthers: "SourceCharacter flicks the bell on TargetCharacter's clit piercing."
                 }],
                 Image: "Assets\\Female3DCG\\ItemVulvaPiercings\\Preview\\RoundClitPiercing.png",
-                OnReceive: RecieveBell
+                OnReceive: ReceiveBell
             }, {
                 Name: "FlickBell4",
                 MaxProgress: 50,
@@ -114,7 +114,7 @@ export class ActivitiesModule extends Module
                     actionOthers: "SourceCharacter flicks the bells on TargetCharacter's nipple piercings."
                 }],
                 Image: "Assets\\Female3DCG\\ItemNipplesPiercings\\Preview\\BellPiercing.png",
-                OnReceive: RecieveBell
+                OnReceive: ReceiveBell
             }, {
                 Name: "StompOnce",
                 MaxProgress: 50,

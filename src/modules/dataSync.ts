@@ -1,7 +1,7 @@
 // Never send Private MPA data across the server and never accept Private MPA data
-import { HookFunction } from "../util/sdk";
-import { Module, ModuleIsPublic, ModuleTitle } from "./_module";
-import { FindCharacterInRoom, GetMPAMessageFromChat, HookedMessage, hookedMessages, MPAMessageContent, SendMPAMessage } from "../util/messaging";
+import { HookFunction } from "@/util/sdk";
+import { Module, ModuleIsPublic, ModuleTitle } from "@/modules/_module";
+import { FindCharacterInRoom, GetMPAMessageFromChat, HookedMessage, hookedMessages, MPAMessageContent, SendMPAMessage } from "@/util/messaging";
 
 /**
  * Sync all of your current settings with everyone else
@@ -164,8 +164,9 @@ export class DataSyncModule extends Module
         // When joining a room, sync MPA settings with everyone else
         HookFunction(ModuleTitle.DataSync, "ChatRoomSync", 0, (args, next) =>
         {
-            next(args);
+            const ret = next(args);
             SettingSync(true);
+            return ret;
         });
 
         // Sync request, handle and reply if needed

@@ -59,6 +59,10 @@ module.exports = (env) => {
 		],
 		resolve: {
 			extensions: [".ts", ".tsx", ".js"],
+			alias: {
+				"@": path.resolve(__dirname, "src"),
+				"@assets": path.resolve(__dirname, "assets"),
+			},
 		},
 		performance: false
 	};

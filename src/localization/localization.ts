@@ -8,8 +8,8 @@
 //    the same that defined by TranslationLanguage. Ex: English -> EN
 //    If you are unsure of how to do this but still want to contribute, reach out and I will attempt to help.
 
-import RU from "./RU.json";
-import CN from "./CN.json";
+import RU from "@/localization/RU.json";
+import CN from "@/localization/CN.json";
 
 // Everything is defaulted to English
 const translations =

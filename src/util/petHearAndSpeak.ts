@@ -1,4 +1,4 @@
-import { RandomElement, ShuffleArray } from "./general";
+import { RandomElement, ShuffleArray } from "@/util/general";
 
 const LINK_REGEX = /^(https?:\/\/)?(www\.)?[\w-]+(\.[a-z]{2,})(\.[a-z]{2,})?(\/[^\s]*)?$/i;
 
@@ -42,7 +42,7 @@ export function ApplyPetHearing([text, intensity, ignoreOOC]: [string, number, b
         return next([text, intensity, ignoreOOC]);
     }
 
-    // Split the input text into different substrings exluding the words you want to keep
+    // Split the input text into different substrings excluding the words you want to keep
     // Step 1: Get the words you want to keep if any
     // const phrasesToKeep = GetPetHearingPhrases();
     // Add the Player's name as a word they can hear
@@ -61,7 +61,7 @@ export function ApplyPetHearing([text, intensity, ignoreOOC]: [string, number, b
         phrasesToKeep.push("him");
     }
 
-    // Step 2: Find the matches if they exist in the orginal message
+    // Step 2: Find the matches if they exist in the original message
     // Check lower case cuz the phrase we looking for in lower case, does not matter for final result, only want position
     const message = text.toLocaleLowerCase();
     interface Range { start: number; len: number }
@@ -213,8 +213,8 @@ export function NonDisruptivePetSpeech(
     });
 
     // pet speak percent values
-    const wordStength = PET_SPEAK_STRENGTH_MAP[strength];
-    const endStength = PET_SPEAK_END_PERCENTAGE[strength];
+    const wordStrength = PET_SPEAK_STRENGTH_MAP[strength];
+    const endStrength = PET_SPEAK_END_PERCENTAGE[strength];
     const speakRequired = strength === "High" || strength === "Max";
 
     // For each non ooc segment petify speak it
@@ -240,7 +240,7 @@ export function NonDisruptivePetSpeech(
             }
 
             // Random chance for a pet sound to appear before the current word
-            if (Math.random() < wordStength)
+            if (Math.random() < wordStrength)
             {
                 spokePet = true;
                 const petSound = GetPetPhrase();
@@ -264,7 +264,7 @@ export function NonDisruptivePetSpeech(
         if (
             segments.slice().reverse().find((item) => !item.ooc)?.text === segment.text // Last non ooc segment
             && ((speakRequired && !spokePet)
-              || Math.random() < endStength)
+              || Math.random() < endStrength)
         )
         {
             newMsg = AppendPetSpeech(newMsg, [GetPetPhrase()]);

@@ -1,8 +1,8 @@
-import { SaveStorage } from "../util/storage";
-import { ModuleTitle } from "../modules/_module";
-import { ALL_BEDS } from "../util/constants";
-import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction } from "../util/messaging";
-import { HookFunction } from "../util/sdk";
+import { SaveStorage } from "@/util/storage";
+import { ModuleTitle } from "@/modules/_module";
+import { ALL_BEDS } from "@/util/constants";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction } from "@/util/messaging";
+import { HookFunction } from "@/util/sdk";
 
 const BED_SELF_TEXT = "SourceCharacter crawls into PronounPossessive bed.";
 const BED_OTHER_TEXT = "SourceCharacter tucks TargetCharacter into bed.";
@@ -51,7 +51,7 @@ function UseBed(): void
         return;
     }
 
-    const savedBed = JSON.parse(LZString.decompressFromBase64(Player.MPA[ModuleTitle.Private].savedBed || "") || "{}") || {};
+    const savedBed: any = JSON.parse(LZString.decompressFromBase64(Player.MPA[ModuleTitle.Private].savedBed || "") || "{}") || {};
     if (IsBed(savedBed))
     {
         InventoryWear(
@@ -67,7 +67,7 @@ function UseBed(): void
     }
     else
     {
-        const hairColor = InventoryGet(Player, "HairFront")?.Color as ItemColor;
+        const hairColor: any = InventoryGet(Player, "HairFront")?.Color as ItemColor;
         InventoryWear(
             Player,
             "PetBed",

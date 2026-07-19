@@ -1,8 +1,8 @@
-import { AUTHORITY_GROUP_OPTIONS, AuthorityGroup, IsMemberNumberInAuthGroup } from "../util/authority";
-import { ModuleTitle } from "../modules/_module";
-import { LocalizedText } from "../localization/localization";
-import { CANVAS_WIDTH, ClickedPagesButtons, DrawPagesButtons, OPTION_BACK_NEXT_WIDTH, OPTION_GAP, OPTION_HEIGHT, OPTION_TOP, OwnerAdded, OwnerRemoved, SetSettingsEdited } from "../modules/settings";
-import { MemberNumberToName } from "../util/messaging";
+import { AUTHORITY_GROUP_OPTIONS, AuthorityGroup, IsMemberNumberInAuthGroup } from "@/util/authority";
+import { ModuleTitle } from "@/modules/_module";
+import { LocalizedText } from "@/localization/localization";
+import { CANVAS_WIDTH, ClickedPagesButtons, DrawPagesButtons, OPTION_BACK_NEXT_WIDTH, OPTION_GAP, OPTION_HEIGHT, OPTION_TOP, OwnerAdded, OwnerRemoved, SetSettingsEdited } from "@/modules/settings";
+import { MemberNumberToName } from "@/util/messaging";
 
 const id = "MPA_ownerIdEntry";
 
