@@ -1,5 +1,5 @@
-import { ModuleTitle } from "../modules/_module";
-import { FindCharacterInRoom } from "./messaging";
+import { ModuleTitle } from "@/modules/_module";
+import { FindCharacterInRoom } from "@/util/messaging";
 
 export const AUTHORITY_GROUP_OPTIONS: AuthorityGroup[] = [
     "Public",
@@ -131,7 +131,7 @@ export function HighestLevelAuthorityGroup(memberNumber: number, targetChar: Cha
         return "Whitelist";
     }
     // Friends
-    // Targetcharacter is self
+    // TargetCharacter is self
     if (targetChar.MemberNumber === Player.MemberNumber && Player.FriendList?.includes(memberNumber))
     {
         return "Friends";

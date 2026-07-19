@@ -1,6 +1,6 @@
-import { Bed } from "./bed";
-import { Bowl } from "./bowl";
-// import { LogChat } from "./log";
+import { Bed } from "@/commands/bed";
+import { Bowl } from "@/commands/bowl";
+// import { LogChat } from "@/commands/log";
 
 export function BuildAllCommands(): void
 {

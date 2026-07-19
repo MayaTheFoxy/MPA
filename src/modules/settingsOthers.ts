@@ -1,13 +1,13 @@
-import { ArrayToReadableString, FindCharacterInRoom, HookedMessage, MemberNumberToName, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "../util/messaging";
-import { LocalizedText } from "../localization/localization";
-import { ICONS } from "../util/constants";
-import { bcxFound, HookFunction } from "../util/sdk";
-import { Module, ModuleIsPublic, ModuleTitle } from "./_module";
-import { currentMenu, ExitButtonPressed, MENU_TITLES, PreferenceMenuClick, PreferenceMenuRun, SetSettingChar } from "./settings";
-import { SaveStorage } from "../util/storage";
-import { LevelSync } from "./virtualPet";
-import { IsMemberNumberInAuthGroup } from "../util/authority";
-import { settings as defaultSettings } from "../util/registerModules";
+import { ArrayToReadableString, FindCharacterInRoom, HookedMessage, MemberNumberToName, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "@/util/messaging";
+import { LocalizedText } from "@/localization/localization";
+import { ICONS } from "@/util/constants";
+import { bcxFound, HookFunction } from "@/util/sdk";
+import { Module, ModuleIsPublic, ModuleTitle } from "@/modules/_module";
+import { currentMenu, ExitButtonPressed, MENU_TITLES, PreferenceMenuClick, PreferenceMenuRun, SetSettingChar } from "@/modules/settings";
+import { SaveStorage } from "@/util/storage";
+import { LevelSync } from "@/modules/virtualPet";
+import { IsMemberNumberInAuthGroup } from "@/util/authority";
+import { settings as defaultSettings } from "@/util/registerModules";
 
 // Other settings
 const MPA_REMOTE = [1700, 765, 90, 90] as const;
@@ -107,7 +107,7 @@ export class SettingsOtherModule extends Module
                 message: "SettingPutRequest",
                 action: function (sender: Character, content: MPAMessageContent): void
                 {
-                    const orginalSettings = structuredClone(Player.MPA);
+                    const originalSettings = structuredClone(Player.MPA);
                     const vpEnabled = Player.MPA[ModuleTitle.VirtualPet].enabled;
                     const differences = ObjectDifferences(Player.MPA, content.settings);
                     // Don't change any private records from incoming sources
@@ -132,9 +132,9 @@ export class SettingsOtherModule extends Module
                     LevelSync(false, false, false);
 
                     // !!!!!!!!!!!!!!!!!!!!!!!
-                    // Do Authority querys first
+                    // Do Authority queries first
                     // !!!!!!!!!!!!!!!!!!!!!!!
-                    const previousAuthority = JSON.parse(JSON.stringify(Player.MPA?.[ModuleTitle.Authority]));
+                    const previousAuthority: any = JSON.parse(JSON.stringify(Player.MPA?.[ModuleTitle.Authority]));
                     const newAuthority = differences[ModuleTitle.Authority];
                     if (newAuthority)
                     {
@@ -173,12 +173,12 @@ export class SettingsOtherModule extends Module
                         if (ownerOverride)
                         {
                             // Owner changes
-                            const previousOwners = ((orginalSettings?.[ModuleTitle.Authority]?.newOwners?.owners as number[]) ?? []).sort();
+                            const previousOwners = ((originalSettings?.[ModuleTitle.Authority]?.newOwners?.owners as number[]) ?? []).sort();
                             const pendingOwners: number[] = ownerOverride.new;
                             let ownerOutput = "";
 
                             // Owners added
-                            if (IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, orginalSettings?.[ModuleTitle.Authority]?.newOwners?.othersAdd ?? "None"))
+                            if (IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, originalSettings?.[ModuleTitle.Authority]?.newOwners?.othersAdd ?? "None"))
                             {
                                 for (const owner of pendingOwners.filter((x) => !previousOwners.includes(x)))
                                 {
@@ -199,7 +199,7 @@ export class SettingsOtherModule extends Module
                             }
 
                             // Owners removed
-                            if (IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, orginalSettings?.[ModuleTitle.Authority]?.newOwners?.othersRemove ?? "None"))
+                            if (IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, originalSettings?.[ModuleTitle.Authority]?.newOwners?.othersRemove ?? "None"))
                             {
                                 for (const owner of previousOwners.filter((x) => !pendingOwners.includes(x)))
                                 {
@@ -329,7 +329,7 @@ export class SettingsOtherModule extends Module
     {
         super.Load();
 
-        // Prio has to be 1 more than LSCG or BCX hooks
+        // Priority has to be 1 more than LSCG or BCX hooks
         const hookPriority = 12;
         HookFunction(this.Title, "InformationSheetRun", hookPriority, (args, next) =>
         {

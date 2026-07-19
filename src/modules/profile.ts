@@ -1,28 +1,28 @@
-import { FilterArrayFromArray, RandomElement } from "../util/general";
-import { bcxAPI, bcxFound, HookFunction } from "../util/sdk";
-import { Module, ModuleTitle } from "./_module";
-import { ElementName } from "./settings";
-import { ApplyPetHearing, DisruptivePetSpeech, NonDisruptivePetSpeech } from "../util/petHearAndSpeak";
-import { HookedMessage, MPAMessageContent, SendMPAMessage } from "../util/messaging";
-import { RecordsSync } from "./dataSync";
-import { IsMemberNumberInAuthGroup } from "../util/authority";
-import { deafenProcess } from "./private";
+import { FilterArrayFromArray, RandomElement } from "@/util/general";
+import { bcxAPI, bcxFound, HookFunction } from "@/util/sdk";
+import { Module, ModuleTitle } from "@/modules/_module";
+import { ElementName } from "@/modules/settings";
+import { ApplyPetHearing, DisruptivePetSpeech, NonDisruptivePetSpeech } from "@/util/petHearAndSpeak";
+import { HookedMessage, MPAMessageContent, SendMPAMessage } from "@/util/messaging";
+import { RecordsSync } from "@/modules/dataSync";
+import { IsMemberNumberInAuthGroup } from "@/util/authority";
+import { deafenProcess } from "@/modules/private";
 
-import bell1 from "../../assets/bell1.mp3";
-import bell2 from "../../assets/bell2.mp3";
-import bell3 from "../../assets/bell3.mp3";
-import bell4 from "../../assets/bell4.mp3";
-import bell5 from "../../assets/bell5.mp3";
-import jingle1 from "../../assets/jingle1.mp3";
-import jingle2 from "../../assets/jingle2.mp3";
-import jingle3 from "../../assets/jingle3.mp3";
-import jingle4 from "../../assets/jingle4.mp3";
-import jingle5 from "../../assets/jingle5.mp3";
-import ring1 from "../../assets/ring1.mp3";
-import ring2 from "../../assets/ring2.mp3";
-import ring3 from "../../assets/ring3.mp3";
-import ring4 from "../../assets/ring4.mp3";
-import ring5 from "../../assets/ring5.mp3";
+import bell1 from "@assets/bell1.mp3";
+import bell2 from "@assets/bell2.mp3";
+import bell3 from "@assets/bell3.mp3";
+import bell4 from "@assets/bell4.mp3";
+import bell5 from "@assets/bell5.mp3";
+import jingle1 from "@assets/jingle1.mp3";
+import jingle2 from "@assets/jingle2.mp3";
+import jingle3 from "@assets/jingle3.mp3";
+import jingle4 from "@assets/jingle4.mp3";
+import jingle5 from "@assets/jingle5.mp3";
+import ring1 from "@assets/ring1.mp3";
+import ring2 from "@assets/ring2.mp3";
+import ring3 from "@assets/ring3.mp3";
+import ring4 from "@assets/ring4.mp3";
+import ring5 from "@assets/ring5.mp3";
 
 const BELLS = [
     new Audio(bell1),
@@ -127,7 +127,7 @@ export const PET_HEARING = Object.freeze({
 type PetHearingKeys = keyof typeof PET_HEARING;
 
 /**
- * Getthe pet hearing phrases based on the selected profile
+ * Get the pet hearing phrases based on the selected profile
  * @param profile - Defaults to Player's profile
  */
 function GetPetHearingPhrases(profile: PetHearingKeys = PlayerP(Player).type): string[]
@@ -286,7 +286,7 @@ export class ProfileModule extends Module
                     // Check if the sender has authority to set this setting
                     if (!IsMemberNumberInAuthGroup(sender.MemberNumber ?? -1, Player.MPA?.[ModuleTitle.Authority][`others${ModuleTitle.Profile}`]))
                     {
-                        console.warn(`${sender.Nickname || sender.Name}[${sender.MemberNumber}] tried to illegially set your bcx speak to be enabled`);
+                        console.warn(`${sender.Nickname || sender.Name}[${sender.MemberNumber}] tried to illegally set your bcx speak to be enabled`);
                         return;
                     }
 
@@ -306,7 +306,7 @@ export class ProfileModule extends Module
                 message: "BCXSpeakEnableReply",
                 action: function (sender: Character, _content: MPAMessageContent): void
                 {
-                    // We got a postive response from the request, change made, but we need to see it on our side now
+                    // We got a positive response from the request, change made, but we need to see it on our side now
                     const eleID = ElementName(ModuleTitle.Profile, "garblePhrases");
                     if (document.getElementById(eleID))
                     {

@@ -1,4 +1,4 @@
-import packageInfo from "../../package.json";
+import packageInfo from "@/../package.json";
 
 export const MPA_NAME = packageInfo.name.toLocaleUpperCase();
 export const MPA_VERSION = packageInfo.version;

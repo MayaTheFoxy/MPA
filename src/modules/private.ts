@@ -1,5 +1,5 @@
-import { HookFunction } from "../util/sdk";
-import { Module, ModuleTitle } from "./_module";
+import { HookFunction } from "@/util/sdk";
+import { Module, ModuleTitle } from "@/modules/_module";
 
 export let deafenProcess = false;
 
@@ -31,7 +31,7 @@ export class PrivateModule extends Module
         // BECAUSE OF COURSE THEY ARE THE EXACT SAME CALL
         HookFunction(this.Title, "SpeechTransformProcess", 10, ([C, text, effects, ignoreOOC], next) =>
         {
-            // Remove deafen before it happens but rememeber if it was there
+            // Remove deafen before it happens but remember if it was there
             let hadDeafen = false;
             if (effects.includes("deafen"))
             {

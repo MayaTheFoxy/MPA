@@ -1,7 +1,7 @@
-import { SaveStorage } from "../util/storage";
-import { ModuleTitle } from "../modules/_module";
-import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction } from "../util/messaging";
-import { HookFunction } from "../util/sdk";
+import { SaveStorage } from "@/util/storage";
+import { ModuleTitle } from "@/modules/_module";
+import { FindCharacterInRoom, GetAttributeFromChatDictionary, MPANotifyPlayer, NotifyPlayer, SendAction } from "@/util/messaging";
+import { HookFunction } from "@/util/sdk";
 
 const BOWL_SELF_TEXT = "SourceCharacter lays a bowl of food and water on the ground in front of PronounObjectself.";
 const BOWL_OTHER_TEXT = "SourceCharacter lays a bowl of food and water on the ground in front of TargetCharacter.";
@@ -50,7 +50,7 @@ function UseBowl(): void
         return;
     }
 
-    const savedBowl = JSON.parse(LZString.decompressFromBase64(Player.MPA[ModuleTitle.Private].savedBowl || "") || "{}") || {};
+    const savedBowl: any = JSON.parse(LZString.decompressFromBase64(Player.MPA[ModuleTitle.Private].savedBowl || "") || "{}") || {};
     if (IsBowl(savedBowl))
     {
         (InventoryWear(
@@ -66,7 +66,7 @@ function UseBowl(): void
     }
     else
     {
-        const hairColor = InventoryGet(Player, "HairFront")?.Color as ItemColor;
+        const hairColor: any = InventoryGet(Player, "HairFront")?.Color as ItemColor;
         (InventoryWear(
             Player,
             "PetBowl",

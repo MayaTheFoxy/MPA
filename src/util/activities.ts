@@ -1,10 +1,10 @@
-import { LocalizedText } from "../localization/localization";
-import { ACTIVITY_NAME_PREFIX } from "./constants";
+import { LocalizedText } from "@/localization/localization";
+import { ACTIVITY_NAME_PREFIX } from "@/util/constants";
 
 /** Stores the activity name and the image location or base 64 image for that activity */
 export const activityImages: Record<string, string> = {};
 /** When an activity is used by the Player, run this callback function */
-export const activityTriggers: Record<string, AcitivityTrigger> = {};
+export const activityTriggers: Record<string, ActivityTrigger> = {};
 /** Custom prerequisites for activities */
 export const activityPrerequisites: Record<string, Prerequisite> = {};
 /** When an activity happens, run this callback function */
@@ -25,7 +25,7 @@ export function CreateActivity(customActivity: CustomActivity): void
         Target: []
     };
 
-    // Add custom activites to the record for checking when an activity is called later
+    // Add custom activities to the record for checking when an activity is called later
     if (customActivity.CustomPrerequisite)
     {
         let customPrerequisites = customActivity.CustomPrerequisite;
@@ -55,7 +55,7 @@ export function CreateActivity(customActivity: CustomActivity): void
             nameAdded = true;
         }
 
-        // Acitivity can be used on self
+        // Activity can be used on self
         if (target.actionSelf)
         {
             if (!activity.TargetSelf)
@@ -85,7 +85,7 @@ export function CreateActivity(customActivity: CustomActivity): void
         activityTriggers[activity.Name] = customActivity.OnTrigger;
     }
 
-    // On activity recieved support
+    // On activity received support
     if (customActivity.OnReceive)
     {
         activityReceived[activity.Name] = customActivity.OnReceive;
@@ -117,7 +117,7 @@ export function RemoveActivity(customActivity: CustomActivity): void
     // The lookup table for the activity
     customActivity.Targets.forEach((target) =>
     {
-        // Acitivity can be used on self
+        // Activity can be used on self
         if (target.actionSelf)
         {
             ActivityDictionary = ActivityDictionary?.filter((x) => !(x[0] === `Label-ChatSelf-${target.group}-${activityName}` || x[0] === `ChatSelf-${target.group}-${activityName}`)) ?? null;

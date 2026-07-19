@@ -1,12 +1,12 @@
-import { LocalizedText } from "../localization/localization";
-import { ExportSettingsToClipboard, ImportSettingsFromClipboard, ResetStorage, SaveStorage } from "../util/storage";
-import { ICONS } from "../util/constants";
-import { IsDisplaySetting, IsOptionSetting, IsCheckboxSetting, IsTextSetting, IsNumberSetting, IsCustomSetting } from "../util/settingTypes";
-import { settings as defaultSettings } from "../util/registerModules";
-import { AUTHORITY_GROUP_OPTIONS, AuthorityGroup, AuthorityIsComparisonToCharacter, IsMemberNumberInAuthGroup } from "../util/authority";
-import { FindCharacterInRoom, SendMPAMessage } from "../util/messaging";
-import { Module, ModuleTitle } from "./_module";
-import { LevelSync } from "./virtualPet";
+import { LocalizedText } from "@/localization/localization";
+import { ExportSettingsToClipboard, ImportSettingsFromClipboard, ResetStorage, SaveStorage } from "@/util/storage";
+import { ICONS } from "@/util/constants";
+import { IsDisplaySetting, IsOptionSetting, IsCheckboxSetting, IsTextSetting, IsNumberSetting, IsCustomSetting } from "@/util/settingTypes";
+import { settings as defaultSettings } from "@/util/registerModules";
+import { AUTHORITY_GROUP_OPTIONS, AuthorityGroup, AuthorityIsComparisonToCharacter, IsMemberNumberInAuthGroup } from "@/util/authority";
+import { FindCharacterInRoom, SendMPAMessage } from "@/util/messaging";
+import { Module, ModuleTitle } from "@/modules/_module";
+import { LevelSync } from "@/modules/virtualPet";
 
 let settingsEdited = false;
 let settingChar: PlayerCharacter | null = null;
@@ -24,8 +24,8 @@ export function SetSettingsEdited(set: boolean)
 export const CANVAS_WIDTH = 2000;
 export const CANVAS_HEIGHT = 1000;
 
-// Exit button posistion on canvas
-const EXIT_POSISTION = [1815, 75, 90, 90] as const;
+// Exit button position on canvas
+const EXIT_POSITION = [1815, 75, 90, 90] as const;
 
 // Menu layout values
 export const BUTTON_MAX_NUMBER = 7;
@@ -394,7 +394,7 @@ function DrawSubMenuOptions(subMenu: ModuleTitle): void
 
 /**
  * @param subMenu Menu we displaying
- * @param noPermission Does the interecter have permission to change settings
+ * @param noPermission Does the interactor have permission to change settings
  */
 function GetClickedOption(subMenu: ModuleTitle, noPermission: boolean): void
 {
@@ -405,7 +405,7 @@ function GetClickedOption(subMenu: ModuleTitle, noPermission: boolean): void
     const settingsToDisplay = Object.entries(defaultSettings[subMenu] ?? {})
         .filter(([key, setting]) => IsDisplaySetting(setting) && (key in (settingChar?.MPA[subMenu] ?? {})));
 
-    // Loop through all the options and check if the click occured in the type's corresponding click zone
+    // Loop through all the options and check if the click occurred in the type's corresponding click zone
     settingsToDisplay.slice((currentPage - 1) * OPTION_PER_PAGE, currentPage * OPTION_PER_PAGE).forEach((val, i) =>
     {
         const [settingName, setting] = val as [string, DisplayedSetting];
@@ -539,7 +539,7 @@ export function ExitButtonPressed(): void
 
 export function PreferenceMenuClick(): void
 {
-    if (MouseIn(...EXIT_POSISTION))
+    if (MouseIn(...EXIT_POSITION))
     {
         ExitButtonPressed();
         return;
@@ -744,7 +744,7 @@ export function PreferenceMenuRun(): void
     }
 
     const prevTextAlign = MainCanvas.textAlign;
-    DrawButton(...EXIT_POSISTION, "", "White", "Icons/Exit.png");
+    DrawButton(...EXIT_POSITION, "", "White", "Icons/Exit.png");
     MainCanvas.textAlign = "center";
     DrawText(`${LocalizedText("Maya's Petplay Additions")}${currentMenu ? ` - ${settingChar?.Nickname || settingChar?.Name}'s ${LocalizedText(MENU_TITLES[currentMenu] ?? currentMenu)}` : ""}`, 1000, 125, "Black", "Gray");
 

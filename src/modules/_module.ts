@@ -1,6 +1,6 @@
-import { RemoveHooks } from "../util/sdk";
-import { CreateActivities, RemoveActivities } from "../util/activities";
-import { AddDataSyncListeners, HookedMessage, RemoveDataSyncListeners } from "../util/messaging";
+import { RemoveHooks } from "@/util/sdk";
+import { CreateActivities, RemoveActivities } from "@/util/activities";
+import { AddDataSyncListeners, HookedMessage, RemoveDataSyncListeners } from "@/util/messaging";
 
 export enum ModuleTitle
 {

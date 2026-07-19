@@ -97,7 +97,7 @@ declare global
         OnRun: (C: PlayerCharacter, hasPermission?: boolean) => void;
     }
 
-    // Cumlative settings of all modules
+    // Cumulative settings of all modules
     type MPACategorySettings = Record<string, Setting>;
     type MPASettings = Record<keyof typeof ModuleTitle, MPACategorySettings>;
 
@@ -110,7 +110,7 @@ declare global
         };
 
     // Type used to create an activity
-    type AcitivityTrigger = (target: Character | undefined) => void;
+    type ActivityTrigger = (target: Character | undefined) => void;
     type ActivityReceived = (source: Character | undefined, target: Character| undefined, group: AssetGroupItemName, data: ServerChatRoomMessage) => void;
     type Prerequisite = (acting: Character, acted: Character, group: AssetGroup) => boolean;
     type NewPrerequisite = 
@@ -131,7 +131,7 @@ declare global
         Name: string;
         Targets: CustomTarget[];
         Image: string;
-        OnTrigger?: AcitivityTrigger;
+        OnTrigger?: ActivityTrigger;
         OnReceive?: ActivityReceived;
         CustomPrerequisite?: NewPrerequisite | NewPrerequisite[];
         MaxProgress?: number;

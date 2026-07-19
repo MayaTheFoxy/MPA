@@ -1,12 +1,12 @@
-import { bcxAPI, bcxFound, HookFunction } from "../util/sdk";
-import { GetAttributeFromChatDictionary, RemoveOOCContentFromMessage } from "../util/messaging";
-import { AuthorityGroup, IsMemberNumberInAuthGroup } from "../util/authority";
-import { Module, ModuleTitle } from "./_module";
-import { IsHardcoreOn } from "./profile";
+import { bcxAPI, bcxFound, HookFunction } from "@/util/sdk";
+import { GetAttributeFromChatDictionary, RemoveOOCContentFromMessage } from "@/util/messaging";
+import { AuthorityGroup, IsMemberNumberInAuthGroup } from "@/util/authority";
+import { Module, ModuleTitle } from "@/modules/_module";
+import { IsHardcoreOn } from "@/modules/profile";
 
-import clicker1 from "../../assets/clicker1.mp3";
-import clicker2 from "../../assets/clicker2.mp3";
-import clicker3 from "../../assets/clicker3.mp3";
+import clicker1 from "@assets/clicker1.mp3";
+import clicker2 from "@assets/clicker2.mp3";
+import clicker3 from "@assets/clicker3.mp3";
 
 enum CLICKER_TYPE
 {
@@ -325,11 +325,11 @@ export class ClickerModule extends Module
         if (!this.hasBeenLoaded)
         {
             HookBCXClicker();
-            const inverval = setInterval(() =>
+            const interval = setInterval(() =>
             {
                 if (bcxHooked)
                 {
-                    clearInterval(inverval);
+                    clearInterval(interval);
                 }
                 else
                 {

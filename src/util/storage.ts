@@ -91,11 +91,11 @@ function MPAUpdateCheck(settings: MPARecords): void
 
 export async function LoadStorage(): Promise<void>
 {
-    // Ensure the player is loaded before attempting to read the extention settings
+    // Ensure the player is loaded before attempting to read the extension settings
     await AwaitPlayer();
     LoadLocalStorage();
 
-    const settings: MPARecords = JSON.parse(LZString.decompressFromBase64(Player.ExtensionSettings?.MPA ?? "") ?? "{}") ?? {};
+    const settings: MPARecords = (JSON.parse(LZString.decompressFromBase64(Player.ExtensionSettings?.MPA ?? "") ?? "{}") ?? {}) as MPARecords;
 
     Object.entries(currentSettings).forEach((category) =>
     {
@@ -130,7 +130,7 @@ export async function LoadStorage(): Promise<void>
         }
     });
 
-    // Port old onwers to new owners
+    // Port old owners to new owners
     if (settings[ModuleTitle.Authority].newOwners.owners.length === 0 && settings[ModuleTitle.Authority].owners !== "")
     {
         settings[ModuleTitle.Authority].newOwners.owners = ((settings[ModuleTitle.Authority].owners ?? "") as string).split(",").map((x) => Number(x));
@@ -182,12 +182,12 @@ export async function ImportSettingsFromClipboard(): Promise<void>
         {
             try
             {
-                const newSettings: MPARecords = JSON.parse(LZString.decompressFromBase64(text ?? "") ?? "{}");
+                const newSettings: MPARecords = JSON.parse(LZString.decompressFromBase64(text ?? "") ?? "{}") as MPARecords;
                 // Create a locally copy to modify in case it fails and need to revert
                 // Transaction happens or not at all
-                const currentSettings: MPARecords = JSON.parse(JSON.stringify(Player.MPA));
+                const currentSettings: MPARecords = JSON.parse(JSON.stringify(Player.MPA)) as MPARecords;
 
-                // Virtual pet levels will be replaced anyway, set current time so now to not interfer with syncing later
+                // Virtual pet levels will be replaced anyway, set current time so now to not interfere with syncing later
                 currentSettings[ModuleTitle.VirtualPet].levels.lastUpdated = Date.now();
                 currentSettings[ModuleTitle.VirtualPet].levels.lastOnline = Date.now();
 
