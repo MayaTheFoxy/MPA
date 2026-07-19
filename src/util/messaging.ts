@@ -45,7 +45,7 @@ export function SendAction(content: string, target: Character | undefined = unde
     ServerSend("ChatRoomChat", {
         Content: "MayaScript",
         Type: "Activity",
-        Dictionary: [{ Tag: "MISSING ACTIVITY DESCRIPTION FOR KEYWORD MayaScript", Text: LocalizedText(content) }, ...dictionary],
+        Dictionary: [{ Tag: `${TEXT_NOT_FOUND_PREFIX} "ActivityDictionary.csv": MayaScript`, Text: LocalizedText(content) }, ...dictionary],
         Target: target?.MemberNumber }
     );
 
