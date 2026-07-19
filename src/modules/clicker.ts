@@ -16,14 +16,6 @@ enum CLICKER_TYPE
     ACTION
 };
 
-enum CLICKER_TYPE
-{
-    NONE,
-    CHAT,
-    EMOTE,
-    ACTION
-};
-
 // Clicker sounds to play
 // An array of audio files, 1 click in index 0, n+1 clicks in index n
 const ALL_CLICKS: HTMLAudioElement[] =
