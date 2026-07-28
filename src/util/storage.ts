@@ -47,7 +47,7 @@ async function FetchLatestChangelog(): Promise<void>
                 while (true)
                 {
                     await AwaitInChatRoom();
-                    await Sleep(100);
+                    await Sleep(1000);
                     if (ChatRoomCharacter.length > 0)
                     {
                         NotifyPlayer(`<b style='text-align:center;width:100%;display:block'>MPA Updated</b>
@@ -61,7 +61,10 @@ ${changes}
                 return;
             }
         }
-        console.warn("MPA: Could not get the latest MPA Changelogs");
+        else
+        {
+            console.warn("MPA: Could not get the latest MPA Changelogs");
+        }
     }
     catch (error)
     {
@@ -84,7 +87,7 @@ function MPAUpdateCheck(settings: MPARecords): void
             Message: `MPA has been updated. See the changelog here:\n${isStable ? CHANGELOG_STABLE : CHANGELOG_DEV}`
         });
         (settings.version as any) = MPA_VERSION;
-        SaveStorage(false);
+        setTimeout(SaveStorage, 15000, false);
         FetchLatestChangelog();
     }
 }
