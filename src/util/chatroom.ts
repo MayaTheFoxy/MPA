@@ -8,7 +8,7 @@ interface CraftServerItemBundle extends ServerItemBundle
  * @param character - Who to get item from
  * @param slot - Item slot
  */
-export function SaveCharacterItem(character: Character, slot: AssetGroupName): CraftServerItemBundle | undefined
+export function SaveCharacterItem(character: Character, slot: AssetGroupName): ItemBundle | undefined
 {
     const item = InventoryGet(character, slot);
     if (!item)
@@ -22,7 +22,7 @@ export function SaveCharacterItem(character: Character, slot: AssetGroupName): C
     }
     return {
         ...WardrobeAssetBundle(item),
-        Craft: CraftingValidate(item.Craft ?? null, item.Asset ?? null, true) > CraftingStatusType.CRITICAL_ERROR ? item.Craft : undefined
+        Craft: CraftingValidate(item.Craft, item.Asset ?? null, true, false, true) > CraftingStatusType.CRITICAL_ERROR ? item.Craft : undefined
     };
 }
 
@@ -33,7 +33,7 @@ export function SaveCharacterItem(character: Character, slot: AssetGroupName): C
  * @param items - The items to apply
  * @param refresh - Refresh the character to update appearance
  */
-export function ApplyItemsToCharacter(character: Character, items: CraftServerItemBundle[], refresh = true)
+export function ApplyItemsToCharacter(character: Character, items: CraftServerItemBundle[] | ServerItemBundle[], refresh = true)
 {
     if (character === null || items === null || !Array.isArray(items) || !ServerChatRoomGetAllowItem(Player, character)) { return; }
 
@@ -56,7 +56,7 @@ export function ApplyItemsToCharacter(character: Character, items: CraftServerIt
             }
 
             // Apply the item we want
-            const wornItem = InventoryWear(character, item.Name, item.Group, item.Color, item.Difficulty === undefined ? 0 : item.Difficulty, Player.MemberNumber, item.Craft, false);
+            const wornItem = InventoryWear(character, item.Name, item.Group, item.Color, item.Difficulty === undefined ? 0 : item.Difficulty, Player.MemberNumber, item?.Craft, false);
             if (wornItem !== null && item.Property)
             {
                 // Merge the properties on the new item
