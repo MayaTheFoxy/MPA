@@ -1,7 +1,7 @@
 import { ArrayToReadableString, FindCharacterInRoom, HookedMessage, MemberNumberToName, MPAMessageContent, MPANotifyPlayer, NotifyPlayer, SendMPAMessage } from "@/util/messaging";
 import { LocalizedText } from "@/localization/localization";
 import { ICONS } from "@/util/constants";
-import { bcxFound, HookFunction } from "@/util/sdk";
+import { HookFunction } from "@/util/sdk";
 import { Module, ModuleIsPublic, ModuleTitle } from "@/modules/_module";
 import { currentMenu, ExitButtonPressed, MENU_TITLES, PreferenceMenuClick, PreferenceMenuRun, SetSettingChar } from "@/modules/settings";
 import { SaveStorage } from "@/util/storage";
@@ -9,10 +9,6 @@ import { LevelSync } from "@/modules/virtualPet";
 import { IsMemberNumberInAuthGroup } from "@/util/authority";
 import { settings as defaultSettings } from "@/util/registerModules";
 
-// Other settings
-const MPA_REMOTE = [1700, 765, 90, 90] as const;
-// BCX moves the button down by 35 for some reason
-const MPA_REMOTE_BCX = [1700, 800, 90, 90] as const;
 // Positioning for version text
 const VERSION_TEXT_SELF = [
     275,
@@ -90,6 +86,20 @@ export function ObjectDifferences(oldObj: object, newObj: object): object
     }
 
     return differences;
+}
+
+/**
+ * Hide or show the main info sheet whenever menuLoaded changes state
+ * @param loaded
+ */
+export function SetMPAMenuLoaded(loaded: boolean): void
+{
+    window.MPA.menuLoaded = loaded;
+    const intoSheet = document.getElementById("information-sheet-screen");
+    if (intoSheet)
+    {
+        intoSheet.style.display = window.MPA.menuLoaded ? "none" : "";
+    }
 }
 
 export class SettingsOtherModule extends Module
@@ -330,7 +340,37 @@ export class SettingsOtherModule extends Module
         super.Load();
 
         // Priority has to be 1 more than LSCG or BCX hooks
+        // ^ Probably not important anymore? Idk, I don't care enough to check
         const hookPriority = 12;
+        HookFunction(this.Title, "InformationSheetLoad", hookPriority, async (args, next) =>
+        {
+            const ret = await next(args);
+            const char = InformationSheetSelection as Character;
+
+            // They are not a real pet play enjoyer :(
+            if (!char?.MPA || char.IsPlayer())
+            {
+                return ret;
+            }
+
+            const access = ServerChatRoomGetAllowItem(Player, char);
+            const remoteButton = ElementButton.Create(null, () =>
+            {
+                SetMPAMenuLoaded(true);
+                // MPA is defined from check above, so other character is same as self in structure
+                SetSettingChar(char as PlayerCharacter);
+                SendMPAMessage({ message: "EditingSettings" }, char.MemberNumber);
+            },
+            {
+                image: ICONS.PAW,
+                disabled: !access,
+                tooltip: LocalizedText(access ? "MPA" : "MPA: No BC item permission")
+            });
+            ElementWrap(`${InformationSheetIDs.screen}-menu`)?.append(remoteButton);
+
+            return ret;
+        });
+
         HookFunction(this.Title, "InformationSheetRun", hookPriority, (args, next) =>
         {
             // LSCG or BCX subscreens open instead
@@ -363,20 +403,6 @@ export class SettingsOtherModule extends Module
             }
 
             next(args);
-            // Draw the remote into settings button if applicable
-            const char = InformationSheetSelection;
-            if (char?.MPA && !char.IsPlayer())
-            {
-                const access = ServerChatRoomGetAllowItem(Player, char);
-                DrawButton(
-                    ...((bcxFound() ? MPA_REMOTE_BCX : MPA_REMOTE) as readonly [number, number, number, number]),
-                    "",
-                    access ? "#ffffff" : "#aaaaaa",
-                    ICONS.PAW,
-                    LocalizedText(access ? "MPA" : "MPA: No BC item permission"),
-                    false
-                );
-            }
         });
 
         HookFunction(this.Title, "InformationSheetClick", hookPriority, (args, next) =>
@@ -392,23 +418,7 @@ export class SettingsOtherModule extends Module
                 return PreferenceMenuClick();
             }
 
-            const char = InformationSheetSelection;
-            if (
-                MouseIn(...((bcxFound() ? MPA_REMOTE_BCX : MPA_REMOTE) as readonly [number, number, number, number]))
-                && char?.MPA
-                && !char.IsPlayer()
-                && ServerChatRoomGetAllowItem(Player, char)
-            )
-            {
-                window.MPA.menuLoaded = true;
-                // MPA is defined from check above, so other character is same as self in structure
-                SetSettingChar(char as PlayerCharacter);
-                SendMPAMessage({ message: "EditingSettings" }, char.MemberNumber);
-            }
-            else
-            {
-                return next(args);
-            }
+            return next(args);
         });
 
         HookFunction(this.Title, "InformationSheetExit", hookPriority, (args, next) =>

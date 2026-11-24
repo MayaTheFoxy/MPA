@@ -7,6 +7,7 @@ import { AUTHORITY_GROUP_OPTIONS, AuthorityGroup, AuthorityIsComparisonToCharact
 import { FindCharacterInRoom, SendMPAMessage } from "@/util/messaging";
 import { Module, ModuleTitle } from "@/modules/_module";
 import { LevelSync } from "@/modules/virtualPet";
+import { SetMPAMenuLoaded } from "@/modules/settingsOthers";
 
 let settingsEdited = false;
 let settingChar: PlayerCharacter | null = null;
@@ -512,7 +513,7 @@ export function ExitButtonPressed(): void
     {
         if (window.MPA.menuLoaded)
         {
-            window.MPA.menuLoaded = false;
+            SetMPAMenuLoaded(false);
         }
         PreferenceMenuExit();
     }

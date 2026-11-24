@@ -1,8 +1,6 @@
 import { ModuleTitle } from "../modules/_module";
 import { LocalizedText } from "../localization/localization";
 
-
-
 export interface MPAMessageContent
 {
     message: string;

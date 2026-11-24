@@ -1,3 +1,6 @@
+# 0.6.2
+- Fix what BC broke and maintenance 
+
 # 0.6.1
 - Fix what BC broke and maintenance 
 
