@@ -6,14 +6,16 @@ export interface MPAMessageContent
     message: string;
     [key: string]: any; // Allows any other keys with values of any type
 }
-interface MPAMessage extends ServerChatRoomMessage
+interface MPAMessage extends Omit<ServerChatRoomMessage, "Dictionary">
 {
     Content: "MPA";
     Type: "Hidden";
     Dictionary: [MPAMessageContent];
 }
 
-export function ContentIsMPAMessage(content: ServerChatRoomMessage): content is MPAMessage
+export function ContentIsMPAMessage(
+    content: ServerChatRoomMessage
+): content is ServerChatRoomMessage & MPAMessage
 {
     return (
         content.Type === "Hidden"
@@ -32,7 +34,7 @@ export function SendMPAMessage(message: MPAMessageContent, target?: number): voi
     ServerSend("ChatRoomChat", {
         Type: "Hidden",
         Content: "MPA",
-        Dictionary: [message],
+        Dictionary: [message as unknown as ChatMessageDictionaryEntry],
         Target: target
     });
 }
